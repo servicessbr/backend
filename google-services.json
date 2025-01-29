@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1061642772454",
+    "project_id": "servicess-pictures",
+    "storage_bucket": "servicess-pictures.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061642772454:android:dc38ae1c2ddde5984ac027",
+        "android_client_info": {
+          "package_name": "servicess.app.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPZUGxJvUrJ6ZItBj_UVxDL603HNtB8HI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

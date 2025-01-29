@@ -1,0 +1,24 @@
+const express = require('express');
+const app = express();
+const routes = require('./routes');
+const cors = require("cors");
+require('dotenv').config();
+
+//const jwt = require('jsonwebtoken');
+const http = require('http');
+const { Server } = require('socket.io');
+
+app.use(express.json());
+app.use(cors());
+app.use(routes);
+
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+    }
+});
+
+
+module.exports = { server, io };

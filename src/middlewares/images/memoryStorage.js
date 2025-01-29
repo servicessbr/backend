@@ -1,0 +1,13 @@
+const multer = require('multer');
+const storage = multer.memoryStorage();
+const uploads = multer({ storage });
+
+const memoryStorage = {
+    single: uploads.single('uploadedAvatar'),
+
+    array: uploads.array('uploadedBanners')
+}
+
+
+
+module.exports = memoryStorage;
