@@ -12,9 +12,7 @@ class Users extends Model {
                 description: DataTypes.STRING,
                 profession: DataTypes.STRING,
                 avatar: DataTypes.STRING,
-
                 partner: DataTypes.BOOLEAN,
-                verified: DataTypes.BOOLEAN,
                 blocked: DataTypes.BOOLEAN,
 
                 refreshtoken: DataTypes.STRING,

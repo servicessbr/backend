@@ -1,0 +1,13 @@
+{
+    "name": "Servicess",
+    "description": "This json file is for the Servicess server application on Heroku.",
+    "website": "https://servicess.com.br",
+    "env": {
+        "HEROKU_APP_NAME": {
+            "required": true
+        },
+        "HEROKU_PARENT_APP_NAME": {
+            "required": true
+        }
+    }
+}

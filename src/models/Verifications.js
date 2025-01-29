@@ -5,9 +5,7 @@ class Verifications extends Model {
         super.init(
             {
                 user_uid: DataTypes.STRING,
-
                 public_id: DataTypes.STRING,
-
                 sensitive_data: DataTypes.STRING,
             },
             {

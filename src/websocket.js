@@ -2,11 +2,11 @@ const { log } = require('console');
 const { io } = require('./http');
 
 // Conntrollers
-const joinRoom = require('./chat/controllers/joinRoomController');
-const leaveRoom = require('./chat/controllers/leaveRoomController');
-const sendMessage = require('./chat/controllers/sendMessageController');
-const chatList = require('./chat/controllers/chatListController');
-const { connected, disconnected } = require('./chat/controllers/connectionController');
+const joinRoom = require('./chat/joinRoomController');
+const leaveRoom = require('./chat/leaveRoomController');
+const sendMessage = require('./chat/sendMessageController');
+const chatList = require('./chat/chatListController');
+const { connected, disconnected } = require('./chat/connectionController');
 
 // Mongo:
 const mongoose = require('mongoose');
@@ -15,7 +15,7 @@ process.env.MONGODB_PASSWORD && mongoose.connect(process.env.MONGODB_PASSWORD)
     .catch(error => console.error('MongoDB fails to connect', error));
 
 // Authorization:
-const authio = require('./middlewares/authio');
+const authio = require('./middlewares/auth/authio');
 io.use(authio);
 
 // connected_users:
