@@ -119,12 +119,6 @@ const adminControllers = {
                         if (!regexEP.email.test(email.trim().toLowerCase()))
                             return res.status(400).json({ message: 'Formato de email invalido' });
 
-                        //if (
-                        //    (phone !== null) &&
-                        //    (phone !== undefined) &&
-                        //    (!regexEP.phone.test(phone))
-                        //) return res.status(400).json({ message: 'invalid phone format' });
-
                         if (randomPassword.length < 6) return res.status(400).json({ message: 'Senha deve ter no mínimo 6 caracteres' });
 
                         const uid = uuidv4().slice(0, 10);

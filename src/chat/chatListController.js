@@ -1,7 +1,9 @@
 
 const Conversation = require('../schemas/Conversations');
 
-// Functions:
+/* 
+    * Functions:
+*/
 const handleChatList = require('../functions/chatList');
 const Chat_inBox = require('../schemas/Chat_inBox');
 

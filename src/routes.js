@@ -42,6 +42,7 @@ const channelController = require('./chat/channelController');
 const tmpController = require('./controllers/tmpController');
 const pixController = require('./controllers/pixController.js');
 const ordersController = require('./controllers/ordersController.js');
+const evaluationsController = require('./controllers/evaluationsController.js');
 
 
 /*
@@ -93,8 +94,17 @@ routes.post('/firebase/avatar/update', authorization, memoryStorage.single, shar
 routes.get('/firebase/avatar/delete', authorization, firebase.avatar.delete);
 routes.get('/firebase/delete/all', authorization, firebase.deleteAll);
 
-routes.get('/orders/list/provider/professional/:payer_customer_uid', ordersController.listProviderProfessional);
-routes.get('/orders/list/payer/customer/:provider_professional_uid', ordersController.listPayerCustomer);
+/*
+    * Orders
+*/
+routes.get('/orders/list/provider/professional', authorization, ordersController.list.providerProfessional);
+routes.get('/orders/list/payer/customer', authorization, ordersController.list.payerCustomer);
+routes.put('/orders/finalize/evaluate/:order_id', authorization, ordersController.finalizeAndEvaluate);
+
+/*
+    * Evaluations
+*/
+routes.get('/evaluations/list/:provider_professional_uid', evaluationsController.list)
 
 /*
     * PIX
@@ -125,32 +135,5 @@ routes.post('/admin/generate/new/user/code', adminAuthorization, adminController
      * TMP
 */
 routes.get('/tmp/list/premium', tmpController.premium);
-
-/*
-    * TESTING 
-*/
-routes.post('/v1/payments', (req, res) => {
-    return res
-        .status(200)
-        .json({
-
-            "id": "t3st1d12738213",
-            "point_of_interaction": {
-                "transaction_data": {
-                    "ticket_url": "https://testing.mercadopago.com/qrcode"
-                }
-            }
-
-        })
-        .end()
-})
-routes.get('/v1/payments/:cahe_id', (req, res) => {
-    return res
-        .status(200)
-        .json({
-            status: 'approved'
-        }).end()
-})
-
 
 module.exports = routes;

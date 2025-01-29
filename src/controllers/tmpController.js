@@ -25,7 +25,6 @@ const tmpController = {
             WHERE (premiums.expiration > now())
             LIMIT 9;`,
             {
-
                 type: QueryTypes.SELECT
             }
         )
