@@ -6,12 +6,27 @@ const Works = require('../models/Works');
 
 const cardsController = {
     async list(req, res) {
-        const { search, location, offset } = req.query
-        const { excluded } = req.body
+        const { search, location, offset } = req.query;
+        /*
+            * Evita que um usuário apareça mais de uma vez na mesma pesquisa.
+            * Faz o replace porque não tava dando para colocar o array dentro 
+            * dos parênteses do IN.
+            * Evita também um possível erro, pois o excluded da requisição,
+            * obrigatoriamente, tem que ser um array com no mínimo uma string.
+        */
+        const excluded = (
+            req.body.excluded &&
+            Array.isArray(req.body.excluded) &&
+            typeof req.body.excluded[0] === 'string'
+        )
+            ? req.body.excluded
+            : [''];
+
+        console.log('excluded', excluded)
 
         if (search === undefined) {
             return res.status(400).json({ message: 'empty query' })
-        }
+        };
 
         /*
             * Pesquisa cada palavra individualmente.
@@ -29,8 +44,8 @@ const cardsController = {
                 searchQ = ` AND (works.title ILIKE ANY(ARRAY[${words}]) 
                 OR users.profession ILIKE ANY(ARRAY[${words}])) `
             }
-            return searchQ
-        }
+            return searchQ;
+        };
 
         /*
             * Se o city_id for undefined precisa trocar o sinal de = para != 0.
@@ -39,23 +54,9 @@ const cardsController = {
             let locationQ = 'WHERE (city_id != 0)'
             if (!isNaN(parseInt(location)))
                 locationQ = `WHERE (city_id = ${location})`
-            return locationQ
-        }
+            return locationQ;
+        };
 
-        /*
-            * Evita que um usuário apareça mais de uma vez na mesma pesquisa.
-            * Faz o replace porque não tava dando para colocar o array dentro 
-            * dos parênteses do IN.
-        */
-        function excludedQuery() {
-            let excludedQ = ''
-            if (Array.isArray(excluded) && excluded.length)
-                excludedQ = `AND (users.uid NOT IN${JSON.stringify(excluded)})`
-                    .replace(/\[/g, "(")
-                    .replace(/\]/g, ")")
-                    .replace(/"/g, "'")
-            return excludedQ
-        }
 
         await Works.sequelize.query(
             `SELECT DISTINCT ON (users.uid) works.id, works.title, works.discount, 
@@ -69,32 +70,35 @@ const cardsController = {
             ON (works.city_id = cities.id)
             ${locationQuery()}
             ${searchQuery()}
-            ${excludedQuery()}
+            AND (users.uid NOT IN(:excluded))
             LIMIT 21
             OFFSET ${offset || 1} * 21;`,
             {
-                type: QueryTypes.SELECT
+                type: QueryTypes.SELECT,
+                replacements: {
+                    excluded: excluded
+                }
             }
         )
-            .then(list => 
+            .then(list => {
                 /*
                      * Retorna a lista normal
                      * e uma lista ( excluded ) com apenas os UIDs
                      * para evita que um usuário apareça mais de uma
                      * vez na mesma pesquisa.
                 */
-                res.status(200).json({
+                const push = list.map(it => it.uid);
+                return res.status(200).json({
                     list,
-                    excluded: list
-                        .map(it => it.ui)
+                    excluded: excluded.concat(push)
                 })
-            )
+            })
             .catch(err => {
                 error(err)
                 return res
                     .status(500)
                     .json({ message: 'list cards error' })
-            })
+            });
 
     },
 
