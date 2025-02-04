@@ -155,7 +155,8 @@ const worksController = {
         return res
             .status(200)
             .json({
-                work: works[0], subworks
+                work: works[0], 
+                subworks
             })
     },
 
