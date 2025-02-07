@@ -1,3 +1,4 @@
+const { QueryTypes } = require('sequelize');
 const Evaluations = require("../models/Evaluations");
 const Orders = require("../models/Orders");
 
@@ -5,28 +6,42 @@ const ordersController = {
     list: {
         async payerCustomer(req, res) {
             const uid = req.uid;
-            console.log(uid);
 
-            const customersList = await Orders.findAll({
-                where: {
-                    provider_professional_uid: uid,
-                    status: 'in_progress'
+            const customersList = await Orders.sequelize.query(
+                `SELECT orders.*, users.name 
+                FROM orders
+                LEFT JOIN users
+                ON (users.uid = orders.payer_customer_uid)
+                WHERE (
+                    orders.provider_professional_uid = :provider_professional_uid
+                    AND status = 'in_progress'
+                );`,
+                {
+                    replacements: { provider_professional_uid: uid },
+                    type: QueryTypes.SELECT
                 }
-            })
+            ).catch(err => console.error(err));
 
             return res.status(200).json(customersList).end();
         },
 
         async providerProfessional(req, res) {
             const uid = req.uid;
-            console.log(uid);
 
-            const professionalsList = await Orders.findAll({
-                where: {
-                    payer_customer_uid: uid,
-                    status: 'in_progress'
+            const professionalsList = await Orders.sequelize.query(
+                `SELECT orders.*, users.profession 
+                FROM orders
+                LEFT JOIN users
+                ON (users.uid = orders.provider_professional_uid)
+                WHERE (
+                    orders.payer_customer_uid = :payer_customer_uid
+                    AND status = 'in_progress'
+                );`,
+                {
+                    replacements: { payer_customer_uid: uid },
+                    type: QueryTypes.SELECT
                 }
-            })
+            ).catch(err => console.error(err));
 
             return res.status(200).json(professionalsList).end();
         }

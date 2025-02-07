@@ -117,8 +117,10 @@ const worksController = {
 
         const works = await Works.sequelize.query(
             `SELECT 
-            works.id, works.title, works.description, works.price, works.city_id, 
-            users.name as user_name, users.profession as user_profession, users.description as user_description, 
+            works.id, works.title, works.description, 
+            works.price, works.city_id, works.user_uid,
+            users.name as user_name, users.profession as user_profession, 
+            users.description as user_description, 
             cities.name as city, states.name as state
             FROM works 
             INNER JOIN users 
