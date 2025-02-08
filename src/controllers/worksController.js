@@ -125,8 +125,6 @@ const worksController = {
             FROM works 
             INNER JOIN users 
             ON (works.user_uid = users.uid) 
-            LEFT JOIN premiums 
-            ON (works.user_uid = premiums.user_uid) 
             INNER JOIN cities 
             ON (works.city_id = cities.id) 
             INNER JOIN states 

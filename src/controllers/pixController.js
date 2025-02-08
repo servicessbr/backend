@@ -4,6 +4,7 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const HEROKU_APP_NAME = require('../../public/constants/heroku_app_name');
 const { setCache, getCache } = require('../../public/config/redisConfig');
+const Users = require('../models/Users');
 
 /*
     * Models
@@ -12,7 +13,7 @@ const Orders = require('../models/Orders');
 const isJson = require('../functions/isJson');
 
 //const baseURL = "https://api.mercadopago.com"
-const baseURL = "http://192.168.0.178:8000"
+const baseURL = "http://192.168.0.178:8001"
 
 const resourceX = (id) => `${baseURL}/v1/payments/${id}`;
 
@@ -27,12 +28,7 @@ api.interceptors.request.use(async (config) => {
 
 const pixController = {
     async generatePayment(req, res) {
-        if (!req.body.users_data) return res
-            .status(400)
-            .json({ message: 'payment error - no users data' })
-            .end()
-
-        const uid = req.uid;
+        const payer_customer_uid = req.uid;
 
         /*
             * payment_amount: 
@@ -48,29 +44,44 @@ const pixController = {
         */
         const {
             payment_amount,
-            payer_customer_uid, customer_cpf,
-            provider_professional_uid, execution_date
+            provider_professional_uid,
+            execution_date,
+            original_subwork_title
         } = req.body;
 
-        if (uid !== payer_customer_uid)
-            return res
-                .status(403)
-                .json({ message: 'payment error - not the payer' })
-                .end();
+        const user = await Users.findOne({
+            where: { uid: payer_customer_uid },
+            attributes: ['email', 'name']
+        })
+            .catch(err => error(err));
+        if (!(user && user.email && user.name)) return res
+            .status(400)
+            .json({ message: 'payment error - cant get payer customer data' })
+            .end();
 
-        const {
-            email, first_name, last_name,
-        } = req.body.users_data.customer_data;
-        const {
+        const { email } = user;
+        const first_name =
+            user.name
+                .slice(0, user.name.indexOf(' '))
+                .trim();
+        const last_name =
+            user.name
+                .slice(user.name.indexOf(' '), user.name.length)
+                .trim();
+
+        console.log({
+            payment_amount,
+            payer_customer_uid, provider_professional_uid,
+            execution_date, email, first_name,
             original_subwork_title
-        } = req.body.users_data.professional_data;
+        })
 
         /*
             * Schema Validation -> Joi
         */
         if (!(
             payment_amount && typeof payment_amount === 'number' &&
-            payer_customer_uid && customer_cpf && provider_professional_uid &&
+            payer_customer_uid && provider_professional_uid &&
             execution_date && email && first_name &&
             original_subwork_title
         )) return res
@@ -81,8 +92,7 @@ const pixController = {
         const description =
             `Pagamento referente à contratação do serviço: "${original_subwork_title}"`;
 
-        //const cache_id = new Date().getTime() + uuidv4().slice(0, 4);
-        const cache_id = 't3stc4ch31d82137';
+        const cache_id = new Date().getTime() + uuidv4().slice(0, 4);
 
         const body = {
             payment_amount,
@@ -92,14 +102,9 @@ const pixController = {
                 email,
                 first_name,
                 last_name: last_name || '',
-
-                identification: {
-                    type: 'cpf',
-                    number: customer_cpf
-                }
             },
             notification_url:
-                `${HEROKU_APP_NAME}/pix/generate/so/status/${cache_id}`
+                `${HEROKU_APP_NAME}/pix/status/make/${cache_id}`
         };
 
         await api.post("/v1/payments", body)
