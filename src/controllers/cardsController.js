@@ -103,40 +103,18 @@ const cardsController = {
     },
 
     async belongs(req, res) {
-        const { uid } = req.params;
+        const uid = req.uid;
 
-        const { wid } = req.query;
+        if (!uid)
+            return res
+                .status(400)
+                .json({ message: 'empty uid query' });
 
-        if (uid === undefined) {
-            return res.status(400).json({ message: 'empty uid query' })
-        };
-
-        var except = ';';
-        if (wid) { except = ` AND (works.id != ${wid});` }
-
-        if (!Works.sequelize) return error('!Works.sequelize');
-
-        await Works.sequelize.query(
-            " SELECT "
-            + " works.id, works.title, works.suspended, "
-            + " works.price, works.description, cities.name as city, "
-            + " users.uid, users.name, users.profession "
-            + " FROM works "
-            + " INNER JOIN users "
-            + " ON (works.user_uid = users.uid) "
-            + " INNER JOIN cities "
-            + " ON (works.city_id = cities.id) "
-            + " WHERE (works.user_uid = :uid)"
-            + except,
-            {
-                replacements: { uid },
-                type: QueryTypes.SELECT
-            }
-        )
-            .then((data) => res.status(200).json(data))
-            .catch((err) => {
+        await Works.findAll({ where: { user_uid: uid }, attributes: ['id', 'description', 'price', 'title'] })
+            .then(data => res.status(200).json(data).end())
+            .catch(err => {
                 error(err);
-                return res.status(500).json({ message: 'my cards error' });
+                return res.status(500).json({ message: 'my cards error' }).end();
             });
     },
 };

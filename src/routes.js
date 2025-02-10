@@ -66,14 +66,14 @@ routes.put('/users/updates/password', codeValidation.utoken, usersController.upd
 */
 routes.post('/works/subworks/create', authorization, worksController.create);
 routes.put('/works/subworks/update/:work_id', authorization, owner, worksController.update);
-routes.get('/works/subworks/load/:work_id', worksController.load);
 routes.delete('/works/delete/:work_id', authorization, worksController.delete);
+routes.get('/works/subworks/load/:work_id', worksController.load);
 
 /*
     * Cards 
 */
 routes.put('/cards/list', cardsController.list);
-routes.get('/cards/belongs/:uid', cardsController.belongs);
+routes.get('/cards/belongs', authorization, cardsController.belongs);
 
 /*
     * Generate Codes (Redis)
