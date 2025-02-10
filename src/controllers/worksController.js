@@ -45,7 +45,10 @@ const worksController = {
                 /*
                     * Acrescenta o ID do anúncio( work ) como foreign key
                 */
-                const insertSubWorks = subworks.map(it => ({ ...it, work_id: work.id }))
+                const insertSubWorks = subworks.map(it => {
+                    delete it.id;
+                    return { ...it, work_id: work.id };
+                })
 
                 await Subworks.bulkCreate(insertSubWorks)
                     .then(() => res
@@ -155,7 +158,7 @@ const worksController = {
         return res
             .status(200)
             .json({
-                work: works[0], 
+                work: works[0],
                 subworks
             })
     },
