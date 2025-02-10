@@ -97,8 +97,7 @@ routes.get('/firebase/delete/all', authorization, firebase.deleteAll);
 /*
     * Orders
 */
-routes.get('/orders/list/provider/professional', authorization, ordersController.list.providerProfessional);
-routes.get('/orders/list/payer/customer', authorization, ordersController.list.payerCustomer);
+routes.get('/orders/list', authorization, ordersController.list);
 routes.put('/orders/finalize/evaluate/:order_id', authorization, ordersController.finalizeAndEvaluate);
 
 /*
