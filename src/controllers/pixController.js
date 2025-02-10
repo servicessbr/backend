@@ -12,8 +12,8 @@ const Users = require('../models/Users');
 const Orders = require('../models/Orders');
 const isJson = require('../functions/isJson');
 
-//const baseURL = "https://api.mercadopago.com"
-const baseURL = "http://192.168.0.178:8001"
+const baseURL = "https://api.mercadopago.com"
+//const baseURL = "http://192.168.0.178:8001"
 
 const resourceX = (id) => `${baseURL}/v1/payments/${id}`;
 
