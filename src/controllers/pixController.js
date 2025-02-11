@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const HEROKU_APP_NAME = require('../../public/constants/heroku_app_name');
 const { setCache, getCache } = require('../../public/config/redisConfig');
 const Users = require('../models/Users');
+const lazyPush = require('../helpers/pushNotifications');
 
 /*
     * Models
@@ -243,12 +244,12 @@ const pixController = {
 
                                     await transporter.sendMail(
                                         paymentOptions(
-                                            to = data.provider_professional_email,
-                                            original_subwork_title = data.original_subwork_title,
-                                            payer_customer_name = data.payer_customer_name,
-                                            not_me = data.payer_customer_name,
-                                            payment_amount = data.payment_amount,
-                                            execution_date = data.execution_date
+                                             data.provider_professional_email,
+                                             data.original_subwork_title,
+                                             data.payer_customer_name,
+                                             data.payer_customer_name,
+                                             data.payment_amount,
+                                             data.execution_date
                                         ), function (err, info) {
                                             if (err) {
                                                 console.error(err)
@@ -257,12 +258,12 @@ const pixController = {
 
                                     await transporter.sendMail(
                                         paymentOptions(
-                                            to = data.payer_customer_email,
-                                            original_subwork_title = data.original_subwork_title,
-                                            payer_customer_name = data.payer_customer_name,
-                                            not_me = data.provider_professional_name,
-                                            payment_amount = data.payment_amount,
-                                            execution_date = data.execution_date
+                                             data.payer_customer_email,
+                                             data.original_subwork_title,
+                                             data.payer_customer_name,
+                                             data.provider_professional_name,
+                                             data.payment_amount,
+                                             data.execution_date
                                         ), function (err, info) {
                                             if (err) {
                                                 console.error(err)
@@ -339,7 +340,7 @@ const pixController = {
             await api.post("/v1/payments", body)
                 .then(async (response) => {
                     await setCache(
-                        `pro:${user_uid}`,
+                        `pro:${uid}`,
                         JSON.stringify({
                             bank_payment_id: response.data.id
                         })
@@ -374,7 +375,7 @@ const pixController = {
             const { user_uid } = req.params;
             const { email } = req.email;
 
-            const data = await getCache(`pro:${user_uid}`);
+            let data = await getCache(`pro:${user_uid}`);
 
             if (!isJson(data))
                 return res
@@ -384,7 +385,7 @@ const pixController = {
 
             data = JSON.parse(data);
 
-            if (!(uid && data && data.bank_payment_id))
+            if (!(user_uid && data && data.bank_payment_id))
                 return res
                     .status(400)
                     .json({ message: 'make pro erro - no uid' })
@@ -421,13 +422,13 @@ const pixController = {
 
                                     await transporter.sendMail(
                                         voucherOptions(
-                                            to = email,
+                                             email,
 
-                                            operation_number = response.data.id,
+                                             response.data.id,
                                      
-                                            user_uid = user_uid,
-                                            date_approved= response.data.date_approved,
-                                            transaction_amount= response.data.transaction_amount
+                                             user_uid,
+                                             response.data.date_approved,
+                                             response.data.transaction_amount
 
                                         ), function (err, info) {
                                             if (err) {
