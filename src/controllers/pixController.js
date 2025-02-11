@@ -258,8 +258,13 @@ const pixController = {
             };
 
             await api.post("/v1/payments", body)
-                .then(response =>
-                    res
+                .then(async (response) => {
+                    await setCache(
+                        `pro:${user_uid}`,
+                        JSON.stringify({
+                            bank_payment_id: response.data.id
+                        })
+                    ).then(() => res
                         .status(200)
                         .json({
                             linkBuyMercadoPago:
@@ -270,7 +275,14 @@ const pixController = {
                                     .ticket_url
                         })
                         .end()
-                ).catch(err => {
+                    ).catch(err => {
+                        error(err)
+                        return res
+                            .status(500)
+                            .json({ message: 'generate payment - set cache error' })
+                            .end()
+                    });
+                }).catch(err => {
                     error(err)
                     return res
                         .status(500)
@@ -279,7 +291,69 @@ const pixController = {
                 });
         },
 
-        async status(req, res) { }
+        async status(req, res) {
+            const { user_uid } = req.params;
+
+            const data = await getCache(`pro:${user_uid}`);
+
+            if (!isJson(data))
+                return res
+                    .status(400)
+                    .json({ message: 'make payment erro - schema format' })
+                    .end();
+
+            data = JSON.parse(data);
+
+            if (!(uid && data && data.bank_payment_id))
+                return res
+                    .status(400)
+                    .json({ message: 'make pro erro - no uid' })
+                    .end();
+
+            const resource = resourceX(data.bank_payment_id);
+            if (
+                !resource ||
+                !/^(ftp|http|https):\/\/[^ "]+$/.test(resource)
+            ) {
+                error('pix - resource regexEP.test failed 3');
+                return res.sendStatus(204);
+            }
+
+            const fetchData = axios.create({
+                baseURL: resource
+            });
+            fetchData.interceptors.request.use(async (config) => {
+                config.headers.Authorization = `Bearer ${process.env.PIX_AUTH_KEY}`;
+                return config;
+            });
+
+            await fetchData.get()
+                .then(async response => {
+                    if (response.data.status === "approved") {
+                        await Users.update(
+                            {
+                                pro: true
+                            },
+                            { where: { uid: user_uid } }
+                        )
+                            .then(() => res.status(200).end())
+                            .catch(err => {
+                                error(err)
+                                return res
+                                    .status(500)
+                                    .json({ message: 'make pro error - create pro' })
+                                    .end()
+                            })
+                    } else return res.status(204).end();
+                })
+                .catch(err => {
+                    error(err)
+                    return res
+                        .status(500)
+                        .json({ message: 'make pro error - get bank status' })
+                        .end()
+                })
+        }
     }
 };
 
