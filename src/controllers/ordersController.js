@@ -62,8 +62,6 @@ const ordersController = {
                 },
             }
         ).then(async response => {
-            console.log(response)
-
             if (!(
                 stars &&
                 typeof stars === 'number' &&

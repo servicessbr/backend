@@ -11,6 +11,13 @@ const Subworks = require('../models/Subworks');
 const worksController = {
     async create(req, res) {
         const uid = req.uid;
+        const pro = req.pro;
+
+        if (!pro)
+            return res
+                .status(403)
+                .json({ message: 'work create - user is not PRO' })
+                .end();
 
         const {
             title, description,

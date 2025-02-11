@@ -11,10 +11,8 @@ class Users extends Model {
                 phone: DataTypes.BIGINT,
                 description: DataTypes.STRING,
                 profession: DataTypes.STRING,
-                avatar: DataTypes.STRING,
-                partner: DataTypes.BOOLEAN,
                 blocked: DataTypes.BOOLEAN,
-
+                pro: DataTypes.BOOLEAN,
                 refreshtoken: DataTypes.STRING,
             },
             {

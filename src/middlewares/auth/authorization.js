@@ -32,10 +32,10 @@ const authorization = async (req, res, next) => {
     };
 
     await Users.findOne({
-        attributes: ['refreshtoken', 'blocked'],
+        attributes: ['refreshtoken', 'blocked', 'pro'],
         where: { uid }
     })
-        .then((data) => {
+        .then(data => {
             if (data === null) {
                 return res.status(500).json({ message: 'auth user not found' })
             } else if (data.blocked) {
@@ -43,6 +43,7 @@ const authorization = async (req, res, next) => {
             } else {
                 req.uid = uid;
                 req.email = email;
+                req.pro = data.pro;
                 return next();
             };
         })

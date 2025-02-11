@@ -15,8 +15,6 @@ const owner = async (req, res, next) => {
         where: { id: work_id }
     }).catch(err => error(err));
 
-    console.log(owns.user_uid)
-
     if (!(owns && owns.user_uid))return res.status(401).json({ message: 'owner error - no work' });
     if (owns.user_uid !== uid) return res.status(401).json({ message: 'owner dont match error' });
 

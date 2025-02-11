@@ -43,6 +43,7 @@ const tmpController = require('./controllers/tmpController');
 const pixController = require('./controllers/pixController.js');
 const ordersController = require('./controllers/ordersController.js');
 const evaluationsController = require('./controllers/evaluationsController.js');
+const proController = require('./controllers/proController.js');
 
 
 /*
@@ -103,13 +104,24 @@ routes.put('/orders/finalize/evaluate/:order_id', authorization, ordersControlle
 /*
     * Evaluations
 */
-routes.get('/evaluations/list/:provider_professional_uid', evaluationsController.list)
+routes.get('/evaluations/list/:provider_professional_uid', evaluationsController.list);
 
 /*
-    * PIX
+    * PRO
 */
-routes.post('/pix/generate/payment', authorization, pixController.generatePayment);
-routes.post('/pix/status/make/:cache_id', pixController.getStatusAndMakeOrder);
+routes.get('/is/pro', authorization, proController.isPro);
+
+/*
+    * PIX - Orders
+*/
+routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
+routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
+
+/*
+    * PIX - PRO
+*/
+routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
+routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
 
 /*
     * Chat 

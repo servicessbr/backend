@@ -22,8 +22,6 @@ const cardsController = {
             ? req.body.excluded
             : [''];
 
-        console.log('excluded', excluded)
-
         if (search === undefined) {
             return res.status(400).json({ message: 'empty query' })
         };
@@ -62,7 +60,7 @@ const cardsController = {
             `SELECT DISTINCT ON (users.uid) works.id, works.title, works.discount, 
             works.banner, works.price, works.description, 
             cities.name as city, users.uid, users.name,
-            users.profession, users.avatar
+            users.profession
             FROM works
             INNER JOIN users
             ON (works.user_uid = users.uid)

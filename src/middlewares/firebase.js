@@ -16,7 +16,7 @@ const serviceAccount = require('../../public/keys/servicess-pictures-firebase-ad
 
 const Users = require('../models/Users');
 const admin = firebaseAdmin.initializeApp({
-     
+
     credential: firebaseAdmin.credential.cert(serviceAccount),
 }, 'default');
 
@@ -66,32 +66,17 @@ const firebase = {
     avatar: {
         async update(req, res) {
 
-             
+
             const filename = req.filename;
 
             const path = `${DIR}/${filename}`;
 
-             
+
             const uid = req.uid;
 
             if (!uid) {
                 return res.status(500).json({ log: 'firebase no user' })
             } else {
-                await uploadFile(path, filename)
-                    .then(async () => {
-                        await Users.update(
-                            { avatar: true },
-                            { where: { uid } }
-                        )
-                            .catch((err) => {
-                                console.error(err);
-                            });
-                    })
-                    .catch(async err => {
-                        console.error(err)
-
-                    })
-
                 await UnlinkAsync(path).catch(err => console.error(err));
 
                 return res.status(200).json({ log: 'success' });
@@ -99,16 +84,11 @@ const firebase = {
         },
 
         async delete(req, res) {
-             
+
             const uid = req.uid;
 
             await removeFile(uid + '[p].webp')
                 .then(async () => {
-                    await Users.update(
-                        { avatar: false },
-                        { where: { uid } }
-                    )
-                        .catch((err) => { console.error(err) });
                     return res.status(200).end()
                 })
                 .catch(() => res.status(500).json({ log: 'Falha ao excluir o avatar' }))
@@ -116,7 +96,7 @@ const firebase = {
     },
 
     async deleteAll(req, res) {
-         
+
         const uid = req.uid;
 
         await removeFile(uid)

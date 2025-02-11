@@ -184,7 +184,6 @@ const usersController = {
                                 description: user.description,
                                 profession: user.profession,
                                 phone: user.phone,
-                                avatar: user.avatar,
                                 token: generateToken(user.uid, user.email, refreshtoken),
                             });
                         } else {
@@ -304,7 +303,7 @@ const usersController = {
         const { uid } = req.params;
 
         await Users.findOne({
-            attributes: ['name', 'description', 'profession', 'uid', 'avatar', 'partner'],
+            attributes: ['name', 'description', 'profession', 'uid', 'avatar'],
             where: { uid }
         })
             .then((user) => res.status(200).json(user))

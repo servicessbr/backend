@@ -13,8 +13,7 @@ const tmpController = {
             DISTINCT ON (users.uid) 
             works.id, works.title, works.discount, works.banner,
             works.price, works.description, cities.name as city, 
-            users.uid, users.name, users.verified,users.profession, 
-            users.avatar 
+            users.uid, users.name, users.verified,users.profession 
             FROM works
             INNER JOIN users
             ON (works.user_uid = users.uid)

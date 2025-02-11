@@ -6,7 +6,7 @@ const adminNewUserOptions = require('../../email/options/adminNewUserOptions');
 const regexEP = require("../../services/regexEP");
 const { v4: uuidv4 } = require('uuid');
 const adminGenerateToken = require("../adminServices/adminGenerateToken");
-const partnerOptions = require('../../email/options/partnerOptions');
+
 
 /* Redis */
 const { getCache, setCache } = require("../../../public/config/redisConfig");
@@ -185,43 +185,6 @@ const adminControllers = {
                     .status(500)
                     .json({ message: 'admin error' })
             });
-    },
-
-    async partnerMake(req, res) {
-        const { uid } = req.body;
-
-        await Users.update(
-            { partner: true },
-            {
-                where: { uid },
-                returning: ['name', 'email'],
-                plain: true
-            }
-        )
-            .then((result) => {
-
-                if (!(
-                    result &&
-                    result[1] &&
-                    result[1].dataValues
-                )) return res.status(204).end();
-
-                const email = result[1].dataValues.email;
-                const name = result[1].dataValues.name;
-
-                if (name && email && regexEP.email.test(email.trim().toLowerCase())) {
-                    transporter.sendMail(partnerOptions(name, email), function (err, info) {
-                        if (err) {
-                            console.error(err)
-                            return res.status(500).json({ message: 'erro do email ao validar o parceiro pelo admin' })
-                        } else {
-                            return res.status(200).end();
-                        }
-                    });
-                }
-
-            })
-            .catch(() => res.status(500).end())
     },
 
     async newExtendedCode(req, res, next) {
