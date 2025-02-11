@@ -11,7 +11,7 @@ const evaluationsController = {
         const list = await Evaluations.sequelize.query(
             `SELECT DISTINCT ON (o.payer_customer_uid) e.id, e.stars, e.review_description, 
             o.payer_customer_uid, o.provider_professional_uid, 
-            u.name as customer_name
+            u.name as payer_customer_name
             FROM evaluations as e
             LEFT JOIN orders as o
             ON (e.id = o.id)

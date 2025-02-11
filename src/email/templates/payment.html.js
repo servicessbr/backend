@@ -1,8 +1,7 @@
-module.exports = (type, client_name, payment_amount, location, hour, day, week, month) =>
+module.exports = (original_subwork_title, payer_customer_name, not_me, payment_amount, execution_date ) =>
     `
-    <!DOCTYPE html>
+     <!DOCTYPE html>
     <html lang="pt-br">
-    
     <head>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -80,7 +79,7 @@ module.exports = (type, client_name, payment_amount, location, hour, day, week, 
             }
     
             .td p {
-                color: #222D3680;
+                color: #696969;
                 padding: 30px 0;
             }
     
@@ -107,14 +106,14 @@ module.exports = (type, client_name, payment_amount, location, hour, day, week, 
             }
     
             button {
-                background-color: #00AE74;
+                background-color: #222D36;
                 border-style: none;
-                border-radius: 100px;
+                border-radius: 8px;
                 padding: 20px 0px;
                 width: 100%;
                 color: #fff;
                 font-weight: bold;
-                margin-top: 30px;
+                margin-top: 50px;
             }
     
             .absolute {
@@ -135,8 +134,10 @@ module.exports = (type, client_name, payment_amount, location, hour, day, week, 
                 align-items: center;
                 justify-content: space-between;
                 padding: 18px 20px;
-                color: white;
+                color: #222D36;
                 margin-top: 0px;
+                border-top: 1px solid #DEE6EB;
+                border-bottom: 1px solid #DEE6EB;
             }
     
             .white_ribbon {
@@ -155,16 +156,13 @@ module.exports = (type, client_name, payment_amount, location, hour, day, week, 
             .two1 {
                 min-height: 200px;
                 display: flex;
-                border-top: 1px solid #DEE6EB;
-    
+                border-bottom: 1px solid #DEE6EB;
             }
     
             .two2 {
                 width: 50%;
                 height: 100%;
-    
                 text-align: center;
-    
                 color: #222D36;
                 font-size: 22px;
             }
@@ -175,22 +173,15 @@ module.exports = (type, client_name, payment_amount, location, hour, day, week, 
     
             .two3 {
                 color: #222D36;
-    
-    
                 width: 50%;
                 height: 200px;
                 background-color: #DEE6EB;
-
-    
-    
                 display: flex;
-    
                 justify-content: center;
             }
 
             .two3 strong{
-
-                font-size: 60px;
+                font-size: 20px;
             }
 
             #no-margin {
@@ -227,65 +218,65 @@ module.exports = (type, client_name, payment_amount, location, hour, day, week, 
             <tr>
                 <td align="center" style="padding: 80px 0 0 0;">
                     <h3 style="text-transform: uppercase;">
-                        ${type === 'prof'
-        ? client_name + ' ' + 'aceitou o orçamento!'
-        : 'Serviço agendado com sucesso!'
-    } 
+                        🔔 O agendamento foi realizado!            
                     </h3>
                 </td>
             </tr>
             <tr>
                 <td class='td' align="center">
-                    <p>
-                         Entre em contato diretamente com o ${type === 'prof' ? 'cliente' : 'profissional'} para alinhar as condições do serviço, como data, horário e local do atendimento.
-                    ${type === 'prof' && '<br/><br/>Realize o serviço conforme o combinado para que o pagamento seja efetuado na data marcada.'}
+                    <p style="margin-bottom:30px;padding-bottom: 0;">
+                        Contratação do serviço 
+                        <strong>
+                            ${original_subwork_title}
+                        </strong>
+                        por
+                        <strong>
+                            ${payer_customer_name}
+                        </strong>
+                        realizada com sucesso!
                     </p>
+
+                    <p style="margin-top:0; padding-top: 0;">
+                         Entre em contato diretamente com <strong>${not_me}</strong> atraves do nosso 🗨 chat para alinhar as condições do serviço, como local, horário e data do atendimento.
+                    </p>
+                </td>
+            </tr>
+                       <tr style="position: relative;" style="padding: 0;margin:0;" id="no-margin">
+                <td class="black_ribbon center">
+                    <div class="center">
+                        <strong>
+                            Pagamento confirmado ✓
+                        </strong>
+                    </div>
                 </td>
             </tr>
             <tr style="position: relative;" style="padding: 0;margin:0;" id="no-margin">
                 <td class="two1">
                     <div class="two2 center text_center">
                         <div class="margin-topp"></div>
-                        <strong>${week}, <i>${hour}</i></strong>
+                        <p style="margin:0">
+                           <i> Valor pago:</i>
+                        </p>
+                        <strong style="margin-top:8px"> 
+                            R$ ${payment_amount}                    
+                        </strong>                        
                     </div>
                     <div class="two3 center">
                         <div class="center text_center">
-                            <strong>${day}</strong>
-                            <p class="no-margin">${month}</p>
+                            <p></p>
+                            <strong>${execution_date}</strong>
+                            <p class="no-margin"></p>
                         </div>
                     </div>
                 </td>
             </tr>
-            <tr style="position: relative;" style="padding: 0;margin:0;" id="no-margin">
-                <td bgcolor="#222D36" class="black_ribbon center">
-                    <div class="center">
-                        <strong>
-                            ${type === 'prof' ? client_name + ' ' + ' realizou o pagamento' : 'Pagamento realizado'}
-                        </strong>
-                    </div>
-                </td>
-            </tr>
-            <tr style="position: relative;">
-                <td class="white_ribbon white_ribbon2">
-                    <strong>
-                        Valor pago:
-                        <br /><br />
-                        R$ ${payment_amount}                    
-                    </strong>
-
-                    <strong>
-                        Local do atendimento:
-                        <br /><br />
-                        ${location}                    
-                    </strong>
-                </td>
-            </tr>
+ 
                   <tr>
                 <tr>
                 <td class='td'>
-                    <a href="https://www.servicess.com.br/service_orders/${type === 'prof' ? 'list' : 'budgets'}">
+                    <a href="https://www.servicess.com.br/orders">
                         <button>
-                            Ver agendamentos
+                            Ver serviços agendados 🡲
                         </button>
                     </a>
                     <br /><br /><br /><br />
@@ -296,11 +287,10 @@ module.exports = (type, client_name, payment_amount, location, hour, day, week, 
                 <td class='td end'>
                     <h6>Precisa de ajuda? Entre em contato conosco.</h6>
                     <br />
-                    <h5>© 2024 Servicess LTDA.</h5>
+                    <h5>Servicess LTDA.</h5>
                 </td>
             </tr>
         </table>
     </body>
-    
     </html>
 `

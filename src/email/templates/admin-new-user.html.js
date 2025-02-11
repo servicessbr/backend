@@ -168,7 +168,7 @@ module.exports =  (code) =>
             <td class='td end'>
                 <h6>Não criou uma conta? Entre em contato conosco que resolveremos.</h6>
                 <br />
-                <h5>© 2024 Servicess LTDA.</h5>
+                <h5>  Servicess LTDA.</h5>
             </td>
         </tr>
     </table>

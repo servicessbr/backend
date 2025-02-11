@@ -11,6 +11,10 @@ const Users = require('../models/Users');
 */
 const Orders = require('../models/Orders');
 const isJson = require('../functions/isJson');
+const { transporter } = require('../email/transporter');
+const Chat_Channel = require('../schemas/Chat_Channel');
+const paymentOptions = require('../email/options/paymentOptions');
+const voucherOptions = require('../email/options/voucherOptions');
 
 //const baseURL = "https://api.mercadopago.com"
 const baseURL = "http://192.168.0.178:8001"
@@ -52,14 +56,17 @@ const pixController = {
                 original_subwork_title
             } = req.body;
 
-            const user = await Users.findOne({
-                where: { uid: payer_customer_uid },
-                attributes: ['email', 'name']
+            const users = await Users.find({
+                where: { uid: [payer_customer_uid, provider_professional_uid] },
+                attributes: ['email', 'name', 'uid']
             })
                 .catch(err => error(err));
-            if (!(user && user.email && user.name)) return res
+            const user = users.filter(u => u.uid === payer_customer_uid);
+            const prof = users.filter(u => u.uid === provider_professional_uid);
+
+            if (!(user && user.email && user.name && prof && prof.email && prof.name)) return res
                 .status(400)
-                .json({ message: 'payment error - cant get payer customer data' })
+                .json({ message: 'payment error - cant get payer customer and prof data' })
                 .end();
 
             const { email } = user;
@@ -111,7 +118,11 @@ const pixController = {
                             bank_payment_id: response.data.id,
 
                             payer_customer_uid,
+                            payer_customer_name: user.name,
+                            payer_customer_email: user.email,
                             provider_professional_uid,
+                            provider_professional_name: prof.name,
+                            provider_professional_email: prof.email,
                             execution_date,
                             payment_amount,
                             original_subwork_title
@@ -162,7 +173,11 @@ const pixController = {
                 data &&
                 data.bank_payment_id &&
                 data.payer_customer_uid &&
+                data.payer_customer_name &&
+                data.payer_customer_email &&
                 data.provider_professional_uid &&
+                data.provider_professional_name &&
+                data.provider_professional_email &&
                 data.execution_date &&
                 data.payment_amount &&
                 data.original_subwork_title
@@ -195,7 +210,71 @@ const pixController = {
                             status: 'in_progress',
                             ...data
                         })
-                            .then(() => res.status(200).end())
+                            .then(async () => {
+                                try {
+                                    const channel = await Chat_Channel.find({
+                                        uid: [
+                                            data.payer_customer_uid,
+                                            data.payer_customer_uid
+                                        ]
+                                    });
+
+                                    console.log('channel: ', channel)
+
+                                    channel[0]
+                                        && await lazyPush([
+                                            {
+                                                to: channel[0].ExponentPushToken,
+                                                sound: 'default',
+                                                body: '🔔 O agendamento foi realizado!',
+                                                data: {}
+                                            }
+                                        ]);
+
+                                    channel[1] &&
+                                        await lazyPush([
+                                            {
+                                                to: channel[1].ExponentPushToken,
+                                                sound: 'default',
+                                                body: '🔔 O agendamento foi realizado!',
+                                                data: {}
+                                            }
+                                        ]);
+
+                                    await transporter.sendMail(
+                                        paymentOptions(
+                                            to = data.provider_professional_email,
+                                            original_subwork_title = data.original_subwork_title,
+                                            payer_customer_name = data.payer_customer_name,
+                                            not_me = data.payer_customer_name,
+                                            payment_amount = data.payment_amount,
+                                            execution_date = data.execution_date
+                                        ), function (err, info) {
+                                            if (err) {
+                                                console.error(err)
+                                            }
+                                        });
+
+                                    await transporter.sendMail(
+                                        paymentOptions(
+                                            to = data.payer_customer_email,
+                                            original_subwork_title = data.original_subwork_title,
+                                            payer_customer_name = data.payer_customer_name,
+                                            not_me = data.provider_professional_name,
+                                            payment_amount = data.payment_amount,
+                                            execution_date = data.execution_date
+                                        ), function (err, info) {
+                                            if (err) {
+                                                console.error(err)
+                                            }
+                                        });
+
+                                } catch (err) {
+                                    console.error('Payment | Push or E-mail Error: ', err)
+                                };
+
+                                return res.status(200).end();
+                            })
                             .catch(err => {
                                 error(err)
                                 return res
@@ -293,6 +372,7 @@ const pixController = {
 
         async status(req, res) {
             const { user_uid } = req.params;
+            const { email } = req.email;
 
             const data = await getCache(`pro:${user_uid}`);
 
@@ -336,7 +416,31 @@ const pixController = {
                             },
                             { where: { uid: user_uid } }
                         )
-                            .then(() => res.status(200).end())
+                            .then(async () => {
+                                try {
+
+                                    await transporter.sendMail(
+                                        voucherOptions(
+                                            to = email,
+
+                                            operation_number = response.data.id,
+                                     
+                                            user_uid = user_uid,
+                                            date_approved= response.data.date_approved,
+                                            transaction_amount= response.data.transaction_amount
+
+                                        ), function (err, info) {
+                                            if (err) {
+                                                console.error(err)
+                                            }
+                                        });
+
+                                } catch (err) {
+                                    console.error('Payment | Push or E-mail Error: ', err)
+                                };
+
+                                return res.status(200).end()
+                            })
                             .catch(err => {
                                 error(err)
                                 return res

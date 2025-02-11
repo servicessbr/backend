@@ -161,7 +161,7 @@ module.exports = (token) =>
                     atual será mantida.
                 </h6>
                 <br />
-                <h5>© 2024 Servicess LTDA.</h5>
+                <h5>  Servicess LTDA.</h5>
             </td>
         </tr>
     </table>

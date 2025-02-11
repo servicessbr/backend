@@ -175,7 +175,7 @@ module.exports = (
             <td class='td end'>
                 <h6>Central de atendimento</h6>
                 <br />
-                <h5>© 2024 Servicess LTDA.</h5>
+                <h5>  Servicess LTDA.</h5>
             </td>
         </tr>
     </table>
