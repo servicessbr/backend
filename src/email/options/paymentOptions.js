@@ -15,7 +15,7 @@ function paymentOptions(
         html: template(original_subwork_title, payer_customer_name, not_me, payment_amount, execution_date),
         attachments: [{
             filename: 'email_header.png',
-            path: __dirname + '/images/email_header.png',
+            path: 'public/assets/email_header.png',
             cid: 'emailHeaderPNG'
         }]
     });

@@ -12,7 +12,7 @@ const lazyPush = require('../helpers/pushNotifications');
 */
 const Orders = require('../models/Orders');
 const isJson = require('../functions/isJson');
-const { transporter } = require('../email/transporter');
+const transporter = require('../email/transporter');
 const Chat_Channel = require('../schemas/Chat_Channel');
 const paymentOptions = require('../email/options/paymentOptions');
 const voucherOptions = require('../email/options/voucherOptions');
@@ -32,6 +32,7 @@ api.interceptors.request.use(async (config) => {
 });
 
 const PRICE = 19.9;
+const MIN_PAYMENT = 50;
 
 const pixController = {
     orders: {
@@ -84,7 +85,10 @@ const pixController = {
                 * Schema Validation -> Joi
             */
             if (!(
-                payment_amount && typeof payment_amount === 'number' &&
+                payment_amount &&
+                typeof payment_amount === 'number' &&
+                payment_amount >= MIN_PAYMENT &&
+
                 payer_customer_uid && provider_professional_uid &&
                 execution_date && email && first_name &&
                 original_subwork_title
@@ -111,9 +115,10 @@ const pixController = {
                     `${HEROKU_APP_NAME}/pix/status/payment/${cache_id}`
             };
 
-            await api.post("/v1/payments", body)
+            return await api.post("/v1/payments", body)
                 .then(async (response) => {
-                    await setCache(
+                    console.log('CACHEEEEEE_ID: ', cache_id);
+                    return await setCache(
                         `payment:${cache_id}`,
                         JSON.stringify({
                             bank_payment_id: response.data.id,
@@ -222,48 +227,46 @@ const pixController = {
 
                                     console.log('channel: ', channel)
 
-                                    channel[0]
-                                        && await lazyPush([
-                                            {
-                                                to: channel[0].ExponentPushToken,
-                                                sound: 'default',
-                                                body: '🔔 O agendamento foi realizado!',
-                                                data: {}
-                                            }
-                                        ]);
+                                    channel[0] && lazyPush([
+                                        {
+                                            to: channel[0].ExponentPushToken,
+                                            sound: 'default',
+                                            body: '🔔 O agendamento foi realizado!',
+                                            data: {}
+                                        }
+                                    ]);
 
-                                    channel[1] &&
-                                        await lazyPush([
-                                            {
-                                                to: channel[1].ExponentPushToken,
-                                                sound: 'default',
-                                                body: '🔔 O agendamento foi realizado!',
-                                                data: {}
-                                            }
-                                        ]);
+                                    channel[1] && lazyPush([
+                                        {
+                                            to: channel[1].ExponentPushToken,
+                                            sound: 'default',
+                                            body: '🔔 O agendamento foi realizado!',
+                                            data: {}
+                                        }
+                                    ]);
 
-                                    await transporter.sendMail(
+                                    transporter.sendMail(
                                         paymentOptions(
-                                             data.provider_professional_email,
-                                             data.original_subwork_title,
-                                             data.payer_customer_name,
-                                             data.payer_customer_name,
-                                             data.payment_amount,
-                                             data.execution_date
+                                            data.provider_professional_email,
+                                            data.original_subwork_title,
+                                            data.payer_customer_name,
+                                            data.payer_customer_name,
+                                            data.payment_amount,
+                                            data.execution_date
                                         ), function (err, info) {
                                             if (err) {
                                                 console.error(err)
                                             }
                                         });
 
-                                    await transporter.sendMail(
+                                    transporter.sendMail(
                                         paymentOptions(
-                                             data.payer_customer_email,
-                                             data.original_subwork_title,
-                                             data.payer_customer_name,
-                                             data.provider_professional_name,
-                                             data.payment_amount,
-                                             data.execution_date
+                                            data.payer_customer_email,
+                                            data.original_subwork_title,
+                                            data.payer_customer_name,
+                                            data.provider_professional_name,
+                                            data.payment_amount,
+                                            data.execution_date
                                         ), function (err, info) {
                                             if (err) {
                                                 console.error(err)
@@ -337,12 +340,15 @@ const pixController = {
                     `${HEROKU_APP_NAME}/pix/status/pro/${uid}`
             };
 
-            await api.post("/v1/payments", body)
-                .then(async (response) => {
-                    await setCache(
+            return await api.post("/v1/payments", body)
+                .then(response => {
+                    console.log('CACHEEEEEE_ID: ', uid);
+                    setCache(
                         `pro:${uid}`,
                         JSON.stringify({
-                            bank_payment_id: response.data.id
+                            bank_payment_id: response.data.id,
+                            user_name: user.name,
+                            user_email: user.email
                         })
                     ).then(() => res
                         .status(200)
@@ -359,7 +365,7 @@ const pixController = {
                         error(err)
                         return res
                             .status(500)
-                            .json({ message: 'generate payment - set cache error' })
+                            .json({ message: 'generate pro - set cache error' })
                             .end()
                     });
                 }).catch(err => {
@@ -373,7 +379,6 @@ const pixController = {
 
         async status(req, res) {
             const { user_uid } = req.params;
-            const { email } = req.email;
 
             let data = await getCache(`pro:${user_uid}`);
 
@@ -384,8 +389,8 @@ const pixController = {
                     .end();
 
             data = JSON.parse(data);
-
-            if (!(user_uid && data && data.bank_payment_id))
+            console.log(user_uid, data, data.bank_payment_id, data.user_name)
+            if (!(user_uid && data && data.bank_payment_id && data.user_name))
                 return res
                     .status(400)
                     .json({ message: 'make pro erro - no uid' })
@@ -419,16 +424,17 @@ const pixController = {
                         )
                             .then(async () => {
                                 try {
-
-                                    await transporter.sendMail(
+                                    transporter.sendMail(
                                         voucherOptions(
-                                             email,
+                                            data.user_email,
 
-                                             response.data.id,
-                                     
-                                             user_uid,
-                                             response.data.date_approved,
-                                             response.data.transaction_amount
+                                            response.data.id,
+
+                                            user_uid,
+                                            response.data.date_approved,
+                                            response.data.transaction_amount,
+
+                                            data.user_name
 
                                         ), function (err, info) {
                                             if (err) {

@@ -1,4 +1,4 @@
-module.exports = (operation_number, user_uid, date_approved, transaction_amount) =>
+module.exports = (operation_number, user_uid, date_approved, transaction_amount, user_name) =>
     `
     <!DOCTYPE html>
     <html lang="pt-br">
@@ -237,7 +237,7 @@ module.exports = (operation_number, user_uid, date_approved, transaction_amount)
                     <div class="two3">
                         <ul>
                             <li>
-                                <p><strong>Nome: </strong></p>
+                                <p><strong>Nome: ${user_name}</strong></p>
                             </li>
                             <li>
                                 <p><strong>ID público: </strong>${user_uid}</p>
@@ -263,7 +263,7 @@ module.exports = (operation_number, user_uid, date_approved, transaction_amount)
                     <strong>
                         Total:
                         <br /><br />
-                        R$ ${transaction_amount}0 x1 Unidade
+                        R$ ${transaction_amount}
                         <br /><br />
                         Forma de pagamento: PIX
                     </strong>
@@ -273,7 +273,7 @@ module.exports = (operation_number, user_uid, date_approved, transaction_amount)
                 <td class='td end'>
                     <h6>Não reconhece essa ação? Entre em contato conosco que resolveremos.</h6>
                     <br />
-                    <h5>© 2024 Servicess LTDA.</h5>
+                    <h5>Servicess LTDA.</h5>
                 </td>
             </tr>
         </table>
