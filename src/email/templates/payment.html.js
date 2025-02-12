@@ -1,296 +1,298 @@
 module.exports = (original_subwork_title, payer_customer_name, not_me, payment_amount, execution_date ) =>
     `
-     <!DOCTYPE html>
-    <html lang="pt-br">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Agradecemos pela sua compra</title>
-        <style>
-            html {
-                font-family: sans-serif;
-            }
-    
-            table {
-                border: 1px solid #DEE6EB;
-                border-radius: 8px;
-                background-color: white;
-            }
-    
-            .start {
-                border-radius: 8px 8px 0 0;
-            }
-    
-            .end {
-                border-radius: 0 0 8px 8px;
-            }
-    
-            h3 {
-                color: #222D36;
-                text-align: center;
-                width: 80%;
-                margin: -10px 0 0px 0;
-            }
-    
-            .title {
-                overflow: hidden;
-                display: flex;
-                align-items: center;
-            }
-    
-            .center {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-    
-            .title h2 {
-                font-size: 20.5px;
-                font-family: 'Montserrat', sans-serif;
-                padding: 20px 20px 0 0;
-            }
-    
-            .title span {
-                font-weight: 100;
-                font-size: 17px;
-            }
-    
-            .title h2,
-            .title span {
-                margin: 0;
-                color: white;
-            }
-    
-            .title img {
-                width: 100%;
-                border-radius: 8px;
-                margin: 0;
-                padding: 0;
-                top: 0;
-                z-index: 999;
-            }
-    
-            .td {
-                background-color: #fff;
-                padding: 0 10%;
-                width: 80%;
-                text-align: center;
-            }
-    
-            .td p {
-                color: #696969;
-                padding: 30px 0;
-            }
-    
-            .td span {
-                color: #222D36;
-                font-size: 2.4em;
-                padding: 50px 0;
-                letter-spacing: 6px;
-            }
-    
-            .td h6 {
-                border-top: 1px solid #222D3620;
-                color: #222D3680;
-                padding: 30px 0 0 0;
-                font-size: 12px;
-                margin: 0;
-            }
-    
-            .td h5 {
-                margin: 0;
-                padding: 0 0 30px 0;
-                color: #222D3680;
-                font-size: 12px;
-            }
-    
-            button {
-                background-color: #222D36;
-                border-style: none;
-                border-radius: 8px;
-                padding: 20px 0px;
-                width: 100%;
-                color: #fff;
-                font-weight: bold;
-                margin-top: 50px;
-            }
-    
-            .absolute {
-                position: absolute;
-                width: 600px;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                margin-left: 0;
-            }
-    
-            .color {
-                background-color: rgba(0, 174, 116, 0.6);
-            }
-    
-            .black_ribbon {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 18px 20px;
-                color: #222D36;
-                margin-top: 0px;
-                border-top: 1px solid #DEE6EB;
-                border-bottom: 1px solid #DEE6EB;
-            }
-    
-            .white_ribbon {
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-                padding: 20px;
-                color: #222D36;
-                font-size: 20px;
-            }
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agradecemos pela sua compra</title>
+    <style>
+        html {
+            font-family: sans-serif;
+        }
 
-            .white_ribbon2 { 
-                 justify-content: space-around;
-            }
-    
-            .two1 {
-                min-height: 200px;
-                display: flex;
-                border-bottom: 1px solid #DEE6EB;
-            }
-    
-            .two2 {
-                width: 50%;
-                height: 100%;
-                text-align: center;
-                color: #222D36;
-                font-size: 22px;
-            }
-    
-            .two2 {
-                padding: 0 10px;
-            }
-    
-            .two3 {
-                color: #222D36;
-                width: 50%;
-                height: 200px;
-                background-color: #DEE6EB;
-                display: flex;
-                justify-content: center;
-            }
+        table {
+            border: 1px solid #DEE6EB;
+            border-radius: 8px;
+            background-color: white;
+        }
 
-            .two3 strong{
-                font-size: 20px;
-            }
+        .start {
+            border-radius: 8px 8px 0 0;
+        }
 
-            #no-margin {
-                margin: 0;
-                padding: 0;
-            }
-    
-            :root {
-                color-scheme: only light;
-            }
-    
-            .margin-topp {
-                height: 68px;
-            }
+        .end {
+            border-radius: 0 0 8px 8px;
+        }
 
-            .text_center {
-                text-align: center;
-            }
-        </style>
-    </head>
-    
-    <body>
-        <table align="center" cellpadding="0" cellspacing="0" width="600">
-            <tr style="position: relative;">
-                <td class="start" style="height: 20px;">
-                    <div class="title">
-                        <div style="display: flex; justify-content: space-between; width: 100%;">
-                            <img src="cid:emailHeaderPNG" />
-                        </div>
+        h3 {
+            color: #222D36;
+            text-align: center;
+            width: 80%;
+            margin: -10px 0 0px 0;
+        }
+
+        .title {
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .center {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .title h2 {
+            font-size: 20.5px;
+            font-family: 'Montserrat', sans-serif;
+            padding: 20px 20px 0 0;
+        }
+
+        .title span {
+            font-weight: 100;
+            font-size: 17px;
+        }
+
+        .title h2,
+        .title span {
+            margin: 0;
+            color: white;
+        }
+
+        .title img {
+            width: 100%;
+            border-radius: 8px;
+            margin: 0;
+            padding: 0;
+            top: 0;
+            z-index: 999;
+        }
+
+        .td {
+            background-color: #fff;
+            padding: 0 10%;
+            width: 80%;
+            text-align: center;
+        }
+
+        .td p {
+            color: #696969;
+            padding: 30px 0;
+        }
+
+        .td span {
+            color: #222D36;
+            font-size: 2.4em;
+            padding: 50px 0;
+            letter-spacing: 6px;
+        }
+
+        .td h6 {
+            border-top: 1px solid #222D3620;
+            color: #222D3680;
+            padding: 30px 0 0 0;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .td h5 {
+            margin: 0;
+            padding: 0 0 30px 0;
+            color: #222D3680;
+            font-size: 12px;
+        }
+
+        button {
+            background-color: #222D36;
+            border-style: none;
+            border-radius: 8px;
+            padding: 20px 0px;
+            width: 100%;
+            color: #fff;
+            font-weight: bold;
+            margin-top: 50px;
+        }
+
+        .absolute {
+            position: absolute;
+            width: 600px;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .color {
+            background-color: rgba(0, 174, 116, 0.6);
+        }
+
+        .black_ribbon {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            color: #222D36;
+            margin-top: 0px;
+            border-top: 1px solid #DEE6EB;
+            border-bottom: 1px solid #DEE6EB;
+        }
+
+        .white_ribbon {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 20px;
+            color: #222D36;
+            font-size: 20px;
+        }
+
+        .white_ribbon2 { 
+             justify-content: space-around;
+        }
+
+        .two1 {
+            min-height: 200px;
+            display: flex;
+            border-bottom: 1px solid #DEE6EB;
+        }
+
+        .two2 {
+            width: 50%;
+            height: 100%;
+            text-align: center;
+            color: #222D36;
+            font-size: 22px;
+        }
+
+        .two2 {
+            padding: 0 10px;
+        }
+
+        .two3 {
+            color: #222D36;
+            width: 50%;
+            height: 200px;
+            background-color: #DEE6EB;
+            display: flex;
+            justify-content: center;
+        }
+
+        .two3 strong{
+            font-size: 20px;
+        }
+
+        #no-margin {
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            color-scheme: only light;
+        }
+
+        .margin-topp {
+            height: 68px;
+        }
+
+        .text_center {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <table align="center" cellpadding="0" cellspacing="0" width="600">
+        <tr style="position: relative;">
+            <td class="start" style="height: 20px;">
+                <div class="title">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <img src="cid:emailHeaderPNG" />
                     </div>
-                </td>
-            </tr>
-    
-            <tr>
-                <td align="center" style="padding: 80px 0 0 0;">
-                    <h3 style="text-transform: uppercase;">
-                        🔔 O agendamento foi realizado!            
-                    </h3>
-                </td>
-            </tr>
-            <tr>
-                <td class='td' align="center">
-                    <p style="margin-bottom:30px;padding-bottom: 0;">
-                        Contratação do serviço 
-                        <strong>
-                            ${original_subwork_title}
-                        </strong>
-                        por
-                        <strong>
-                            ${payer_customer_name}
-                        </strong>
-                        realizada com sucesso!
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td align="center" style="padding: 80px 0 0 0;">
+                <h3 style="text-transform: uppercase;">
+                    🔔 O agendamento foi realizado!            
+                </h3>
+            </td>
+        </tr>
+        <tr>
+            <td class='td' align="center">
+                <p style="margin-bottom:30px;padding-bottom: 0;">
+                    Contratação do serviço 
+                    <strong>
+                        ${original_subwork_title}
+                    </strong>
+                    por
+                    <strong>
+                        ${payer_customer_name}
+                    </strong>
+                    realizada com sucesso!
+                </p>
+
+                <p style="margin-top:0; padding-top: 0;">
+                     Entre em contato diretamente com <strong>${not_me}</strong> atraves do nosso chat para alinhar as condições do serviço, como local, horário e data do atendimento.
+                </p>
+            </td>
+        </tr>
+                   <tr style="position: relative;" style="padding: 0;margin:0;" id="no-margin">
+            <td class="black_ribbon center">
+                <div class="center" style="text-align: center;">
+                    <strong>
+                        Pagamento confirmado
+                    </strong>
+                </div>
+            </td>
+        </tr>
+        <tr style="position: relative;" style="padding: 0;margin:0;" id="no-margin">
+            <td class="two1">
+                <div class="two2 center text_center" style="text-align: center;">
+                    <div class="margin-topp"></div>
+                    <p style="margin:0">
+                       <i> Valor pago:</i>
                     </p>
+                    <strong style="margin-top:8px"> 
+                        R$ ${payment_amount}                    
+                    </strong>                        
+                </div>
+                <div class="two3 center">
+                    <div class="center text_center" style="text-align: center;">
+                        <p></p>
+                        <strong>${execution_date}</strong>
+                        <p class="no-margin"></p>
+                    </div>
+                </div>
+            </td>
+        </tr>
 
-                    <p style="margin-top:0; padding-top: 0;">
-                         Entre em contato diretamente com <strong>${not_me}</strong> atraves do nosso 🗨 chat para alinhar as condições do serviço, como local, horário e data do atendimento.
-                    </p>
-                </td>
-            </tr>
-                       <tr style="position: relative;" style="padding: 0;margin:0;" id="no-margin">
-                <td class="black_ribbon center">
-                    <div class="center">
-                        <strong>
-                            Pagamento confirmado ✓
-                        </strong>
-                    </div>
-                </td>
-            </tr>
-            <tr style="position: relative;" style="padding: 0;margin:0;" id="no-margin">
-                <td class="two1">
-                    <div class="two2 center text_center">
-                        <div class="margin-topp"></div>
-                        <p style="margin:0">
-                           <i> Valor pago:</i>
-                        </p>
-                        <strong style="margin-top:8px"> 
-                            R$ ${payment_amount}                    
-                        </strong>                        
-                    </div>
-                    <div class="two3 center">
-                        <div class="center text_center">
-                            <p></p>
-                            <strong>${execution_date}</strong>
-                            <p class="no-margin"></p>
-                        </div>
-                    </div>
-                </td>
-            </tr>
- 
-                  <tr>
-                <tr>
-                <td class='td'>
-                    <a href="https://www.servicess.com.br/orders">
-                        <button>
-                            Ver serviços agendados 🡲
-                        </button>
-                    </a>
-                    <br /><br /><br /><br />
-                </td>
-            </tr>
-            </tr>
+              <tr>
             <tr>
-                <td class='td end'>
-                    <h6>Precisa de ajuda? Entre em contato conosco.</h6>
-                    <br />
-                    <h5>Servicess LTDA.</h5>
-                </td>
-            </tr>
-        </table>
-    </body>
-    </html>
+            <td class='td'>
+                <a href="https://www.servicess.com.br/orders">
+                    <button>
+                        Ver serviços agendados 🡲
+                    </button>
+                </a>
+                <br /><br /><br /><br />
+            </td>
+        </tr>
+        </tr>
+        <tr>
+            <td class='td end'>
+                <h6>Precisa de ajuda? Entre em contato conosco.</h6>
+                <br />
+                <h5>Servicess LTDA.</h5>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
 `
