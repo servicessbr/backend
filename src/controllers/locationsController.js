@@ -1,8 +1,6 @@
-//const { QueryTypes } = require('sequelize');
-//const ErrorTransporter = require('../config/email/ErrorTransporter');
-
-
-// Models:
+/* 
+    * Models:
+*/
 const Cities = require('../models/Cities');
 
 const locationsController = {

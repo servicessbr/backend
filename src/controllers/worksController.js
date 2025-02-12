@@ -1,203 +1,199 @@
 
 const { Op, QueryTypes } = require('sequelize');
-//const ErrorTransporter = require('../config/email/ErrorTransporter');
+const { error } = require('console');
 
-// Models:
+/* 
+    * Models:
+*/
 const Works = require('../models/Works');
+const Subworks = require('../models/Subworks');
 
 const worksController = {
     async create(req, res) {
-        /*@ts-ignore*/
-        const user_uid = req.uid;
+        const uid = req.uid;
+        const pro = req.pro;
+
+        if (!pro)
+            return res
+                .status(403)
+                .json({ message: 'work create - user is not PRO' })
+                .end();
 
         const {
-            title, tags,
-            remote, showwmail, showphone,
-            price, discount,
-            description, details, availability, hours, socialmidias,
-            city_id, district, address, number, socialmedia, checklist, per /* zipcode,*/
+            title, description,
+            price, city_id,
+
+            subworks
         } = req.body;
 
-        if (city_id === null) {
+        if (!city_id) return res
+            .status(500)
+            .json({ message: 'empty city' });
 
-            //ErrorTransporter('WCTRLx0001', 'no-log', { user_uid, city_id }, req.originalUrl); // ----
+        if (!title) return res
+            .status(500)
+            .json({ message: 'empty title' });
 
-            return res.status(500).json({ message: 'empty city' });
-        };
-        if (title === null) {
+        if (
+            !price ||
+            !(/^\d+$/.test(price))
+        ) return res
+            .status(500)
+            .json({ message: 'empty title' });
 
-            //ErrorTransporter('WCTRLx0002', 'no-log', { user_uid, tittle }, req.originalUrl); // ----
-
-            return res.status(500).json({ message: 'empty title' })
-        };
-
-        /*@ts-ignore*/
         await Works.create({
-            user_uid,
-            title, tags,
-            remote, showwmail, showphone,
-            description, details, availability, hours, socialmidias,
-            city_id, district, address,
-            price: /^\d+$/.test(price) ? parseInt(price) : null,
-            discount: /^\d+$/.test(discount) ? parseInt(discount) : null,
-            number: /^\d+$/.test(number) ? parseInt(number) : null,
-            socialmedia, checklist, per
-            /* zipcode, standby: true, */
-
+            user_uid: uid,
+            title, description, city_id,
+            price: parseInt(price),
         })
-            /*@ts-ignore*/
-            .then(work => res.status(200).json({ work_id: work.id }))
-            .catch((e) => {
+            .then(async work => {
+                if (!Array.isArray(subworks)) return
 
-                //ErrorTransporter('WCTRLx0003', e, { body: req.body }, req.originalUrl); // ----
+                /*
+                    * Acrescenta o ID do anúncio( work ) como foreign key
+                */
+                const insertSubWorks = subworks.map(it => {
+                    delete it.id;
+                    return { ...it, work_id: work.id };
+                })
 
-                console.error(e);
-                return res.status(500).json({ message: 'create work error' });
+                await Subworks.bulkCreate(insertSubWorks)
+                    .then(() => res
+                        .status(200)
+                        .json({ work_id: work.id }))
+                    .catch(err => {
+                        error(err);
+                        return res
+                            .status(500)
+                            .json({ message: 'create subwork error' })
+                    })
+            })
+            .catch(err => {
+                error(err);
+                return res
+                    .status(500)
+                    .json({ message: 'create work error' })
             });
-
     },
 
     async update(req, res) {
+        /*
+            * Confere se tem algum dado para ser alterado
+            * ou ta vazia.
+        */
+        if (!Object.keys(req.body).length)
+            return res
+                .status(204)
+                .end()
 
-        /*@ts-ignore*/
-        const user_uid = req.uid;
-
-        const {
-            work_id,
-            title, tags,
-            remote, showwmail, showphone,
-            price, discount,
-            description, details, availability, hours, socialmidias,
-            city_id, district, address, number, socialmedia, checklist, per, /* zipcode,*/
-        } = req.body;
-
-        if (city_id === null) {
-
-            //ErrorTransporter('WCTRLx0004', 'no-log', { user_uid, city_id }, req.originalUrl); // ----
-
-            return res.status(500).json({ message: 'empty city' })
-        };
-        if (title === null) {
-
-            //ErrorTransporter('WCTRLx0005', 'no-log', { user_uid, tittle }, req.originalUrl); // ----
-
-            return res.status(500).json({ message: 'empty title' })
-        };
-
-        /*@ts-ignore*/
-        await Works.update(
-            {
-                title, tags,
-                remote, showwmail, showphone,
-                price: /^\d+$/.test(price) ? parseInt(price) : null,
-                discount: /^\d+$/.test(discount) ? parseInt(discount) : null,
-                number: /^\d+$/.test(number) ? parseInt(number) : null,
-                description, details, availability, hours, socialmidias,
-                city_id, district, address, socialmedia, checklist, per
-                /* zipcode, standby: true */
-            },
-            {
-                where: {
-                    [Op.and]: [{ id: work_id }, { user_uid }]
-                }
-            }
-        )
-            .then(() => res.status(200).json(work_id))
-            .catch((e) => {
-
-                //ErrorTransporter('WCTRLx0006', e, { body: req.body }, req.originalUrl); // ----
-
-                console.error(e);
-                return res.status(500).json({ message: 'work update error' })
-            });
-    },
-
-    async delete(req, res) {
-        /*@ts-ignore*/
-        const user_uid = req.uid;
         const { work_id } = req.params;
 
-        /*@ts-ignore*/
-        await Works.destroy(
-            {
-                where: {
-                    [Op.and]: [{ id: work_id }, { user_uid }]
+        const { work, subworks } = req.body;
+
+        (Object.keys(work).length) &&
+            await Works.update(
+                work,
+                {
+                    status: ['title', 'description', 'price'],
+                    where: { id: work_id }
                 }
-            }
-        )
-            .then(() => res.status(200).json({ log: 'success' }))
-            .catch((e) => {
+            ).catch(err => error(err));
 
-                //ErrorTransporter('WCTRLx0007', e, { user_uid }, req.originalUrl); // ----
+        (Array.isArray(subworks)) &&
+            subworks.map(async subwork =>
+                await Subworks.update(
+                    subwork,
+                    {
+                        where: {
+                            id: subwork.id,
+                        },
+                    }
+                ).catch(err => error(err))
+            );
 
-                console.error(e);
-                return res
-                    .status(500)
-                    .json({ message: 'destroy work error' })
-            });
+        return res.status(200).end();
     },
 
     async load(req, res) {
-
         const { work_id } = req.params;
 
-        /*@ts-ignore*/
-        await Works.sequelize.query(
-            ' SELECT '
-            + ' works.*, '
-            + ' users.name as user_name, users.verified, users.avatar, users.partner, premiums.expiration as premium, '
-            + ' users.profession as user_profession, users.description as user_description, '
-            + ' cities.name as city, states.name as state'
-            + ' FROM works '
-            + ' INNER JOIN users '
-            + ' ON (works.user_uid = users.uid) '
-            + ' LEFT JOIN premiums '
-            + ' ON (works.user_uid = premiums.user_uid) '
-            + ' INNER JOIN cities '
-            + ' ON (works.city_id = cities.id) '
-            + ' INNER JOIN states '
-            + ' ON (cities.state_id = states.id) '
-            + ' WHERE (works.id = :work_id) '
-            + ' LIMIT 1; ',
+        /*
+            * se o id do anúncio tem apenas números 
+        */
+        if (!(/^\d+$/.test(work_id)))
+            return res
+                .status(500)
+                .json({ message: 'error - work_id is not a number' })
+
+        const works = await Works.sequelize.query(
+            `SELECT 
+            works.id, works.title, works.description, 
+            works.price, works.city_id, works.user_uid,
+            users.name as user_name, users.profession as user_profession, 
+            users.description as user_description, 
+            cities.name as city, states.name as state
+            FROM works 
+            INNER JOIN users 
+            ON (works.user_uid = users.uid) 
+            INNER JOIN cities 
+            ON (works.city_id = cities.id) 
+            INNER JOIN states 
+            ON (cities.state_id = states.id) 
+            WHERE (works.id = :work_id) 
+            LIMIT 1;`,
             {
                 replacements: { work_id },
                 type: QueryTypes.SELECT
             }
-        )
-            .then((work) => res.status(200).json(work[0]))
-            .catch((e) => {
+        ).catch(err => error(err))
 
-                //ErrorTransporter('WCTRLx0008', e, { work_id }, req.originalUrl); // ----
+        if (!works)
+            return res
+                .status(200)
+                .json({ message: 'load works error' })
 
-                console.error(e);
-                return res.status(500).json({ message: 'load work error' });
-            });
+        const subworks = await Subworks.findAll({
+            attributes: ['id', 'title', 'description', 'price'],
+            where: { work_id }
+        }).catch(err => error(err))
+
+        if (!Array.isArray(subworks))
+            return res
+                .status(200)
+                .json({ message: 'load subworks error' })
+
+        return res
+            .status(200)
+            .json({
+                work: works[0],
+                subworks
+            })
     },
 
-    async premium(req, res) {
-        const { wid, months } = req.body;
+    async delete(req, res) {
+        const user_uid = req.uid;
+        const { work_id } = req.params;
 
-        if (!wid) return res.status(500).json({ log: 'no wid' });
-        if (!months || Number.isNaN(parseInt(months))) return res.status(500).json({ log: 'months isNaN' });
-
-        const date = new Date();
-        const expireDate = new Date(date.setMonth(date.getMonth() + parseInt(months)));
-
-        /*@ts-ignore*/
-        await Works.update(
+        await Works.destroy(
             {
-                premium: expireDate
-            },
-            {
-                where: { id: wid }
+                where: {
+                    [Op.and]: [
+                        { id: work_id },
+                        { user_uid }
+                    ]
+                }
             }
         )
-            .then(() => res.status(200).end())
-            .catch((e) => {
-                console.error(e);
-                return res.status(500).json({ message: 'premium update error' })
+            .then(() => res
+                .status(200)
+                .json({ log: 'success' })
+            )
+            .catch((err) => {
+                error(err);
+                return res
+                    .status(500)
+                    .json({ message: 'destroy work error' })
             });
-
     }
 }
 

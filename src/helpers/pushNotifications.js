@@ -20,7 +20,7 @@ const lazyPush = (somePushTokens) => {
     }
 
     // Construct a message (see https://docs.expo.io/push-notifications/sending-notifications/)
-    /*@ts-ignore*/
+     
     messages.push({
       to: pushToken.to,
       sound: pushToken.sound,
@@ -44,7 +44,7 @@ const lazyPush = (somePushTokens) => {
       try {
         let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
         log(ticketChunk);
-        /*@ts-ignore*/
+         
         tickets.push(...ticketChunk);
         // NOTE: If a ticket contains an error code in ticket.details.error, you
         // must handle it appropriately. The error codes are listed in the Expo
@@ -76,9 +76,9 @@ const lazyPush = (somePushTokens) => {
   for (let ticket of tickets) {
     // NOTE: Not all tickets have IDs; for example, tickets for notifications
     // that could not be enqueued will have error information and no receipt ID.
-    /*@ts-ignore*/
+     
     if (ticket.id) {
-      /*@ts-ignore*/
+       
       receiptIds.push(ticket.id);
     }
   }
@@ -95,7 +95,7 @@ const lazyPush = (somePushTokens) => {
         // The receipts specify whether Apple or Google successfully received the
         // notification and information about an error, if one occurred.
         for (let receiptId in receipts) {
-          /*@ts-ignore*/
+           
           let { status, message, details } = receipts[receiptId];
           if (status === 'ok') {
             continue;
@@ -103,12 +103,12 @@ const lazyPush = (somePushTokens) => {
             console.error(
               `There was an error sending a notification: ${message}`
             );
-            /*@ts-ignore*/
+             
             if (details && details.error) {
               // The error codes are listed in the Expo documentation:
               // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
               // You must handle the errors appropriately.
-              /*@ts-ignore*/
+               
               console.error(`The error code is ${details.error}`);
             }
           }

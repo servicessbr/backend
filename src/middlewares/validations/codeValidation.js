@@ -1,8 +1,8 @@
 
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-//const ErrorTransporter = require( '../../config/email/ErrorTransporter');
-const { getCache } = require('../../config/redisConfig');
+
+const { getCache } = require('../../../public/config/redisConfig');
 const Users = require('../../models/Users');
 
 
@@ -15,39 +15,38 @@ const codeValidation = {
             tocompare === null ||
             tocompare === undefined
         ) {
-            //ErrorTransporter('CVx0001', 'no-log', { tocompare }, req.originalUrl); // ----
+            
 
-            return res.sendStatus(401);
+            return res.status(401).end();
         }
 
-        try {
-            /*@ts-ignore*/
+        try {    
             jwt.verify(tocompare, process.env.URL_TOKEN);
         } catch (err) {
-            //ErrorTransporter('CVx0002', err, { tocompare }, req.originalUrl); // ----
+            
 
             return res.status(403).json({ message: 'invalide utoken' });
         }
 
-        /*@ts-ignore*/
+         
         const { email } = jwt.decode(tocompare);
 
         await getCache(`utoken:${email}`)
             .then(utoken => {
                 if (utoken === null) {
 
-                    //ErrorTransporter('CVx0003', 'no-log', { utoken, email }, req.originalUrl);
+                    
 
                     return res.status(404).json({ message: 'cache not found' })
                 }
                 else if (utoken === tocompare) {
-                    /*@ts-ignore*/
+                     
                     req.email = email;
                     return next();
                 }
                 else {
 
-                    //ErrorTransporter('CVx0004', 'no-log', { utoken }, req.originalUrl); // ----
+                    
 
                     return res.status(401).json({ message: 'utoken do not match' })
                 };

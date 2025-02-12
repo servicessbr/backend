@@ -131,3 +131,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# TMP used for temporary storage of images by Multer
+public/tmp/*
+!public/tmp/README.md

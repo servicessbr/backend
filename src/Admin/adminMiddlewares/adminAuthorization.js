@@ -17,13 +17,13 @@ const adminAuthorization = async (req, res, next) => {
     };
 
     try {
-        /*@ts-ignore*/
+         
         jwt.verify(token, process.env.ACCESS_TOKEN_ADMIN_SECRET);
     } catch (err) {
         console.error('Invalid token')
         return res.status(403).json({ message: 'invalid token' });
     }
-    /*@ts-ignore*/
+     
 
     const { uid, refreshtoken } = jwt.decode(token);
 
@@ -52,7 +52,7 @@ const adminAuthorization = async (req, res, next) => {
             }
 
             else {
-                /*@ts-ignore*/
+                 
                 req.uid = uid;
                 return next();
             };

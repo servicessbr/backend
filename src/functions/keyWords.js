@@ -1,14 +1,14 @@
-const jsonn = require('../constants/key_words.json');
+const jsonn = require('../../public/constants/key_words.json');
 
 function keyWords(Q) {
     const result = [];
-    /*@ts-ignore*/
+     
     for (i in Q) {
         let uhuul = jsonn.filter((list, idx) => {
             let r = false;
             list.map(word => {
 
-                /*@ts-ignore*/
+                 
                 let query = Q[i];
 
                 if (
@@ -29,7 +29,7 @@ function keyWords(Q) {
             })
             return r;
         });
-        /*@ts-ignore*/
+         
         result.push(uhuul)
     }
 

@@ -9,11 +9,6 @@ class Works extends Model {
                 title: DataTypes.STRING,
                 description: DataTypes.STRING,
                 remote: DataTypes.BOOLEAN,
-                /*
-                    showemail: DataTypes.BOOLEAN,
-                    showphone: DataTypes.BOOLEAN,
-                    socialmedias: DataTypes.STRING,
-                */
                 price: DataTypes.REAL,
                 discount: DataTypes.SMALLINT,
                 per: DataTypes.STRING,
@@ -26,7 +21,6 @@ class Works extends Model {
                 district: DataTypes.STRING,
                 address: DataTypes.STRING,
                 number: DataTypes.INTEGER,
-                //zipcode: DataTypes.SMALLINT,
 
                 socialmedia: DataTypes.STRING,
                 checklist: DataTypes.STRING,
@@ -47,6 +41,11 @@ class Works extends Model {
         this.hasOne(models.Cities, {
             foreignKey: 'city_id',
             as: 'city'
+        });
+
+        this.hasMany(models.Subworks, {
+            foreignKey: 'work_id',
+            as: 'subworks'
         });
     }
 

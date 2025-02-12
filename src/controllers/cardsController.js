@@ -1,282 +1,118 @@
-
 const { QueryTypes } = require('sequelize');
+const { error } = require('console')
 
 // Models:
 const Works = require('../models/Works');
 
 const cardsController = {
-    list: {
-        async premium(req, res) {
-            const { search, location, offset, limit, avatar } = req.query;
+    async list(req, res) {
+        const { search, location, offset } = req.query;
+        /*
+            * Evita que um usuário apareça mais de uma vez na mesma pesquisa.
+            * Faz o replace porque não tava dando para colocar o array dentro 
+            * dos parênteses do IN.
+            * Evita também um possível erro, pois o excluded da requisição,
+            * obrigatoriamente, tem que ser um array com no mínimo uma string.
+        */
+        const excluded = (
+            req.body.excluded &&
+            Array.isArray(req.body.excluded) &&
+            typeof req.body.excluded[0] === 'string'
+        )
+            ? req.body.excluded
+            : [''];
 
-            if (search === undefined) {
-                return res.status(400).json({ message: 'empty query' })
-            };
+        if (search === undefined) {
+            return res.status(400).json({ message: 'empty query' })
+        };
 
-            /*@ts-ignore*/
-            let initial = search && search.split(' ');
-            let words = [];
-            let searchQuery = ''
+        /*
+            * Pesquisa cada palavra individualmente.
+        */
+        function searchQuery() {
+            let initial = search && search.split(' ')
+            let words = []
+            let searchQ = ''
             if (initial) {
-                //words = keyWords(initial);
                 initial.map((it) => words.push(it))
-                words = words.filter((word) => word !== 'de').map((word) => `'%${word}%'`).join(', ');
-                searchQuery = ` AND (works.title ILIKE ANY(ARRAY[${words}]) OR users.profession ILIKE ANY(ARRAY[${words}])) `
+                words = words
+                    .filter((word) => word !== 'de')
+                    .map((word) => `'%${word}%'`)
+                    .join(', ');
+                searchQ = ` AND (works.title ILIKE ANY(ARRAY[${words}]) 
+                OR users.profession ILIKE ANY(ARRAY[${words}])) `
             }
+            return searchQ;
+        };
 
-            let locationQuery = 'WHERE (city_id != 0)';
-            /*
-            if (!isNaN(parseInt(state)))
-                locationQuery = `WHERE (city_id::text LIKE '${state}%')`
-            else 
-            */
-
-            /*@ts-ignore*/
+        /*
+            * Se o city_id for undefined precisa trocar o sinal de = para != 0.
+        */
+        function locationQuery() {
+            let locationQ = 'WHERE (city_id != 0)'
             if (!isNaN(parseInt(location)))
-                locationQuery = `WHERE (city_id = ${location})`;
+                locationQ = `WHERE (city_id = ${location})`
+            return locationQ;
+        };
 
-            let requiredAvatar = '';
-            if (avatar === 'true') {
-                requiredAvatar = ' AND avatar = true ';
-            }
 
-            if (!Works.sequelize) return console.error('!Works.sequelize');
-
-            await Works.sequelize.query(
-                ' SELECT '
-                + ' works.id, works.title, works.discount, works.banner, premiums.expiration as premium,'
-                + ' works.price, works.description, cities.name as city, '
-                + ' users.uid, users.name, users.verified,users.profession, users.avatar '
-                + ' FROM works '
-                + ' INNER JOIN users '
-                + ' ON (works.user_uid = users.uid) '
-                + ' LEFT JOIN premiums '
-                + ' ON (works.user_uid = premiums.user_uid) '
-                + ' INNER JOIN cities '
-                + ' ON (works.city_id = cities.id) '
-                + locationQuery
-                + searchQuery
-                + requiredAvatar
-                + ' AND (premiums.expiration > now() OR (premiums.expiration IS NULL AND premiums.credit > 0)) '
-                + ' AND standby != true '
-                + ' AND suspended IS NOT TRUE AND copy IS NOT TRUE'
-                + ` ORDER BY random() `
-                + ` LIMIT ${limit ? limit : 21}`
-                /*@ts-ignore*/
-                + ` OFFSET ${offset === undefined ? 0 : (offset * 21)};`,
-                {
-                    type: QueryTypes.SELECT
+        await Works.sequelize.query(
+            `SELECT DISTINCT ON (users.uid) works.id, works.title, works.discount, 
+            works.banner, works.price, works.description, 
+            cities.name as city, users.uid, users.name,
+            users.profession
+            FROM works
+            INNER JOIN users
+            ON (works.user_uid = users.uid)
+            INNER JOIN cities
+            ON (works.city_id = cities.id)
+            ${locationQuery()}
+            ${searchQuery()}
+            AND (users.uid NOT IN(:excluded))
+            LIMIT 21
+            OFFSET ${offset || 1} * 21;`,
+            {
+                type: QueryTypes.SELECT,
+                replacements: {
+                    excluded: excluded
                 }
-            )
-                .then((data) => res.status(200).json(data))
-                .catch((err) => {
-                    console.error('2222222: ', err);
-                    return res.status(500).json({ message: 'list cards error' });
-                });
-        },
-        async composed(req, res) {
-            const { search, location, offset, stop } = req.query;
-
-            if (search === undefined) {
-                return res.status(400).json({ message: 'empty query' })
-            };
-
-            /*@ts-ignore*/
-            let initial = search && search.split(' ');
-            let words = [];
-            let searchQuery = ''
-            if (initial) {
-                //words = keyWords(initial);
-                initial.map((it) => words.push(it))
-                words = words.filter((word) => word !== 'de').map((word) => `'%${word}%'`).join(', ');
-                searchQuery = ` AND (works.title ILIKE ANY(ARRAY[${words}]) OR users.profession ILIKE ANY(ARRAY[${words}])) `
             }
-
-            let locationQuery = 'WHERE (city_id != 0)';
-            /*
-            if (!isNaN(parseInt(state)))
-                locationQuery = `WHERE (city_id::text LIKE '${state}%')`
-            else 
-            */
-            /*@ts-ignore*/
-            if (!isNaN(parseInt(location)))
-                locationQuery = `WHERE (city_id = ${location})`;
-
-            if (!Works.sequelize) return console.error('!Works.sequelize');
-
-            const works = await Works.sequelize.query(
-                ' SELECT '
-                + ' works.id, works.title, works.discount, works.banner, premiums.expiration as premium,'
-                + ' works.price, works.description, cities.name as city, '
-                + ' users.uid, users.name, users.verified,users.profession, users.avatar '
-                + ' FROM works '
-                + ' INNER JOIN users '
-                + ' ON (works.user_uid = users.uid) '
-                + ' LEFT JOIN premiums '
-                + ' ON (works.user_uid = premiums.user_uid) '
-                + ' INNER JOIN cities '
-                + ' ON (works.city_id = cities.id) '
-                + locationQuery
-                + searchQuery
-                + ' AND users.avatar is true '
-                + ' AND ( '
-                + ' premiums.id IS NULL OR '
-                + ' ( premiums.id IS NOT NULL AND premiums.expiration < now() ) OR '
-                + ' ( premiums.id IS NOT NULL AND premiums.credit < 1 ) '
-                + ' ) '
-                + ' AND standby != true '
-                + ' AND suspended IS NOT TRUE AND copy IS NOT TRUE'
-                + ` ORDER BY works.updated_at DESC `
-                + ` LIMIT 21`
-                /*@ts-ignore*/
-                + ` OFFSET ${offset === undefined ? 0 : (offset * 21)};`,
-                {
-                    type: QueryTypes.SELECT
-                }
-            )
-
-            const empty =
-                stop !== 'true'
-                    ? await Works.sequelize.query(
-                        ' SELECT '
-                        + ' works.id, works.title, works.discount, works.banner, premiums.expiration as premium,'
-                        + ' works.price, works.description, cities.name as city, '
-                        + ' users.uid, users.name, users.verified,users.profession, users.avatar '
-                        + ' FROM works '
-                        + ' INNER JOIN users '
-                        + ' ON (works.user_uid = users.uid) '
-                        + ' LEFT JOIN premiums '
-                        + ' ON (works.user_uid = premiums.user_uid) '
-                        + ' INNER JOIN cities '
-                        + ' ON (works.city_id = cities.id) '
-                        + locationQuery
-                        + searchQuery
-                        + ' AND users.avatar is not true '
-                        + ' AND (premiums.expiration < now() OR premiums.expiration is null) '
-                        + ' AND standby != true '
-                        + ' AND suspended IS NOT TRUE AND copy IS NOT TRUE'
-                        + ` ORDER BY works.updated_at DESC `
-                        + ` LIMIT 8`
-                        /*@ts-ignore*/
-                        + ` OFFSET ${offset === undefined ? 0 : (offset * 8)};`,
-                        {
-                            type: QueryTypes.SELECT
-                        }
-                    )
-                    : [];
-
-            return res.status(200).json({
-                works, empty
+        )
+            .then(list => {
+                /*
+                     * Retorna a lista normal
+                     * e uma lista ( excluded ) com apenas os UIDs
+                     * para evita que um usuário apareça mais de uma
+                     * vez na mesma pesquisa.
+                */
+                const push = list.map(it => it.uid);
+                return res.status(200).json({
+                    list,
+                    excluded: excluded.concat(push)
+                })
+            })
+            .catch(err => {
+                error(err)
+                return res
+                    .status(500)
+                    .json({ message: 'list cards error' })
             });
-        },
-        async seeMore(req, res) {
-            const { search, location } = req.query;
 
-            if (search === undefined) {
-                return res.status(400).json({ message: 'empty query' })
-            };
-
-            /*@ts-ignore*/
-            let initial = search && search.split(' ');
-            let words = [];
-            let searchQuery = ''
-            if (initial) {
-                //words = keyWords(initial);
-                initial.map((it) => words.push(it))
-                words = words.filter((word) => word !== 'de').map((word) => `'%${word}%'`).join(', ');
-                searchQuery = ` AND (works.title ILIKE ANY(ARRAY[${words}]) OR users.profession ILIKE ANY(ARRAY[${words}])) `
-            }
-
-            let locationQuery = 'WHERE (city_id != 0)';
-            /*
-            if (!isNaN(parseInt(state)))
-                locationQuery = `WHERE (city_id::text LIKE '${state}%')`
-            else 
-            */
-            /*@ts-ignore*/
-            if (!isNaN(parseInt(location)))
-                locationQuery = `WHERE (city_id = ${location})`;
-
-            let requiredAvatar = ' AND avatar = true ';
-
-            if (!Works.sequelize) return console.error('!Works.sequelize');
-
-            await Works.sequelize.query(
-                ' SELECT '
-                + ' works.id, works.title, works.discount, works.banner, premiums.expiration as premium,'
-                + ' works.price, works.description, cities.name as city, '
-                + ' users.uid, users.name, users.verified,users.profession, users.avatar '
-                + ' FROM works '
-                + ' INNER JOIN users '
-                + ' ON (works.user_uid = users.uid) '
-                + ' LEFT JOIN premiums '
-                + ' ON (works.user_uid = premiums.user_uid) '
-                + ' INNER JOIN cities '
-                + ' ON (works.city_id = cities.id) '
-                + locationQuery
-                + searchQuery
-                + requiredAvatar
-                + ' AND standby != true '
-                + ' AND suspended IS NOT TRUE AND copy IS NOT TRUE'
-                + ` ORDER BY works.popularity DESC, works.banner DESC, random() `
-                + ` LIMIT 10`
-                + ` OFFSET 0;`,
-                {
-                    type: QueryTypes.SELECT
-                }
-            )
-                .then((data) => res.status(200).json(data))
-                .catch((err) => {
-                    console.error('3333333333: ', err);
-                    return res.status(500).json({ message: 'list cards error' });
-                });
-        },
     },
 
     async belongs(req, res) {
-        /*@ts-ignore*/
-        const { uid } = req.params;
-        /*@ts-ignore*/
-        const { wid } = req.query;
+        const uid = req.uid;
 
-        if (uid === undefined) {
+        if (!uid)
+            return res
+                .status(400)
+                .json({ message: 'empty uid query' });
 
-            //ErrorTransporter('CCTRLx0003', 'no-log', { uid, wid }, req.originalUrl); // ----
-
-            return res.status(400).json({ message: 'empty uid query' })
-        };
-
-        var except = ';';
-        if (wid) { except = ` AND (works.id != ${wid});` }
-
-        if (!Works.sequelize) return console.error('!Works.sequelize');
-
-        await Works.sequelize.query(
-            " SELECT "
-            + " works.id, works.title, works.suspended, premiums.expiration as premium, "
-            + " works.price, works.description, cities.name as city, "
-            + " users.uid, users.name, users.profession "
-            + " FROM works "
-            + " INNER JOIN users "
-            + " ON (works.user_uid = users.uid) "
-            + " LEFT JOIN premiums "
-            + " ON (works.user_uid = premiums.user_uid) "
-            + " INNER JOIN cities "
-            + " ON (works.city_id = cities.id) "
-            + " WHERE (works.user_uid = :uid)"
-            + except,
-            {
-                replacements: { uid },
-                type: QueryTypes.SELECT
-            }
-        )
-            .then((data) => res.status(200).json(data))
-            .catch((e) => {
-
-                //ErrorTransporter('CCTRLx0004', e, { uid, wid }, req.originalUrl); // ----
-
-                console.error(e);
-                return res.status(500).json({ message: 'my cards error' });
+        await Works.findAll({ where: { user_uid: uid }, attributes: ['id', 'description', 'price', 'title'] })
+            .then(data => res.status(200).json(data).end())
+            .catch(err => {
+                error(err);
+                return res.status(500).json({ message: 'my cards error' }).end();
             });
     },
 };

@@ -1,6 +1,6 @@
 
-const transporter = require('../config/email/transporter');
-const feedbackOptions = require('../config/email/options/feedbackOptions');
+const transporter = require('../email/transporter');
+const feedbackOptions = require('../email/options/feedbackOptions');
 const Feedback = require('../schemas/Feedback');
 //import Feedback from "../schemas/Feedback";
 

@@ -4,7 +4,6 @@ const routes = require('./routes');
 const cors = require("cors");
 require('dotenv').config();
 
-//const jwt = require('jsonwebtoken');
 const http = require('http');
 const { Server } = require('socket.io');
 
