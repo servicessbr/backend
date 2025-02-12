@@ -1,4 +1,4 @@
-module.exports = (original_subwork_title, payer_customer_name, not_me, payment_amount, execution_date ) =>
+module.exports = (original_subwork_title, payer_customer_name, not_me, transaction_amount, execution_date ) =>
     `
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -260,7 +260,7 @@ module.exports = (original_subwork_title, payer_customer_name, not_me, payment_a
                        <i> Valor pago:</i>
                     </p>
                     <strong style="margin-top:8px"> 
-                        R$ ${payment_amount}                    
+                        R$ ${transaction_amount}                    
                     </strong>                        
                 </div>
                 <div class="two3 center">

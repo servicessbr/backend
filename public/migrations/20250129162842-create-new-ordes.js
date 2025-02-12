@@ -28,7 +28,7 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
-      payment_amount: {
+      transaction_amount: {
         type: Sequelize.REAL,
         allowNull: false
       },

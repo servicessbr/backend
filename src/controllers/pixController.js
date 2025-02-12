@@ -39,7 +39,7 @@ const pixController = {
             const payer_customer_uid = req.uid;
 
             /*
-                * payment_amount: 
+                * transaction_amount: 
                     * Valor a ser paga pelo serviço.
                 * paying_customer: 
                     * O payer_customer_uid que irá efetuar o pagamento.
@@ -51,7 +51,7 @@ const pixController = {
                     * O dia que o serviço será realizado.
             */
             const {
-                payment_amount,
+                transaction_amount,
                 provider_professional_uid,
                 execution_date,
                 original_subwork_title
@@ -89,9 +89,9 @@ const pixController = {
                 * Schema Validation -> Joi
             */
             if (!(
-                payment_amount &&
-                typeof payment_amount === 'number' &&
-                payment_amount >= MIN_PAYMENT &&
+                transaction_amount &&
+                typeof transaction_amount === 'number' &&
+                transaction_amount >= MIN_PAYMENT &&
 
                 payer_customer_uid && provider_professional_uid &&
                 execution_date && email && first_name &&
@@ -107,7 +107,7 @@ const pixController = {
             const cache_id = new Date().getTime() + uuidv4().slice(0, 4);
 
             const body = {
-                payment_amount,
+                transaction_amount,
                 description,
                 payment_method_id: 'pix',
                 payer: {
@@ -134,7 +134,7 @@ const pixController = {
                             provider_professional_name: prof.name,
                             provider_professional_email: prof.email,
                             execution_date,
-                            payment_amount,
+                            transaction_amount,
                             original_subwork_title
                         })
                     ).then(() => res
@@ -189,7 +189,7 @@ const pixController = {
                 data.provider_professional_name &&
                 data.provider_professional_email &&
                 data.execution_date &&
-                data.payment_amount &&
+                data.transaction_amount &&
                 data.original_subwork_title
             )) return res
                 .status(400)
@@ -255,7 +255,7 @@ const pixController = {
                                             data.original_subwork_title,
                                             data.payer_customer_name,
                                             data.payer_customer_name,
-                                            data.payment_amount,
+                                            data.transaction_amount,
                                             data.execution_date
                                         ), function (err, info) {
                                             if (err) {
@@ -269,7 +269,7 @@ const pixController = {
                                             data.original_subwork_title,
                                             data.payer_customer_name,
                                             data.provider_professional_name,
-                                            data.payment_amount,
+                                            data.transaction_amount,
                                             data.execution_date
                                         ), function (err, info) {
                                             if (err) {
@@ -332,7 +332,7 @@ const pixController = {
                 `Plano Servicess PRO"`;
 
             const body = {
-                payment_amount: PRICE,
+                transaction_amount: PRICE,
                 description,
                 payment_method_id: 'pix',
                 payer: {

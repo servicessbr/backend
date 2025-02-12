@@ -7,7 +7,7 @@ class Orders extends Model {
                 provider_professional_uid: DataTypes.STRING,
                 payer_customer_uid: DataTypes.STRING,
                 execution_date: DataTypes.DATE,
-                payment_amount: DataTypes.REAL,
+                transaction_amount: DataTypes.REAL,
                 original_subwork_title: DataTypes.STRING, 
                 status: DataTypes.STRING,
             },
