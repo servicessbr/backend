@@ -58,13 +58,18 @@ const pixController = {
                 original_subwork_title
             } = req.body;
 
-            const users = await Users.find({
+            if (payer_customer_uid === provider_professional_uid) return res.status(403).json({ message: 'You can’t hire yourself.' })
+
+            const users = await Users.findAll({
+                raw: true,
                 where: { uid: [payer_customer_uid, provider_professional_uid] },
                 attributes: ['email', 'name', 'uid']
             })
                 .catch(err => error(err));
-            const user = users.filter(u => u.uid === payer_customer_uid);
-            const prof = users.filter(u => u.uid === provider_professional_uid);
+            const user = users.filter(u => u.uid === payer_customer_uid)[0];
+            const prof = users.filter(u => u.uid === provider_professional_uid)[0];
+
+            console.log(users, user, prof);
 
             if (!(user && user.email && user.name && prof && prof.email && prof.name)) return res
                 .status(400)
