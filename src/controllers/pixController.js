@@ -17,8 +17,7 @@ const Chat_Channel = require('../schemas/Chat_Channel');
 const paymentOptions = require('../email/options/paymentOptions');
 const voucherOptions = require('../email/options/voucherOptions');
 
-//const baseURL = "https://api.mercadopago.com"
-const baseURL = "http://192.168.0.178:8001"
+const baseURL = "https://api.mercadopago.com"
 
 const resourceX = (id) => `${baseURL}/v1/payments/${id}`;
 
