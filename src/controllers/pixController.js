@@ -30,7 +30,7 @@ api.interceptors.request.use(async (config) => {
     return config;
 });
 
-const PRICE = 9.9;
+const PRICE = 19.9;
 const MIN_PAYMENT = 50;
 
 const pixController = {
