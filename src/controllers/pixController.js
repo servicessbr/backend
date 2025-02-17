@@ -329,7 +329,7 @@ const pixController = {
                     .slice(user.name.indexOf(' '), user.name.length)
                     .trim();
             const description =
-                `Plano Servicess PRO"`;
+                `Plano Servicess PRO @${uid}`;
 
             const body = {
                 transaction_amount: PRICE,
