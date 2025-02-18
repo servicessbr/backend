@@ -3,9 +3,9 @@ const Users = require("../../models/Users");
 const bcrypt = require("bcrypt");
 const transporter = require('../../email/transporter');
 const adminNewUserOptions = require('../../email/options/adminNewUserOptions');
-const regexEP = require("../../services/regexEP");
+const regexEP = require("../../functions/regexEP");
 const { v4: uuidv4 } = require('uuid');
-const adminGenerateToken = require("../adminServices/adminGenerateToken");
+const adminGenerateToken = require("../adminJwt/adminGenerateToken");
 
 
 /* Redis */

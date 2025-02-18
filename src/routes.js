@@ -8,6 +8,8 @@ const authorization = require('./middlewares/auth/authorization');
 const owner = require('./middlewares/auth/owner');
 const generateCode = require('./middlewares/validations/generateCode');
 const codeValidation = require('./middlewares/validations/codeValidation');
+const convertEmail = require('./middlewares/convertEmail');
+const updatePhone = require('./middlewares/updatePhone');
 
 /*
     * Images:
@@ -17,11 +19,6 @@ const {
     sharpAvatar
 } = require('./middlewares/images/Sharp');
 const memoryStorage = require('./middlewares/images/memoryStorage');
-
-/*
-    * Helpers
-*/
-const convertEmail = require('./helpers/convertEmail');
 
 /*
     * Admin
@@ -40,32 +37,34 @@ const locationsController = require('./controllers/locationsController');
 const feedbackController = require('./controllers/feedbackController');
 const channelController = require('./chat/channelController');
 const tmpController = require('./controllers/tmpController');
-const pixController = require('./controllers/pixController.js');
-const ordersController = require('./controllers/ordersController.js');
-const evaluationsController = require('./controllers/evaluationsController.js');
-const proController = require('./controllers/proController.js');
+const pixController = require('./controllers/pixController');
+const ordersController = require('./controllers/ordersController');
+const evaluationsController = require('./controllers/evaluationsController');
+const proController = require('./controllers/proController');
+const end = require('./middlewares/end');
 
 /*
     * Connection:
 */
-require('./models/connection/connection.js');
+require('./models/connection/connection');
 
 /*
     * Users 
 */
 routes.post('/users/create', codeValidation.newUser, usersController.create);
-routes.put('/users/update', authorization, usersController.update);
 routes.post('/users/delete', authorization, usersController.delete);
 routes.put('/users/login', usersController.login);
 routes.delete('/users/logout', authorization, usersController.logout);
 routes.get('/users/load/:uid', usersController.load);
+routes.put('/users/update', authorization, usersController.update);
 routes.put('/users/updates/password', codeValidation.utoken, usersController.updates.password);
+routes.put('/users/updates/phone', authorization, updatePhone, end);
 
 /*
     * Works 
 */
-routes.post('/works/subworks/create', authorization, worksController.create);
-routes.put('/works/subworks/update/:work_id', authorization, owner, worksController.update);
+routes.post('/works/subworks/create', authorization, updatePhone, worksController.create);
+routes.put('/works/subworks/update', authorization, owner, updatePhone, worksController.update);
 routes.delete('/works/delete/:work_id', authorization, worksController.delete);
 routes.get('/works/subworks/load/:work_id', worksController.load);
 

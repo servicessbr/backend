@@ -6,13 +6,13 @@ const { error } = require('console')
 /* 
     * Services: 
 */
-const generateToken = require('../services/generateToken')
+const generateToken = require('../jwt/generateToken')
 
 /* 
     * Models:
 */
 const Users = require('../models/Users');
-const regexEP = require('../services/regexEP');
+const regexEP = require('../functions/regexEP');
 const { Sequelize } = require('sequelize');
 
 

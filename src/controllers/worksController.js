@@ -7,6 +7,21 @@ const { error } = require('console');
 */
 const Works = require('../models/Works');
 const Subworks = require('../models/Subworks');
+const stringContainsOnlyDigits = require('../functions/onlyDigits/stringContainsOnlyDigits');
+
+const insertableSubworks = (subworks, work_id) => {
+    /*
+        * Acrescenta o ID do anúncio( work ) como foreign key
+        * Se tiver, remove o capo ID para não ter conflito com o 
+        * ID gerado automaticamente.
+    */
+    if (Array.isArray(subworks))
+        return subworks.map(it => {
+            delete it.id;
+            return { ...it, work_id };
+        })
+    else return [];
+}
 
 const worksController = {
     async create(req, res) {
@@ -36,7 +51,7 @@ const worksController = {
 
         if (
             !price ||
-            !(/^\d+$/.test(price))
+            !(stringContainsOnlyDigits(price))
         ) return res
             .status(500)
             .json({ message: 'empty title' });
@@ -49,13 +64,7 @@ const worksController = {
             .then(async work => {
                 if (!Array.isArray(subworks)) return
 
-                /*
-                    * Acrescenta o ID do anúncio( work ) como foreign key
-                */
-                const insertSubWorks = subworks.map(it => {
-                    delete it.id;
-                    return { ...it, work_id: work.id };
-                })
+                const insertSubWorks = insertableSubworks(subworks, work.id);
 
                 await Subworks.bulkCreate(insertSubWorks)
                     .then(() => res
@@ -86,30 +95,30 @@ const worksController = {
                 .status(204)
                 .end()
 
-        const { work_id } = req.params;
+        const { work_id } = req.body;
 
         const { work, subworks } = req.body;
 
-        (Object.keys(work).length) &&
+        (work && Object.keys(work).length) &&
             await Works.update(
                 work,
                 {
                     status: ['title', 'description', 'price'],
                     where: { id: work_id }
                 }
-            ).catch(err => error(err));
+            )
+                .catch(err => error(err));
 
-        (Array.isArray(subworks)) &&
-            subworks.map(async subwork =>
-                await Subworks.update(
-                    subwork,
-                    {
-                        where: {
-                            id: subwork.id,
-                        },
-                    }
-                ).catch(err => error(err))
-            );
+        (subworks && Array.isArray(subworks)) &&
+            Subworks.destroy({
+                where: { work_id }
+            })
+                .then(async () => {
+                    const insertSubWorks = insertableSubworks(subworks, work_id);
+                    await Subworks.bulkCreate(insertSubWorks)
+                        .catch(err => error(err));
+                })
+                .catch(err => error(err));
 
         return res.status(200).end();
     },
@@ -117,10 +126,7 @@ const worksController = {
     async load(req, res) {
         const { work_id } = req.params;
 
-        /*
-            * se o id do anúncio tem apenas números 
-        */
-        if (!(/^\d+$/.test(work_id)))
+        if (!(stringContainsOnlyDigits(work_id)))
             return res
                 .status(500)
                 .json({ message: 'error - work_id is not a number' })

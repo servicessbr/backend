@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const HEROKU_APP_NAME = require('../../public/constants/heroku_app_name');
 const { setCache, getCache } = require('../../public/config/redisConfig');
 const Users = require('../models/Users');
-const lazyPush = require('../helpers/pushNotifications');
+const lazyPush = require('../mobile/pushNotifications');
 
 /*
     * Models

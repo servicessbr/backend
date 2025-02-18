@@ -1,4 +1,4 @@
-const lazyPush = require("../helpers/pushNotifications");
+const lazyPush = require("../mobile/pushNotifications");
 const Chat_Channel = require("../schemas/Chat_Channel");
 const Conversation = require("../schemas/Conversations");
 const { addInBox } = require("./inBoxController");

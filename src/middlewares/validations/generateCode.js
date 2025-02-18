@@ -1,7 +1,7 @@
 
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const regexEP = require('../../services/regexEP');
+const regexEP = require('../../functions/regexEP');
 const { v4: uuidv4 } = require('uuid');
 
 /* 
