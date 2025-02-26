@@ -386,6 +386,12 @@ const pixController = {
 
             let data = await getCache(`pro:${user_uid}`);
 
+            if (!data)
+                return res
+                    .status(400)
+                    .json({ message: 'make payment erro - no data!' })
+                    .end();
+
             if (!isJson(data))
                 return res
                     .status(400)
