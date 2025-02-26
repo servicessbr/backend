@@ -31,9 +31,6 @@ const generateCode = {
         };
 
         if (!regexEP.email.test(email.trim().toLowerCase())) {
-
-
-
             return res.status(400).json({ message: 'invalid email format' })
         };
 
