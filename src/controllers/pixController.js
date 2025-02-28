@@ -386,17 +386,23 @@ const pixController = {
 
             let data = await getCache(`pro:${user_uid}`);
 
-            if (!data)
+            if (!data) {
+                const message = 'make payment erro - no data!';
+                error(message);
                 return res
                     .status(400)
-                    .json({ message: 'make payment erro - no data!' })
+                    .json({ message })
                     .end();
+            }
 
-            if (!isJson(data))
+            if (!isJson(data)) {
+                const message = 'make payment erro - schema format';
+                error(message);
                 return res
                     .status(400)
-                    .json({ message: 'make payment erro - schema format' })
+                    .json({ message })
                     .end();
+            }
 
             data = JSON.parse(data);
             console.log(user_uid, data, data.bank_payment_id, data.user_name)
