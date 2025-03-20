@@ -43,18 +43,19 @@ const worksController = {
 
         if (!city_id) return res
             .status(500)
-            .json({ message: 'empty city' });
+            .json({ message: 'Por favor escolha uma cidade e estado' });
 
         if (!title) return res
             .status(500)
-            .json({ message: 'empty title' });
+            .json({ message: 'Por favor defina o nome do serviço' });
 
-        if (
-            !price ||
-            !(stringContainsOnlyDigits(price))
-        ) return res
+        if (!price) return res
             .status(500)
-            .json({ message: 'empty title' });
+            .json({ message: 'Por favor defina o preço do serviço' });
+
+        if (!(stringContainsOnlyDigits(price))) return res
+            .status(500)
+            .json({ message: 'O preço deve ter apenas números' });
 
         await Works.create({
             user_uid: uid,
