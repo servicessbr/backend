@@ -6,7 +6,7 @@ const Works = require('../models/Works');
 
 const cardsController = {
     async list(req, res) {
-        const { search, location, offset } = req.query;
+        const { search, location, offset, order } = req.query;
         /*
             * Evita que um usuário apareça mais de uma vez na mesma pesquisa.
             * Faz o replace porque não tava dando para colocar o array dentro 
@@ -57,20 +57,33 @@ const cardsController = {
 
 
         await Works.sequelize.query(
-            `SELECT DISTINCT ON (users.uid) works.id, works.title, works.discount, 
-            works.banner, works.price, works.description, 
-            cities.name as city, users.uid, users.name,
+            `
+            SELECT * 
+            FROM (
+            SELECT DISTINCT ON (works.user_uid)
+            works.id,
+            works.title,
+            works.discount,
+            works.banner,
+            works.price,
+            works.description,
+            works.user_uid,
+            cities.name AS city,
+            users.uid,
+            users.name,
             users.profession
             FROM works
-            INNER JOIN users
-            ON (works.user_uid = users.uid)
-            INNER JOIN cities
-            ON (works.city_id = cities.id)
+            INNER JOIN users ON works.user_uid = users.uid
+            INNER JOIN cities ON works.city_id = cities.id
             ${locationQuery()}
             ${searchQuery()}
             AND (users.uid NOT IN(:excluded))
+            ORDER BY works.user_uid
+            ) t
+            ORDER BY price ${order || 'ASC'} NULLS LAST
             LIMIT 21
-            OFFSET ${offset || 1} * 21;`,
+            OFFSET ${offset || 1} * 21; 
+            `,
             {
                 type: QueryTypes.SELECT,
                 replacements: {
