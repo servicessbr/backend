@@ -6,7 +6,7 @@ const Works = require('../models/Works');
 
 const cardsController = {
     async list(req, res) {
-        const { search, location, offset, order } = req.query;
+        const { search, location, offset } = req.query;
         /*
             * Evita que um usuário apareça mais de uma vez na mesma pesquisa.
             * Faz o replace porque não tava dando para colocar o array dentro 
@@ -80,7 +80,7 @@ const cardsController = {
             AND (users.uid NOT IN(:excluded))
             ORDER BY works.user_uid
             ) t
-            ORDER BY price ${order || 'DESC'} NULLS LAST
+            ORDER BY price DESC NULLS LAST
             LIMIT 21
             OFFSET ${offset || 1} * 21; 
             `,
