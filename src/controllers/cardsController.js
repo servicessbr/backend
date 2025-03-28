@@ -80,7 +80,7 @@ const cardsController = {
             AND (users.uid NOT IN(:excluded))
             ORDER BY works.user_uid
             ) t
-            ORDER BY price ${order || 'ASC'} NULLS LAST
+            ORDER BY price ${order || 'DESC'} NULLS LAST
             LIMIT 21
             OFFSET ${offset || 1} * 21; 
             `,

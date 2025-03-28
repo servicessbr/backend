@@ -12,18 +12,14 @@ const fs = require('fs');
 // TMP:
 //const serviceAccount = require('../keys/temp-3d85a-firebase-adminsdk-nyxj0-d9cc8b5ac5');
 // DEFAULT:
-const serviceAccount = require('../../public/keys/servicess-pictures-firebase-adminsdk-gqhv7-7171226400');
+const serviceAccount = require('../../public/keys/servicess-6e07b-firebase-adminsdk-fbsvc-da0ab15083');
 
 const Users = require('../models/Users');
 const admin = firebaseAdmin.initializeApp({
-
     credential: firebaseAdmin.credential.cert(serviceAccount),
 }, 'default');
 
-// TMP:
-//const storageRef = admin.storage().bucket(`gs://temp-3d85a.appspot.com`);
-// DEFAULT:
-const storageRef = admin.storage().bucket(`gs://servicess-7a7de.appspot.com`);
+const storageRef = admin.storage().bucket('gs://servicess-6e07b.firebasestorage.app');
 
 async function uploadFile(path, destination) {
     const storage = await storageRef.upload(path, {
