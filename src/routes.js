@@ -94,7 +94,7 @@ routes.get('/list/cities/:location', locationsController.list);
 //routes.get('/firebase/delete/all', authorization, firebase.deleteAll);
 
 /*
-    * Orders
+    * Orders 
 */
 routes.get('/orders/list', authorization, ordersController.list);
 routes.put('/orders/finalize/evaluate/:order_id', authorization, ordersController.finalizeAndEvaluate);
