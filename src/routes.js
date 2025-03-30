@@ -89,7 +89,7 @@ routes.get('/list/cities/:location', locationsController.list);
 /*
     * Firebase 
 */
-//routes.post('/firebase/avatar/update', authorization, memoryStorage.single, sharpAvatar, firebase.avatar.update);
+routes.post('/firebase/avatar/update', authorization, memoryStorage.single, sharpAvatar, firebase.avatar.update);
 //routes.get('/firebase/avatar/delete', authorization, firebase.avatar.delete);
 //routes.get('/firebase/delete/all', authorization, firebase.deleteAll);
 

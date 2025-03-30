@@ -62,27 +62,37 @@ const firebase = {
     avatar: {
         async update(req, res) {
 
-            console.log('IN 0000000000002')
-
+             
             const filename = req.filename;
 
             const path = `${DIR}/${filename}`;
 
+             
             const uid = req.uid;
+
+            const firePath = `${uid}/${req.filename}`
 
             if (!uid) {
                 return res.status(500).json({ log: 'firebase no user' })
             } else {
-
-                await uploadFile(`${uid}/${uid}.webp`)
+                await uploadFile(path, firePath)
                     .then(async () => {
-                        await UnlinkAsync(path).catch(err => console.error(err));
-                        return res.status(200).json({ log: 'success' }).end();
+                        await Users.update(
+                            { avatar: true },
+                            { where: { uid } }
+                        )
+                            .catch((err) => {
+                                console.error(err);
+                            });
                     })
-                    .catch(async () => {
-                        await UnlinkAsync(path).catch(err => console.error(err));
-                        return res.status(500).json({ log: 'Falha ao atualizar o avatar' });
+                    .catch(async err => {
+                        console.error(err)
+
                     })
+
+                await UnlinkAsync(path).catch(err => console.error(err));
+
+                return res.status(200).json({ log: 'success' });
             }
         },
 

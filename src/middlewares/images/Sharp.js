@@ -6,10 +6,6 @@ const DIR = require('../../../public/constants/DIR.json');
 
 
 const sharpAvatar = async (req, res, next) => {
-
-    console.log('IN 0000000000001');
-
-     
     const uid = req.uid;
 
      

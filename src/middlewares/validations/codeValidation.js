@@ -11,16 +11,12 @@ const codeValidation = {
         const auth = req.headers.authorization;
         const tocompare = auth && auth.split(' ')[1];
 
-        console.log('YYYYYYY: ', auth, tocompare);
-
         if (
             tocompare === null ||
             tocompare === undefined
         ) {
             return res.status(401).end();
         }
-
-        console.log('XXXXXXXXXXX: ', tocompare, process.env.URL_TOKEN);
 
         try {
             jwt.verify(tocompare, process.env.URL_TOKEN);
