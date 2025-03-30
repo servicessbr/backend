@@ -7,6 +7,8 @@ const DIR = require('../../../public/constants/DIR.json');
 
 const sharpAvatar = async (req, res, next) => {
 
+    console.log('IN 0000000000001');
+
      
     const uid = req.uid;
 
@@ -16,7 +18,7 @@ const sharpAvatar = async (req, res, next) => {
 
      
     const buffer = req.file.buffer;
-    const filename = uid + '[p].webp';
+    const filename = uid + '.webp';
 
     fs.access(DIR, (err) => err && fs.mkdirSync(DIR));
 

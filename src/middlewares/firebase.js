@@ -12,7 +12,7 @@ const fs = require('fs');
 // TMP:
 //const serviceAccount = require('../keys/temp-3d85a-firebase-adminsdk-nyxj0-d9cc8b5ac5');
 // DEFAULT:
-const serviceAccount = require('../../public/keys/servicess-6e07b-firebase-adminsdk-fbsvc-da0ab15083');
+const serviceAccount = require('../../public/keys/servicess-6e07b-firebase-adminsdk');
 
 const Users = require('../models/Users');
 const admin = firebaseAdmin.initializeApp({
@@ -62,20 +62,27 @@ const firebase = {
     avatar: {
         async update(req, res) {
 
+            console.log('IN 0000000000002')
 
             const filename = req.filename;
 
             const path = `${DIR}/${filename}`;
-
 
             const uid = req.uid;
 
             if (!uid) {
                 return res.status(500).json({ log: 'firebase no user' })
             } else {
-                await UnlinkAsync(path).catch(err => console.error(err));
 
-                return res.status(200).json({ log: 'success' });
+                await uploadFile(`${uid}/${uid}.webp`)
+                    .then(async () => {
+                        await UnlinkAsync(path).catch(err => console.error(err));
+                        return res.status(200).json({ log: 'success' }).end();
+                    })
+                    .catch(async () => {
+                        await UnlinkAsync(path).catch(err => console.error(err));
+                        return res.status(500).json({ log: 'Falha ao atualizar o avatar' });
+                    })
             }
         },
 
@@ -83,10 +90,8 @@ const firebase = {
 
             const uid = req.uid;
 
-            await removeFile(uid + '[p].webp')
-                .then(async () => {
-                    return res.status(200).end()
-                })
+            await removeFile(`${uid}/${uid}.webp`)
+                .then(() => res.status(200).end())
                 .catch(() => res.status(500).json({ log: 'Falha ao excluir o avatar' }))
         }
     },
