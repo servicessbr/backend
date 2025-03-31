@@ -10,7 +10,7 @@ function feedbackOptions(
 ) {
     return ({
         from: 'Servicess <suporte@servicess.com.br>',
-        to: 'suporte@servicess.com.br',
+        to: 'servicessinbox@gmail.com',
         subject: `${code}`,
         html: template(code, suggestion, uid, name, email, phone),
         attachments: [{

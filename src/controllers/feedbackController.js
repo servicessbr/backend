@@ -22,7 +22,11 @@ const feedbackController = {
         await Feedback.create({
             uid,
             suggestion,
-            evaluation
+            evaluation,
+            code, 
+            name, 
+            email, 
+            phone
 
         }).catch(err => console.error(err));
 

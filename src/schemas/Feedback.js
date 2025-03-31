@@ -16,8 +16,6 @@ const feedbackSchema = new mongoose.Schema({
         required: false,
         unique: false
     },
-
-    
     code: {
         type: String,
         required: false,
@@ -34,6 +32,11 @@ const feedbackSchema = new mongoose.Schema({
         unique: false
     },
     phone: {
+        type: String,
+        required: false,
+        unique: false
+    },
+    email: {
         type: String,
         required: false,
         unique: false
