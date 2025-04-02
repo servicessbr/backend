@@ -42,6 +42,7 @@ const ordersController = require('./controllers/ordersController');
 const evaluationsController = require('./controllers/evaluationsController');
 const proController = require('./controllers/proController');
 const end = require('./middlewares/end');
+const paypalTestController = require('./controllers/paypalTestController');
 
 /*
     * Connection:
@@ -144,5 +145,11 @@ routes.post('/admin/generate/new/user/code', adminAuthorization, adminController
      * TMP
 */
 routes.get('/tmp/list/premium', tmpController.premium);
+
+/*
+     * TEST:
+*/
+routes.post('/test', paypalTestController.createPaypalOrder);
+routes.get('/paypal/checkout', paypalTestController.checkoutPayPal);
 
 module.exports = routes;
