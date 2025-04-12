@@ -68,6 +68,7 @@ const cardsController = {
             works.price,
             works.description,
             works.user_uid,
+            works.created_at,
             cities.name AS city,
             users.uid,
             users.name,
@@ -80,7 +81,7 @@ const cardsController = {
             AND (users.uid NOT IN(:excluded))
             ORDER BY works.user_uid
             ) t
-            ORDER BY price NULLS LAST
+            ORDER BY created_at DESC NULLS LAST
             LIMIT 21
             OFFSET ${offset || 1} * 21; 
             `,
