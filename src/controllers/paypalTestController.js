@@ -71,6 +71,7 @@ const paypalTestController = {
                 }
             })
         })
+            .catch(err => console.error(err))
 
         const url = response.data.links.find(link => link.rel === 'approve').href
         return res.status(200).json({ url }).end();
@@ -93,7 +94,7 @@ const paypalTestController = {
             }
         })
 
-        console.log(response.data);
+        console.log(response.data.purchase_units);
 
         return res.status(200).end();
     }
