@@ -16,6 +16,7 @@ const transporter = require('../email/transporter');
 const Chat_Channel = require('../schemas/Chat_Channel');
 const paymentOptions = require('../email/options/paymentOptions');
 const voucherOptions = require('../email/options/voucherOptions');
+const cpf = require('../functions/cpf');
 
 const baseURL = "https://api.mercadopago.com"
 
@@ -54,8 +55,27 @@ const pixController = {
                 transaction_amount,
                 provider_professional_uid,
                 execution_date,
-                original_subwork_title
+                original_subwork_title,
+                customer_cpf,
+                customer_full_name
             } = req.body;
+
+            /*
+                * Schema Validation -> Joi
+            */
+            if (!(
+                transaction_amount &&
+                typeof transaction_amount === 'number' &&
+                transaction_amount >= MIN_PAYMENT &&
+
+                payer_customer_uid && provider_professional_uid &&
+                execution_date &&
+                original_subwork_title &&
+                customer_cpf && customer_full_name && cpf(customer_cpf)
+            )) return res
+                .status(400)
+                .json({ message: 'payment error - missing data' })
+                .end();
 
             if (payer_customer_uid === provider_professional_uid) return res.status(403).json({ message: 'You can’t hire yourself.' })
 
@@ -77,28 +97,20 @@ const pixController = {
 
             const { email } = user;
             const first_name =
-                user.name
+                customer_full_name
                     .slice(0, user.name.indexOf(' '))
                     .trim();
             const last_name =
-                user.name
+                customer_full_name
                     .slice(user.name.indexOf(' '), user.name.length)
                     .trim();
 
             /*
-                * Schema Validation -> Joi
-            */
-            if (!(
-                transaction_amount &&
-                typeof transaction_amount === 'number' &&
-                transaction_amount >= MIN_PAYMENT &&
-
-                payer_customer_uid && provider_professional_uid &&
-                execution_date && email && first_name &&
-                original_subwork_title
-            )) return res
+              * Schema Validation -> Joi
+          */
+            if (!(email && first_name)) return res
                 .status(400)
-                .json({ message: 'payment error - missing data' })
+                .json({ message: 'payment error - missing email or first name' })
                 .end();
 
             const description =
@@ -114,6 +126,10 @@ const pixController = {
                     email,
                     first_name,
                     last_name: last_name || '',
+                    identification: {
+                        type: 'CPF',
+                        number: customer_cpf
+                    },
                 },
                 notification_url:
                     `${HEROKU_APP_NAME}/pix/status/payment/${cache_id}`
