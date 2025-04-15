@@ -121,7 +121,32 @@ const cardsController = {
                 .status(400)
                 .json({ message: 'empty uid query' });
 
-        await Works.findAll({ where: { user_uid: uid }, attributes: ['id', 'description', 'price', 'title'] })
+        await Works.sequelize.query(
+            `
+            select * from works limit 1;
+            SELECT 
+            works.user_uid,
+            works.id,
+            works.title,
+            works.discount,
+            works.banner,
+            works.price,
+            works.description,
+            works.user_uid,
+            cities.name AS city,
+            users.uid,
+            users.name,
+            users.profession
+            FROM works
+            INNER JOIN users ON works.user_uid = users.uid
+            INNER JOIN cities ON works.city_id = cities.id
+            WHERE works.user_uid = :uid;
+            `,
+            {
+                type: QueryTypes.SELECT,
+                replacements: { uid }
+            }
+        )
             .then(data => res.status(200).json(data).end())
             .catch(err => {
                 error(err);
