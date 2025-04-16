@@ -5,7 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 const HEROKU_APP_NAME = require('../../public/constants/heroku_app_name');
 const { setCache, getCache } = require('../../public/config/redisConfig');
 const Users = require('../models/Users');
-const lazyPush = require('../mobile/pushNotifications');
 
 /*
     * Models
@@ -13,17 +12,15 @@ const lazyPush = require('../mobile/pushNotifications');
 const Orders = require('../models/Orders');
 const isJson = require('../functions/isJson');
 const transporter = require('../email/transporter');
-const Chat_Channel = require('../schemas/Chat_Channel');
-const paymentOptions = require('../email/options/paymentOptions');
 const voucherOptions = require('../email/options/voucherOptions');
 const cpf = require('../functions/cpf');
+const { URL_MERCADO_PAGO } = require('../../public/constants/URL');
+const { PRICE, MIN_PAYMENT_X } = require('../../public/constants/priceTags');
 
-const baseURL = "https://api.mercadopago.com"
-
-const resourceX = (id) => `${baseURL}/v1/payments/${id}`;
+const resourceX = (id) => `${URL_MERCADO_PAGO}/v1/payments/${id}`;
 
 const api = axios.create({
-    baseURL
+    baseURL: URL_MERCADO_PAGO
 });
 
 api.interceptors.request.use(async (config) => {
@@ -31,8 +28,6 @@ api.interceptors.request.use(async (config) => {
     return config;
 });
 
-const PRICE = 4.9;
-const MIN_PAYMENT_X = 10;
 
 const pixController = {
     orders: {
@@ -155,24 +150,25 @@ const pixController = {
                             transaction_amount,
                             original_subwork_title
                         })
-                    ).then(() => res
-                        .status(200)
-                        .json({
-                            linkBuyMercadoPago:
-                                response
-                                    .data
-                                    .point_of_interaction
-                                    .transaction_data
-                                    .ticket_url
-                        })
-                        .end()
-                    ).catch(err => {
-                        error(err)
-                        return res
-                            .status(500)
-                            .json({ message: 'generate payment - set cache error' })
+                    )
+                        .then(() => res
+                            .status(200)
+                            .json({
+                                linkBuyMercadoPago:
+                                    response
+                                        .data
+                                        .point_of_interaction
+                                        .transaction_data
+                                        .ticket_url
+                            })
                             .end()
-                    });
+                        ).catch(err => {
+                            error(err)
+                            return res
+                                .status(500)
+                                .json({ message: 'generate payment - set cache error' })
+                                .end()
+                        });
                 }).catch(err => {
                     error(err)
                     return res
@@ -184,8 +180,8 @@ const pixController = {
 
         async getStatusAndMakeOrder(req, res) {
             const { cache_id } = req.params;
-
-            let data = await getCache(`payment:${cache_id}`);
+            const redisKey = `payment:${cache_id}`;
+            let data = await getCache(redisKey);
 
             if (!isJson(data)) return res
                 .status(400)
@@ -234,80 +230,7 @@ const pixController = {
             await fetchData.get()
                 .then(async response => {
                     if (response.data.status === "approved") {
-                        await Orders.create({
-                            status: 'in_progress',
-                            ...data
-                        })
-                            .then(async () => {
-                                try {
-                                    const channel = await Chat_Channel.find({
-                                        uid: [
-                                            data.payer_customer_uid,
-                                            data.provider_professional_uid
-                                        ]
-                                    });
-
-                                    console.log('channel: ', channel)
-
-                                    channel[0] && lazyPush([
-                                        {
-                                            to: channel[0].ExponentPushToken,
-                                            sound: 'default',
-                                            body: '🔔 O agendamento foi realizado!',
-                                            data: {}
-                                        }
-                                    ]);
-
-                                    channel[1] && lazyPush([
-                                        {
-                                            to: channel[1].ExponentPushToken,
-                                            sound: 'default',
-                                            body: '🔔 O agendamento foi realizado!',
-                                            data: {}
-                                        }
-                                    ]);
-
-                                    transporter.sendMail(
-                                        paymentOptions(
-                                            data.provider_professional_email,
-                                            data.original_subwork_title,
-                                            data.payer_customer_name,
-                                            data.payer_customer_name,
-                                            data.transaction_amount,
-                                            data.execution_date
-                                        ), function (err, info) {
-                                            if (err) {
-                                                console.error(err)
-                                            }
-                                        });
-
-                                    transporter.sendMail(
-                                        paymentOptions(
-                                            data.payer_customer_email,
-                                            data.original_subwork_title,
-                                            data.payer_customer_name,
-                                            data.provider_professional_name,
-                                            data.transaction_amount,
-                                            data.execution_date
-                                        ), function (err, info) {
-                                            if (err) {
-                                                console.error(err)
-                                            }
-                                        });
-
-                                } catch (err) {
-                                    console.error('Payment | Push or E-mail Error: ', err)
-                                };
-
-                                return res.status(200).end();
-                            })
-                            .catch(err => {
-                                error(err)
-                                return res
-                                    .status(500)
-                                    .json({ message: 'make order error - create order' })
-                                    .end()
-                            })
+                        createOrder(res, data, redisKey);
                     } else return res.status(204).end();
                 })
                 .catch(err => {

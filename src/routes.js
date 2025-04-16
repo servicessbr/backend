@@ -146,8 +146,8 @@ routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMa
 /*
      * PayPal - Orders
 */
-routes.post('/paypal/generate', paypalController.generatePaypal);
-routes.get('/paypal/checkout', paypalController.checkoutPayPal);
+routes.post('/paypal/generate', authorization, paypalController.generatePaypal);
+routes.put('/paypal/checkout', authorization, paypalController.checkoutPayPal);
 /*
     * PIX - PRO
 */
