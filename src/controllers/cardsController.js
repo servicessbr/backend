@@ -123,7 +123,6 @@ const cardsController = {
 
         await Works.sequelize.query(
             `
-            select * from works limit 1;
             SELECT 
             works.user_uid,
             works.id,
