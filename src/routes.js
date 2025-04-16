@@ -42,7 +42,7 @@ const ordersController = require('./controllers/ordersController');
 const evaluationsController = require('./controllers/evaluationsController');
 const proController = require('./controllers/proController');
 const end = require('./middlewares/end');
-const paypalTestController = require('./controllers/paypalTestController');
+const paypalController = require('./controllers/paypalController');
 
 /*
     * Connection:
@@ -111,18 +111,6 @@ routes.get('/evaluations/list/:provider_professional_uid', evaluationsController
 routes.get('/is/pro', authorization, proController.isPro);
 
 /*
-    * PIX - Orders
-*/
-routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
-routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
-
-/*
-    * PIX - PRO
-*/
-routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
-routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
-
-/*
     * Chat 
 */
 routes.post('/expo/push/token', authorization, channelController.channel);
@@ -146,10 +134,26 @@ routes.post('/admin/generate/new/user/code', adminAuthorization, adminController
 */
 routes.get('/tmp/list/premium', tmpController.premium);
 
+
 /*
-     * TEST:
+    * Payment Methods
 */
-routes.post('/test', paypalTestController.createPaypalOrder);
-routes.get('/paypal/checkout', paypalTestController.checkoutPayPal);
+/*
+    * PIX - Orders
+*/
+routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
+routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
+/*
+     * PayPal - Orders
+*/
+routes.post('/paypal/generate', paypalController.generatePaypal);
+routes.get('/paypal/checkout', paypalController.checkoutPayPal);
+/*
+    * PIX - PRO
+*/
+routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
+routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
+
+
 
 module.exports = routes;

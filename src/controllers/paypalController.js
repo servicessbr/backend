@@ -3,7 +3,9 @@ const { default: test } = require("node:test");
 const axios = require('axios');
 
 const PAYPAL_BASE_URL = 'https://api-m.sandbox.paypal.com';
-const BASE_URL = 'http://localhost:8000';
+//const BASE_URL = 'http://localhost:8000';
+const TMP_CANCEL_URL = 'https://servicess.com.br/payment/finish';
+const TMP_RETURN_URL = 'https://servicess.com.br/paypal/checkout';
 
 async function generateAccessToken() {
     const response = await axios({
@@ -20,8 +22,8 @@ async function generateAccessToken() {
 }
 
 
-const paypalTestController = {
-    async createPaypalOrder(req, res) {
+const paypalController = {
+    async generatePaypal(req, res) {
         const { value } = req.body;
 
         const accessToken = await generateAccessToken()
@@ -63,8 +65,8 @@ const paypalTestController = {
                 ],
 
                 application_context: {
-                    return_url: BASE_URL + '/paypal/checkout',
-                    cancel_url: BASE_URL + '/paypal/checkout',
+                    return_url: TMP_RETURN_URL + '?',
+                    cancel_url: TMP_CANCEL_URL,
                     shipping_preference: 'NO_SHIPPING',
                     user_action: 'PAY_NOW',
                     brand_name: 'Servicess'
@@ -100,4 +102,4 @@ const paypalTestController = {
     }
 }
 
-module.exports = paypalTestController;
+module.exports = paypalController;

@@ -32,7 +32,7 @@ api.interceptors.request.use(async (config) => {
 });
 
 const PRICE = 4.9;
-const MIN_PAYMENT = 50;
+const MIN_PAYMENT_X = 10;
 
 const pixController = {
     orders: {
@@ -66,16 +66,18 @@ const pixController = {
             if (!(
                 transaction_amount &&
                 typeof transaction_amount === 'number' &&
-                transaction_amount >= MIN_PAYMENT &&
+                transaction_amount >= MIN_PAYMENT_X &&
 
                 payer_customer_uid && provider_professional_uid &&
                 execution_date &&
                 original_subwork_title &&
-                customer_cpf && customer_full_name && cpf(customer_cpf)
+                customer_cpf && customer_full_name
             )) return res
                 .status(400)
                 .json({ message: 'payment error - missing data' })
                 .end();
+
+            if (!cpf(customer_cpf)) return 'payment error - cpf format';
 
             if (payer_customer_uid === provider_professional_uid) return res.status(403).json({ message: 'You can’t hire yourself.' })
 
@@ -241,7 +243,7 @@ const pixController = {
                                     const channel = await Chat_Channel.find({
                                         uid: [
                                             data.payer_customer_uid,
-                                            data.payer_customer_uid
+                                            data.provider_professional_uid
                                         ]
                                     });
 
