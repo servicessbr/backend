@@ -178,8 +178,10 @@ const paypalController = {
         })
             .catch(err => console.error(err));
 
+        console.log('DATA: ',response.data && response.data.status);
+
         if (response.data && response.data.status === 'COMPLETED') {
-            createOrder(res, data, redisKey);
+            return createOrder(res, data, redisKey);
         } else return res.status(204).end();
 
     }

@@ -7,7 +7,14 @@ if (process.env.NODE_ENV) {
     // all emails are catched by ethereal.email
     mailConfig = {
         host: 'smtp.ethereal.email',
+        secure: true,
+        secureConnection: false,
+        tls: {
+            ciphers: 'SSLv3'
+        },
+        requireTLS: true,
         port: 465,
+        debug: true,
         auth: {
             user: 'suporte@servicess.com.br',
             pass: process.env.MAIN_MAIL_PASSWORD

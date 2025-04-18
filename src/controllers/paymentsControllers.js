@@ -17,7 +17,6 @@ exports.createOrder = async (res, data, removeRadisKey) => {
 
     if (!(
         data &&
-        data.bank_payment_id &&
         data.payer_customer_uid &&
         data.payer_customer_name &&
         data.payer_customer_email &&
