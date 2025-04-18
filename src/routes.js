@@ -42,7 +42,6 @@ const ordersController = require('./controllers/ordersController');
 const evaluationsController = require('./controllers/evaluationsController');
 const proController = require('./controllers/proController');
 const end = require('./middlewares/end');
-const paypalController = require('./controllers/paypalController');
 
 /*
     * Connection:
@@ -101,7 +100,7 @@ routes.get('/orders/list', authorization, ordersController.list);
 routes.put('/orders/finalize/evaluate/:order_id', authorization, ordersController.finalizeAndEvaluate);
 
 /*
-    * Evaluations
+    * Evaluations 
 */
 routes.get('/evaluations/list/:provider_professional_uid', evaluationsController.list);
 
@@ -109,6 +108,18 @@ routes.get('/evaluations/list/:provider_professional_uid', evaluationsController
     * PRO
 */
 routes.get('/is/pro', authorization, proController.isPro);
+
+/*
+    * PIX - Orders
+*/
+routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
+routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
+
+/*
+    * PIX - PRO
+*/
+routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
+routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
 
 /*
     * Chat 
@@ -133,27 +144,5 @@ routes.post('/admin/generate/new/user/code', adminAuthorization, adminController
      * TMP
 */
 routes.get('/tmp/list/premium', tmpController.premium);
-
-
-/*
-    * Payment Methods
-*/
-/*
-    * PIX - Orders
-*/
-routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
-routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
-/*
-     * PayPal - Orders
-*/
-routes.post('/paypal/generate', authorization, paypalController.generatePaypal);
-routes.put('/paypal/checkout', authorization, paypalController.checkoutPayPal);
-/*
-    * PIX - PRO
-*/
-routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
-routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
-
-
 
 module.exports = routes;

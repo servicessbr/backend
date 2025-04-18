@@ -1,7 +1,4 @@
-const cpf = (paramCPF) => {
-    if (typeof paramCPF !== 'string') return false;
-    const strCPF = paramCPF.replace(/\D/g, '');
-
+const cpf = (strCPF) => {
     var Soma;
     var Resto;
     Soma = 0;

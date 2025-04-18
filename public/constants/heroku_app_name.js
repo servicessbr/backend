@@ -1,10 +1,8 @@
-const { URL_HEROKU_SERVER } = require('./URL');
-
 require('dotenv').config();
 
 const HEROKU_APP_NAME =
     process.env.HEROKU_APP_NAME
         ? process.env.HEROKU_APP_NAME
-        : URL_HEROKU_SERVER;
+        : 'https://servicess-04d4b6080f33.herokuapp.com';
 
 module.exports = HEROKU_APP_NAME;        
