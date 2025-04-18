@@ -1,17 +1,14 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 
-var mailConfig;
-
-
-// all emails are delivered to destination
-mailConfig = {
+const transporter = nodemailer.createTransport({
+     
     host: "smtpout.secureserver.net",
     secure: true,
     /* 
         * TLS requires secureConnection to be false
     */
-    secureConnection: false,
+    secureConnection: false, 
     tls: {
         ciphers: 'SSLv3'
     },
@@ -22,11 +19,6 @@ mailConfig = {
         user: 'suporte@servicess.com.br',
         pass: process.env.MAIN_MAIL_PASSWORD
     }
-};
-
-
-console.log(process.env.NODE_ENV, mailConfig);
-
-const transporter = nodemailer.createTransport(mailConfig);
+});
 
 module.exports = transporter;
