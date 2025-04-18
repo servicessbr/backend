@@ -5,7 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 const HEROKU_APP_NAME = require('../../public/constants/heroku_app_name');
 const { setCache, getCache } = require('../../public/config/redisConfig');
 const Users = require('../models/Users');
-const lazyPush = require('../mobile/pushNotifications');
 
 /*
     * Models
@@ -13,16 +12,16 @@ const lazyPush = require('../mobile/pushNotifications');
 const Orders = require('../models/Orders');
 const isJson = require('../functions/isJson');
 const transporter = require('../email/transporter');
-const Chat_Channel = require('../schemas/Chat_Channel');
-const paymentOptions = require('../email/options/paymentOptions');
 const voucherOptions = require('../email/options/voucherOptions');
+const cpf = require('../functions/cpf');
+const { URL_MERCADO_PAGO } = require('../../public/constants/URL');
+const { PRICE, MIN_PAYMENT_X } = require('../../public/constants/priceTags');
+const createOrder = require('./paymentsControllers');
 
-const baseURL = "https://api.mercadopago.com"
-
-const resourceX = (id) => `${baseURL}/v1/payments/${id}`;
+const resourceX = (id) => `${URL_MERCADO_PAGO}/v1/payments/${id}`;
 
 const api = axios.create({
-    baseURL
+    baseURL: URL_MERCADO_PAGO
 });
 
 api.interceptors.request.use(async (config) => {
@@ -30,8 +29,6 @@ api.interceptors.request.use(async (config) => {
     return config;
 });
 
-const PRICE = 4.9;
-const MIN_PAYMENT = 50;
 
 const pixController = {
     orders: {
@@ -54,8 +51,29 @@ const pixController = {
                 transaction_amount,
                 provider_professional_uid,
                 execution_date,
-                original_subwork_title
+                original_subwork_title,
+                customer_cpf,
+                customer_full_name
             } = req.body;
+
+            /*
+                * Schema Validation -> Joi
+            */
+            if (!(
+                transaction_amount &&
+                typeof transaction_amount === 'number' &&
+                transaction_amount >= MIN_PAYMENT_X &&
+
+                payer_customer_uid && provider_professional_uid &&
+                execution_date &&
+                original_subwork_title &&
+                customer_cpf && customer_full_name
+            )) return res
+                .status(400)
+                .json({ message: 'payment error - missing data' })
+                .end();
+
+            if (!cpf(customer_cpf)) return 'payment error - cpf format';
 
             if (payer_customer_uid === provider_professional_uid) return res.status(403).json({ message: 'You can’t hire yourself.' })
 
@@ -77,28 +95,20 @@ const pixController = {
 
             const { email } = user;
             const first_name =
-                user.name
+                customer_full_name
                     .slice(0, user.name.indexOf(' '))
                     .trim();
             const last_name =
-                user.name
+                customer_full_name
                     .slice(user.name.indexOf(' '), user.name.length)
                     .trim();
 
             /*
-                * Schema Validation -> Joi
-            */
-            if (!(
-                transaction_amount &&
-                typeof transaction_amount === 'number' &&
-                transaction_amount >= MIN_PAYMENT &&
-
-                payer_customer_uid && provider_professional_uid &&
-                execution_date && email && first_name &&
-                original_subwork_title
-            )) return res
+              * Schema Validation -> Joi
+          */
+            if (!(email && first_name)) return res
                 .status(400)
-                .json({ message: 'payment error - missing data' })
+                .json({ message: 'payment error - missing email or first name' })
                 .end();
 
             const description =
@@ -114,6 +124,10 @@ const pixController = {
                     email,
                     first_name,
                     last_name: last_name || '',
+                    identification: {
+                        type: 'CPF',
+                        number: customer_cpf
+                    },
                 },
                 notification_url:
                     `${HEROKU_APP_NAME}/pix/status/payment/${cache_id}`
@@ -137,24 +151,25 @@ const pixController = {
                             transaction_amount,
                             original_subwork_title
                         })
-                    ).then(() => res
-                        .status(200)
-                        .json({
-                            linkBuyMercadoPago:
-                                response
-                                    .data
-                                    .point_of_interaction
-                                    .transaction_data
-                                    .ticket_url
-                        })
-                        .end()
-                    ).catch(err => {
-                        error(err)
-                        return res
-                            .status(500)
-                            .json({ message: 'generate payment - set cache error' })
+                    )
+                        .then(() => res
+                            .status(200)
+                            .json({
+                                linkBuyMercadoPago:
+                                    response
+                                        .data
+                                        .point_of_interaction
+                                        .transaction_data
+                                        .ticket_url
+                            })
                             .end()
-                    });
+                        ).catch(err => {
+                            error(err)
+                            return res
+                                .status(500)
+                                .json({ message: 'generate payment - set cache error' })
+                                .end()
+                        });
                 }).catch(err => {
                     error(err)
                     return res
@@ -166,8 +181,8 @@ const pixController = {
 
         async getStatusAndMakeOrder(req, res) {
             const { cache_id } = req.params;
-
-            let data = await getCache(`payment:${cache_id}`);
+            const redisKey = `payment:${cache_id}`;
+            let data = await getCache(redisKey);
 
             if (!isJson(data)) return res
                 .status(400)
@@ -216,80 +231,7 @@ const pixController = {
             await fetchData.get()
                 .then(async response => {
                     if (response.data.status === "approved") {
-                        await Orders.create({
-                            status: 'in_progress',
-                            ...data
-                        })
-                            .then(async () => {
-                                try {
-                                    const channel = await Chat_Channel.find({
-                                        uid: [
-                                            data.payer_customer_uid,
-                                            data.payer_customer_uid
-                                        ]
-                                    });
-
-                                    console.log('channel: ', channel)
-
-                                    channel[0] && lazyPush([
-                                        {
-                                            to: channel[0].ExponentPushToken,
-                                            sound: 'default',
-                                            body: '🔔 O agendamento foi realizado!',
-                                            data: {}
-                                        }
-                                    ]);
-
-                                    channel[1] && lazyPush([
-                                        {
-                                            to: channel[1].ExponentPushToken,
-                                            sound: 'default',
-                                            body: '🔔 O agendamento foi realizado!',
-                                            data: {}
-                                        }
-                                    ]);
-
-                                    transporter.sendMail(
-                                        paymentOptions(
-                                            data.provider_professional_email,
-                                            data.original_subwork_title,
-                                            data.payer_customer_name,
-                                            data.payer_customer_name,
-                                            data.transaction_amount,
-                                            data.execution_date
-                                        ), function (err, info) {
-                                            if (err) {
-                                                console.error(err)
-                                            }
-                                        });
-
-                                    transporter.sendMail(
-                                        paymentOptions(
-                                            data.payer_customer_email,
-                                            data.original_subwork_title,
-                                            data.payer_customer_name,
-                                            data.provider_professional_name,
-                                            data.transaction_amount,
-                                            data.execution_date
-                                        ), function (err, info) {
-                                            if (err) {
-                                                console.error(err)
-                                            }
-                                        });
-
-                                } catch (err) {
-                                    console.error('Payment | Push or E-mail Error: ', err)
-                                };
-
-                                return res.status(200).end();
-                            })
-                            .catch(err => {
-                                error(err)
-                                return res
-                                    .status(500)
-                                    .json({ message: 'make order error - create order' })
-                                    .end()
-                            })
+                        createOrder(res, data, redisKey);
                     } else return res.status(204).end();
                 })
                 .catch(err => {
