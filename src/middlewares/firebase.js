@@ -12,7 +12,7 @@ const fs = require('fs');
 // TMP:
 //const serviceAccount = require('../keys/temp-3d85a-firebase-adminsdk-nyxj0-d9cc8b5ac5');
 // DEFAULT:
-const serviceAccount = require('../../public/keys/servicess-6e07b-firebase-adminsdk');
+const serviceAccount = require('../../public/keys/servicess-6e07b-firebase-adminsdk-fbsvc-f952374721');
 
 const Users = require('../models/Users');
 const admin = firebaseAdmin.initializeApp({
