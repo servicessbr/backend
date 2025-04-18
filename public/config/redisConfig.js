@@ -24,5 +24,8 @@ const setCache = async (key, value, ex) => {
 const getCache = async (key) => {
     return await redis.get(key);
 }
+const removeCache = async (key) => {
+    return await redis.del(key);
+}
 
-module.exports = { setCache, getCache }
+module.exports = { setCache, getCache, removeCache }
