@@ -58,30 +58,34 @@ const cardsController = {
 
         await Works.sequelize.query(
             `
-            SELECT * 
+            SELECT *
             FROM (
-            SELECT DISTINCT ON (works.user_uid)
-            works.id,
-            works.title,
-            works.discount,
-            works.banner,
-            works.price,
-            works.description,
-            works.user_uid,
-            cities.name AS city,
-            users.uid,
-            users.name,
-            users.profession
-            FROM works
-            INNER JOIN users ON works.user_uid = users.uid
-            INNER JOIN cities ON works.city_id = cities.id
-            ${locationQuery()}
-            ${searchQuery()}
-            AND (users.uid NOT IN(:excluded))
-            ORDER BY works.user_uid
-            ) t
-            ORDER BY price NULLS LAST
-            LIMIT 21
+                SELECT DISTINCT ON (works.user_uid)
+                    works.id,
+                    works.title,
+                    works.discount,
+                    works.banner,
+                    works.price,
+                    works.description,
+                    works.user_uid,
+                    cities.name AS city,
+                    users.uid,
+                    users.name,
+                    users.profession
+                FROM works
+                INNER JOIN users ON works.user_uid = users.uid
+                INNER JOIN cities ON works.city_id = cities.id
+                ${locationQuery()}
+                ${searchQuery()}
+                AND (users.uid NOT IN(:excluded))
+                ORDER BY works.user_uid,
+                        CASE WHEN works.price IS NULL THEN 1 ELSE 0 END, -- Prioriza não nulos
+                        RANDOM() -- Ordenação aleatória para preços não nulos
+            ) AS t
+            ORDER BY
+                CASE WHEN price IS NULL THEN 1 ELSE 0 END, -- Garante que nulos fiquem no final
+                CASE WHEN price IS NOT NULL THEN RANDOM() END NULLS LAST -- Ordena aleatoriamente os não nulos
+            limit 21
             OFFSET ${offset || 1} * 21; 
             `,
             {
@@ -123,7 +127,6 @@ const cardsController = {
 
         await Works.sequelize.query(
             `
-            select * from works limit 1;
             SELECT 
             works.user_uid,
             works.id,
