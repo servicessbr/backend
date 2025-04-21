@@ -1,9 +1,9 @@
 const removeNotDigitsFromString = require("../functions/onlyDigits/removeNotDigitsFromString");
 const regexEP = require("../functions/regexEP");
 const Users = require("../models/Users");
-const { error } = require('console');
+import { error } from 'console';
 
-async function updatePhone(req, res, next) {
+async function updatePhone(req: Request, res: Response, next: NextFunction) {
     const uid = req.uid;
     const { phone } = req.body;
 
@@ -25,4 +25,4 @@ async function updatePhone(req, res, next) {
     return next();
 }
 
-module.exports = updatePhone;
+export default updatePhone;

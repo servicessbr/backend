@@ -8,7 +8,7 @@ const URL_REACT_CLIENT = 'https://servicess.com.br';
 const URL_PAYPAL_BASE = 'https://api-m.paypal.com';
 //const URL_PAYPAL_BASE = 'https://api-m.sandbox.paypal.com';
 
-module.exports = {
+module.exports =  {
     URL_HEROKU_SERVER,
     URL_MERCADO_PAGO,
     URL_REACT_CLIENT,

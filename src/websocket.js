@@ -1,4 +1,4 @@
-const { log } = require('console');
+import { log } from 'console';
 const { io } = require('./http');
 
 /* 
@@ -13,7 +13,7 @@ const { connected, disconnected } = require('./chat/connectionController');
 /* 
     * Mongo:
 */
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 process.env.MONGODB_PASSWORD && mongoose.connect(process.env.MONGODB_PASSWORD)
     .then(() => log('MongoDB connected w/ sucess!'))
     .catch(error => console.error('MongoDB fails to connect', error));

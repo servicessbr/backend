@@ -1,4 +1,4 @@
-require('dotenv').config();
+import 'dotenv/config';
 const jwt = require( 'jsonwebtoken');
 
 const Users = require("../../models/Users");
@@ -69,4 +69,4 @@ const authio = async (socket, next) => {
     }
 }
 
-module.exports = authio;
+export default authio;

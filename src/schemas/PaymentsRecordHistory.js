@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const paymentsRecordHistorySchema = new mongoose.Schema({
     
@@ -6,4 +6,4 @@ const paymentsRecordHistorySchema = new mongoose.Schema({
 
 const PaymentsRecordHistory = mongoose.model('Feedback', paymentsRecordHistorySchema);
 
-module.exports = PaymentsRecordHistory;
+export default PaymentsRecordHistory;

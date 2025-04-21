@@ -1,9 +1,9 @@
 const proController = {
-    isPro(req, res) {
+    isPro(req:Request, res:Response) {
         const pro = req.pro;
 
         return res.status(200).json({ isPro: pro }).end();
     }
 }
 
-module.exports = proController;
+export default proController;

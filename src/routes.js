@@ -156,4 +156,4 @@ routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
 
 
 
-module.exports = routes;
+export default routes;

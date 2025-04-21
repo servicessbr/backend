@@ -1,4 +1,4 @@
-const { error } = require('console');
+import { error } from 'console';
 const Works = require("../../models/Works");
 const { Op } = require('sequelize');
 /*
@@ -9,7 +9,7 @@ const { Op } = require('sequelize');
     * isso dificulta a validação da autorização.
 */
 const
-    owner = async (req, res, next) => {
+    owner = async (req: Request, res: Response, next: NextFunction) => {
         const { work_id } = req.body;
         const uid = req.uid;
 
@@ -38,4 +38,4 @@ const
         return next();
     }
 
-module.exports = owner;
+export default owner;

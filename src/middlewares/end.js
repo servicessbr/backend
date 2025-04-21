@@ -1,5 +1,5 @@
-function end(req, res) {
+function end(req:Request, res:Response) {
     return res.status(200).end();
 }
 
-module.exports = end;
+export default end;

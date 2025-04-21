@@ -3,4 +3,4 @@
 */
 const stringContainsOnlyDigits = (string) => /^\d+$/.test(string);
 
-module.exports = stringContainsOnlyDigits;
+export default stringContainsOnlyDigits;

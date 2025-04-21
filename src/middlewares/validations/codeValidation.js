@@ -1,13 +1,13 @@
 
-require('dotenv').config();
+import 'dotenv/config';
 const jwt = require('jsonwebtoken');
 
 const { getCache } = require('../../../public/config/redisConfig');
 const Users = require('../../models/Users');
-const { error } = require('console');
+import { error } from 'console';
 
 const codeValidation = {
-    async utoken(req, res, next) {
+    async utoken(req: Request, res: Response, next: NextFunction) {
         const auth = req.headers.authorization;
         const tocompare = auth && auth.split(' ')[1];
 
@@ -50,7 +50,7 @@ const codeValidation = {
             });
     },
 
-    async newUser(req, res, next) {
+    async newUser(req: Request, res: Response, next: NextFunction) {
         const { email, tocompare } = req.body;
 
         // Verifica de novo se já existe um usuário com esse e-mail:
@@ -84,4 +84,4 @@ const codeValidation = {
     }
 }
 
-module.exports = codeValidation;
+export default codeValidation;

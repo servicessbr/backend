@@ -10,4 +10,4 @@ const memoryStorage = {
 
 
 
-module.exports = memoryStorage;
+export default memoryStorage;

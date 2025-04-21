@@ -1,4 +1,4 @@
-const convertEmail = (req, res, next) => {
+const convertEmail = (req: Request, res: Response, next: NextFunction) => {
     /* 
         * Converte o email que vem dos "params" para "locals" 
     */
@@ -8,4 +8,4 @@ const convertEmail = (req, res, next) => {
     next();
 }
 
-module.exports = convertEmail;
+export default convertEmail;

@@ -1,4 +1,4 @@
-const { log } = require('console');
+import { log } from 'console';
 const { server } = require("./http");
 require('./websocket');
 

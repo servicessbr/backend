@@ -1,4 +1,4 @@
-require('dotenv').config();
+import 'dotenv/config';
 const jwt = require('jsonwebtoken');
 
 function generateToken (uid, email, refreshtoken) {
@@ -9,4 +9,4 @@ function generateToken (uid, email, refreshtoken) {
     );
 }
 
-module.exports = generateToken;
+export default generateToken;

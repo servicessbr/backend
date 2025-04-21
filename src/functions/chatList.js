@@ -20,4 +20,4 @@ const chatList = async (list) => {
     return readyList;
 }
 
-module.exports = chatList;
+export default chatList;

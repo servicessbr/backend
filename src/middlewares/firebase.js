@@ -3,7 +3,7 @@
 const Works = require('../models/Works');
 
 const firebaseAdmin = require('firebase-admin');
-const { v4: uuidv4 } = require('uuid');
+import { v4 as uuidv4 } from 'uuid';
 const DIR = require('../../public/constants/DIR.json');
 const UnlinkAsync = require('../functions/UnlinkAsync');
 const fs = require('fs');
@@ -60,7 +60,7 @@ async function getFile(prefix) {
 
 const firebase = {
     avatar: {
-        async update(req, res) {
+        async update(req:Request, res:Response) {
 
              
             const filename = req.filename;
@@ -96,7 +96,7 @@ const firebase = {
             }
         },
 
-        async delete(req, res) {
+        async delete(req:Request, res:Response) {
 
             const uid = req.uid;
 
@@ -106,7 +106,7 @@ const firebase = {
         }
     },
 
-    async deleteAll(req, res) {
+    async deleteAll(req:Request, res:Response) {
 
         const uid = req.uid;
 
@@ -117,4 +117,4 @@ const firebase = {
 
 }
 
-module.exports = firebase;
+export default firebase;

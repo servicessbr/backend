@@ -4,4 +4,4 @@ const unlinkAsync = promisify(fs.unlink)
 
 const UnlinkAsync = async (path) => await unlinkAsync(path)
 
-module.exports = UnlinkAsync;
+export default UnlinkAsync;

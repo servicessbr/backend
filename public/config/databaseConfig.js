@@ -1,6 +1,6 @@
 const environment = require('../env/environment');
 require('dotenv').config({ path: environment });
-const { log } = require('console')
+import { log } from 'console'
 
 log(
     environment,

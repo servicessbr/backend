@@ -1,11 +1,11 @@
 
-require('dotenv').config();
+import 'dotenv/config';
 const jwt = require('jsonwebtoken');
-const { error } = require('console');
+import { error } from 'console';
 
 const Users = require("../../models/Users");
 
-const authorization = async (req, res, next) => {
+const authorization = async (req: Request, res: Response, next: NextFunction) => {
     const auth = req.headers.authorization;
     const token = auth && auth.split(' ')[1];
 
@@ -53,4 +53,4 @@ const authorization = async (req, res, next) => {
         })
 }
 
-module.exports = authorization;
+export default authorization;

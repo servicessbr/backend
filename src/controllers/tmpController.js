@@ -1,5 +1,5 @@
 const { QueryTypes } = require('sequelize');
-const { error } = require('console')
+import { error } from 'console'
 
 /*
     * Models:
@@ -7,7 +7,7 @@ const { error } = require('console')
 const Works = require('../models/Works');
 
 const tmpController = {
-    async premium(req, res) {
+    async premium(req:Request, res:Response) {
         await Works.sequelize.query(
             `SELECT 
             DISTINCT ON (users.uid) 
@@ -37,4 +37,4 @@ const tmpController = {
     }
 }
 
-module.exports = tmpController
+export default tmpController

@@ -1,6 +1,6 @@
 
 const { Op, QueryTypes } = require('sequelize');
-const { error } = require('console');
+import { error } from 'console';
 
 /* 
     * Models:
@@ -24,7 +24,7 @@ const insertableSubworks = (subworks, work_id) => {
 }
 
 const worksController = {
-    async create(req, res) {
+    async create(req:Request, res:Response) {
         const uid = req.uid;
         const pro = req.pro;
 
@@ -86,7 +86,7 @@ const worksController = {
             });
     },
 
-    async update(req, res) {
+    async update(req:Request, res:Response) {
         /*
             * Confere se tem algum dado para ser alterado
             * ou ta vazia.
@@ -124,7 +124,7 @@ const worksController = {
         return res.status(200).end();
     },
 
-    async load(req, res) {
+    async load(req:Request, res:Response) {
         const { work_id } = req.params;
 
         if (!(stringContainsOnlyDigits(work_id)))
@@ -177,7 +177,7 @@ const worksController = {
             })
     },
 
-    async delete(req, res) {
+    async delete(req:Request, res:Response) {
         const user_uid = req.uid;
         const { work_id } = req.params;
 
@@ -204,4 +204,4 @@ const worksController = {
     }
 }
 
-module.exports = worksController;
+export default worksController;

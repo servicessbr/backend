@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const routes = require('./routes');
 const cors = require("cors");
-require('dotenv').config();
+import 'dotenv/config';
 
 const http = require('http');
 const { Server } = require('socket.io');
@@ -20,4 +20,4 @@ const io = new Server(server, {
 });
 
 
-module.exports = { server, io };
+export default { server, io };

@@ -1,6 +1,6 @@
 const { URL_HEROKU_SERVER } = require('./URL');
 
-require('dotenv').config();
+import 'dotenv/config';
 
 const HEROKU_APP_NAME =
     process.env.HEROKU_APP_NAME

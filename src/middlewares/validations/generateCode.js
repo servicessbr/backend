@@ -1,8 +1,8 @@
 
-require('dotenv').config();
+import 'dotenv/config';
 const jwt = require('jsonwebtoken');
 const regexEP = require('../../functions/regexEP');
-const { v4: uuidv4 } = require('uuid');
+import { v4 as uuidv4 } from 'uuid';
 
 /* 
     * Radis 
@@ -20,7 +20,7 @@ const generateCode = {
     /* 
         *Alterar qualquer dado sensível do usuário (ex:senha, email, telefone).
     */
-    async utoken(req, res, next) {
+    async utoken(req: Request, res: Response, next: NextFunction) {
         const email = req.email;
 
         if (
@@ -66,7 +66,7 @@ const generateCode = {
             })
     },
 
-    async newUser(req, res, next) {
+    async newUser(req: Request, res: Response, next: NextFunction) {
         const { email } = req.params;
 
         if (
@@ -116,4 +116,4 @@ const generateCode = {
     }
 }
 
-module.exports = generateCode;
+export default generateCode;

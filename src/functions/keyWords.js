@@ -45,4 +45,4 @@ function keyWords(Q) {
     return uniqueChars;
 }
 
-module.exports = keyWords;
+export default keyWords;

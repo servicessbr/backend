@@ -5,7 +5,7 @@ const fs = require('fs');
 const DIR = require('../../../public/constants/DIR.json');
 
 
-const sharpAvatar = async (req, res, next) => {
+const sharpAvatar = async (req: Request, res: Response, next: NextFunction) => {
     const uid = req.uid;
 
      
@@ -37,4 +37,4 @@ const sharpAvatar = async (req, res, next) => {
     }
 }
 
-module.exports = {sharpAvatar}
+export default {sharpAvatar}

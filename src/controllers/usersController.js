@@ -1,7 +1,7 @@
 
 const { v4: uuidv4 } = require('uuid')
 const bcrypt = require('bcrypt')
-const { error } = require('console')
+import { error } from 'console'
 
 /* 
     * Services: 
@@ -22,7 +22,7 @@ const usersController = {
         * Cria um refresh token e um user id único;
         * Insere um novo usuário.
     */
-    async create(req, res) {
+    async create(req:Request, res:Response) {
         const {
             password, name,
             email,
@@ -132,7 +132,7 @@ const usersController = {
         * Atualiza o refresh token;
         * Retorna os dados do usário.
     */
-    async login(req, res) {
+    async login(req:Request, res:Response) {
         const { email, password } = req.body;
 
         const refreshtoken = uuidv4().slice(0, 8);
@@ -209,7 +209,7 @@ const usersController = {
     /*
         * Atualiza o refresh token para NULL;
     */
-    async logout(req, res) {
+    async logout(req:Request, res:Response) {
 
         const uid = req.uid;
 
@@ -228,7 +228,7 @@ const usersController = {
     /*
         * Atualiza dados não sensíveis.
     */
-    async update(req, res) {
+    async update(req:Request, res:Response) {
 
         const uid = req.uid;
 
@@ -256,7 +256,7 @@ const usersController = {
             });
     },
 
-    async delete(req, res) {
+    async delete(req:Request, res:Response) {
         const uid = req.uid;
         const { password } = req.body;
 
@@ -299,7 +299,7 @@ const usersController = {
             });
     },
 
-    async load(req, res) {
+    async load(req:Request, res:Response) {
         const { uid } = req.params;
 
         await Users.findOne({
@@ -314,7 +314,7 @@ const usersController = {
     },
 
     updates: {
-        async password(req, res) {
+        async password(req:Request, res:Response) {
             const email = req.email;
             const { password } = req.body;
 
@@ -347,4 +347,4 @@ const usersController = {
     }
 }
 
-module.exports = usersController;
+export default usersController;
