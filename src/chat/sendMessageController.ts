@@ -1,7 +1,7 @@
-const lazyPush = require("../mobile/pushNotifications");
-const Chat_Channel = require("../schemas/Chat_Channel");
-const Conversation = require("../schemas/Conversations");
-const { addInBox } = require("./inBoxController");
+import lazyPush from "../mobile/pushNotifications";
+import Chat_Channel from "../schemas/Chat_Channel";
+import Conversation from "../schemas/Conversations";
+import { addInBox } from "./inBoxController";
 
 const sendMessage = (socket: any, connected_users: any) =>
     socket.on(

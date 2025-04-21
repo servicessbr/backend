@@ -1,6 +1,25 @@
-const path = require('path');
+import 'dotenv/config';
+import path from 'path';
+import local_env_variables from './public/json/local_env_variables.json';
+//require('dotenv').config();
+//const path = require('path');
+//const local_env_variables = require('./public/json/local_env_variables.json');
+
+let sqlz = {
+    dir: 'public',
+    ext: 'js'
+};
+
+if (
+    Array.isArray(local_env_variables) &&
+    local_env_variables.includes(process.env.NODE_ENV)
+)
+    sqlz = {
+        dir: 'src',
+        ext: 'ts'
+    };
 
 export default {
-    config: path.resolve( __dirname, 'public', 'config', 'databaseConfig.js'),
-    'migrations-path': path.resolve( __dirname, 'public', 'migrations')
+    config: path.resolve(__dirname, sqlz.dir, 'sequilize', `databaseConfig.${sqlz.ext}`),
+    'migrations-path': path.resolve(__dirname, 'public', 'migrations')
 }

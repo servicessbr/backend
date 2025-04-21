@@ -1,6 +1,6 @@
-const { QueryTypes } = require('sequelize');
-const Evaluations = require("../models/Evaluations");
-const Orders = require("../models/Orders");
+import { QueryTypes } from 'sequelize';
+import Evaluations from "../models/Evaluations";
+import Orders from "../models/Orders";
 import { Request, Response } from 'express';
 
 const ordersController = {
@@ -9,6 +9,7 @@ const ordersController = {
         //@ts-ignore
         const uid = req.uid;
 
+        //@ts-ignore
         const customersList = await Orders.sequelize.query(
             `SELECT orders.*, users.name 
                 FROM orders
@@ -24,6 +25,7 @@ const ordersController = {
             }
         ).catch((err: Error) => console.error(err));
 
+        //@ts-ignore
         const professionalsList = await Orders.sequelize.query(
             `SELECT orders.*, users.profession 
                 FROM orders
@@ -56,6 +58,7 @@ const ordersController = {
                 .json({ message: 'finalize & evaluate error - data schema' })
                 .end()
 
+        //@ts-ignore
         await Orders.update(
             { status: 'finished' },
             {
@@ -74,6 +77,7 @@ const ordersController = {
                 .json({ message: 'no review, no stars' })
                 .end();
 
+            //@ts-ignore
             await Evaluations.create({
                 id: order_id,
                 stars, review_description

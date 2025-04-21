@@ -1,13 +1,5 @@
 import 'dotenv/config';
 
-/*
-    * Public
-*/
-const HEROKU_APP_NAME = require('../../public/constants/heroku_app_name');
-const { setCache, getCache } = require('../../public/config/redisConfig');
-const { URL_MERCADO_PAGO } = require('../../public/constants/URL');
-const { PRICE, MIN_PAYMENT_X } = require('../../public/constants/priceTags');
-
 import { error } from 'console';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,6 +16,10 @@ import voucherOptions from '../email/options/voucherOptions';
 import cpf from '../functions/cpf';
 
 import createOrder from './paymentsControllers';
+import { URL_MERCADO_PAGO } from '../configs/constants/URL';
+import { MIN_PAYMENT_X, PRICE } from '../configs/constants/priceTags';
+import HEROKU_APP_NAME from '../configs/constants/heroku_app_name';
+import { getCache, setCache } from '../configs/cache/redisConfig';
 
 const resourceX = (id: any) => `${URL_MERCADO_PAGO}/v1/payments/${id}`;
 
@@ -91,7 +87,7 @@ const pixController = {
                 where: { uid: [payer_customer_uid, provider_professional_uid] },
                 attributes: ['email', 'name', 'uid']
             })
-                .catch((err:Error) => error(err));
+                .catch((err: Error) => error(err));
             //@ts-ignore
             const user = users.filter(u => u.uid === payer_customer_uid)[0];
             //@ts-ignore
@@ -174,14 +170,14 @@ const pixController = {
                                         .ticket_url
                             })
                             .end()
-                        ).catch((err:Error) => {
+                        ).catch((err: Error) => {
                             error(err)
                             return res
                                 .status(500)
                                 .json({ message: 'generate payment - set cache error' })
                                 .end()
                         });
-                }).catch((err:Error) => {
+                }).catch((err: Error) => {
                     error(err)
                     return res
                         .status(500)
@@ -195,11 +191,13 @@ const pixController = {
             const redisKey = `payment:${cache_id}`;
             let data = await getCache(redisKey);
 
+            //@ts-ignore
             if (!isJson(data)) return res
                 .status(400)
                 .json({ message: 'make payment erro - schema format' })
                 .end();
 
+            //@ts-ignore
             data = JSON.parse(data);
 
             /*
@@ -207,21 +205,32 @@ const pixController = {
             */
             if (!(
                 data &&
+                //@ts-ignore
                 data.bank_payment_id &&
+                //@ts-ignore
                 data.payer_customer_uid &&
+                //@ts-ignore
                 data.payer_customer_name &&
+                //@ts-ignore
                 data.payer_customer_email &&
+                //@ts-ignore
                 data.provider_professional_uid &&
+                //@ts-ignore
                 data.provider_professional_name &&
+                //@ts-ignore
                 data.provider_professional_email &&
+                //@ts-ignore
                 data.execution_date &&
+                //@ts-ignore
                 data.transaction_amount &&
+                //@ts-ignore
                 data.original_subwork_title
             )) return res
                 .status(400)
                 .json({ message: 'make payment erro - schema validation failed' })
                 .end();
 
+            //@ts-ignore
             const resource = resourceX(data.bank_payment_id);
             if (
                 !resource ||
@@ -239,14 +248,14 @@ const pixController = {
                 return config;
             });
 
-            
-            await fetchData.get()
+
+            await fetchData.get('')
                 .then(async response => {
                     if (response.data.status === "approved") {
                         createOrder(res, data, redisKey);
                     } else return res.status(204).end();
                 })
-                .catch((err:Error) => {
+                .catch((err: Error) => {
                     error(err)
                     return res
                         .status(500)
@@ -258,28 +267,38 @@ const pixController = {
 
     pro: {
         async generate(req: Request, res: Response) {
+            //@ts-ignore
             const uid = req.uid;
+            //@ts-ignore
             const pro = req.pro;
 
             if (pro) return res.status(204).json({ isPro: true }).end();
 
+            //@ts-ignore
             const user = await Users.findOne({
                 where: { uid },
                 attributes: ['email', 'name']
             })
-                .catch((err:Error) => error(err));
+                .catch((err: Error) => error(err));
+
+            //@ts-ignore
             if (!(user && user.email && user.name)) return res
                 .status(400)
                 .json({ message: 'payment pro error - cant get payer customer data' })
                 .end();
 
+            //@ts-ignore
             const { email } = user;
             const first_name =
+                //@ts-ignore
                 user.name
+                    //@ts-ignore
                     .slice(0, user.name.indexOf(' '))
                     .trim();
             const last_name =
+                //@ts-ignore
                 user.name
+                    //@ts-ignore
                     .slice(user.name.indexOf(' '), user.name.length)
                     .trim();
             const description =
@@ -305,7 +324,9 @@ const pixController = {
                         `pro:${uid}`,
                         JSON.stringify({
                             bank_payment_id: response.data.id,
+                            //@ts-ignore
                             user_name: user.name,
+                            //@ts-ignore
                             user_email: user.email
                         })
                     ).then(() => res
@@ -319,14 +340,14 @@ const pixController = {
                                     .ticket_url
                         })
                         .end()
-                    ).catch((err:Error) => {
+                    ).catch((err: Error) => {
                         error(err)
                         return res
                             .status(500)
                             .json({ message: 'generate pro - set cache error' })
                             .end()
                     });
-                }).catch((err:Error) => {
+                }).catch((err: Error) => {
                     error(err)
                     return res
                         .status(500)
@@ -359,13 +380,16 @@ const pixController = {
             }
 
             data = JSON.parse(data);
+            //@ts-ignore
             console.log(user_uid, data, data.bank_payment_id, data.user_name)
+            //@ts-ignore
             if (!(user_uid && data && data.bank_payment_id && data.user_name))
                 return res
                     .status(400)
                     .json({ message: 'make pro erro - no uid' })
                     .end();
 
+            //@ts-ignore
             const resource = resourceX(data.bank_payment_id);
             if (
                 !resource ||
@@ -383,9 +407,10 @@ const pixController = {
                 return config;
             });
 
-            await fetchData.get()
+            await fetchData.get('')
                 .then(async response => {
                     if (response.data.status === "approved") {
+                        //@ts-ignore
                         await Users.update(
                             {
                                 pro: true
@@ -396,6 +421,7 @@ const pixController = {
                                 try {
                                     transporter.sendMail(
                                         voucherOptions(
+                                            //@ts-ignore
                                             data.user_email,
 
                                             response.data.id,
@@ -404,6 +430,7 @@ const pixController = {
                                             response.data.date_approved,
                                             response.data.transaction_amount,
 
+                                            //@ts-ignore
                                             data.user_name
 
                                         ), function (err, info) {
@@ -418,7 +445,7 @@ const pixController = {
 
                                 return res.status(200).end()
                             })
-                            .catch((err:Error) => {
+                            .catch((err: Error) => {
                                 error(err)
                                 return res
                                     .status(500)
@@ -427,7 +454,7 @@ const pixController = {
                             })
                     } else return res.status(204).end();
                 })
-                .catch((err:Error) => {
+                .catch((err: Error) => {
                     error(err)
                     return res
                         .status(500)

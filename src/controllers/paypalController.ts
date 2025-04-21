@@ -1,9 +1,4 @@
-/*
-    * PUBLIC
-*/
-const { URL_REACT_CLIENT, URL_PAYPAL_BASE } = require("../../public/constants/URL");
-const { MIN_PAYMENT_X } = require("../../public/constants/priceTags");
-const { setCache, getCache } = require("../../public/config/redisConfig");
+
 
 import axios from 'axios';
 import Users from "../models/Users";
@@ -11,6 +6,9 @@ import { error } from "console";
 import isJson from "../functions/isJson";
 import createOrder from "./paymentsControllers";
 import { Request, Response } from 'express';
+import { URL_PAYPAL_BASE, URL_REACT_CLIENT } from '../configs/constants/URL';
+import { MIN_PAYMENT_X } from '../configs/constants/priceTags';
+import { getCache, setCache } from '../configs/cache/redisConfig';
 
 const CANCEL_URL = `${URL_REACT_CLIENT}/payment/finish`;
 const RETURN_URL = `${URL_REACT_CLIENT}/paypal/checkout`;
@@ -167,11 +165,14 @@ const paypalController = {
 
         let data = await getCache(redisKey);
 
+        //@ts-ignore
         if (!isJson(data)) return res
             .status(400)
             .json({ message: 'make paypal erro - schema format' })
             .end();
 
+
+        //@ts-ignore
         data = JSON.parse(data);
 
         const accessToken = await generateAccessToken();

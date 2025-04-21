@@ -4,8 +4,8 @@ import Conversation from '../schemas/Conversations';
 /* 
     * Functions:
 */
-const handleChatList = require('../functions/chatList');
-const Chat_inBox = require('../schemas/Chat_inBox');
+import handleChatList from '../functions/chatList';
+import Chat_inBox from '../schemas/Chat_inBox';
 
 const chatList = (socket:any) =>
     socket.on(

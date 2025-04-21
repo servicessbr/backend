@@ -10,7 +10,7 @@ import adminGenerateToken from "../adminJwt/adminGenerateToken";
 
 
 /* Redis */
-const { getCache, setCache } = require("../../../public/config/redisConfig");
+import { getCache, setCache } from "../../configs/cache/redisConfig";
 
 const adminControllers = {
     async login(req: Request, res: Response) {

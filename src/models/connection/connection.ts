@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-const dbConfig = require('../../../public/config/databaseConfig');
+import dbConfig from '../../configs/sequelize/databaseConfig';
 
 //@ts-ignore
 const connection = new Sequelize(dbConfig);

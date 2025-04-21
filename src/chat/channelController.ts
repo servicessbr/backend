@@ -1,9 +1,9 @@
 
 import Chat_Channel from "../schemas/Chat_Channel";
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 
 const channelController = {
-    async channel(req:Request, res:Response) {
+    async channel(req: Request, res: Response) {
         const { expoPushToken } = req.body;
         //@ts-ignore
         const uid = req.uid;

@@ -1,17 +1,19 @@
 import 'dotenv/config';
+
+
 import { error } from 'console';
-const lazyPush = require('../mobile/pushNotifications');
+import lazyPush from '../mobile/pushNotifications';
 import { Response } from 'express';
 
 /*
     * Models
 */
-const Orders = require('../models/Orders');
+import Orders from '../models/Orders';
 
-const transporter = require('../email/transporter');
-const Chat_Channel = require('../schemas/Chat_Channel');
-const paymentOptions = require('../email/options/paymentOptions');
-const { removeCache } = require('../../public/config/redisConfig');
+import transporter from '../email/transporter';
+import Chat_Channel from '../schemas/Chat_Channel';
+import paymentOptions from '../email/options/paymentOptions';
+import { removeCache } from '../configs/cache/redisConfig';
 
 const createOrder = async (res: Response, data: any, removeRadisKey: string) => {
 
@@ -31,6 +33,7 @@ const createOrder = async (res: Response, data: any, removeRadisKey: string) => 
         .json({ message: 'make payment erro - schema validation failed' })
         .end();
 
+    //@ts-ignore
     await Orders.create({
         status: 'in_progress',
         ...data
@@ -72,7 +75,7 @@ const createOrder = async (res: Response, data: any, removeRadisKey: string) => 
                         data.payer_customer_name,
                         data.transaction_amount,
                         data.execution_date
-                    ), function (err: Error, info: any) {
+                    ), function (err: Error | null, info: any) {
                         if (err) {
                             console.error(err)
                         }
@@ -86,7 +89,7 @@ const createOrder = async (res: Response, data: any, removeRadisKey: string) => 
                         data.provider_professional_name,
                         data.transaction_amount,
                         data.execution_date
-                    ), function (err: Error, info: any) {
+                    ), function (err: Error | null, info: any) {
                         if (err) {
                             console.error(err)
                         }

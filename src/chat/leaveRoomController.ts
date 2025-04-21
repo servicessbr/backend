@@ -1,5 +1,5 @@
 import { log } from 'console';
-const Conversation = require("../schemas/Conversations");
+import Conversation from "../schemas/Conversations";
 
 const leaveRoom = (socket:any) =>
     socket.on(

@@ -1,6 +1,6 @@
-const Chat_inBox = require('../schemas/Chat_inBox');
+import Chat_inBox from '../schemas/Chat_inBox';
 
-const cleanInBox = async (author: any, receiver: any) => {
+export const cleanInBox = async (author: any, receiver: any) => {
     await Chat_inBox.updateOne(
         { users_uid: author },
         {
@@ -12,7 +12,7 @@ const cleanInBox = async (author: any, receiver: any) => {
     );
 }
 
-const addInBox = async (receiver: any, message: any) => {
+export const addInBox = async (receiver: any, message: any) => {
     //Adiciona esse user ao inBox e a ultima mensagem enviada:
     const inBox = await Chat_inBox.findOne({ users_uid: receiver });
 
@@ -24,16 +24,11 @@ const addInBox = async (receiver: any, message: any) => {
         // Se não encontrar vai fazer o primeiro push:
         if (inBoxIndex === -1) {
             inBox.senders_list.push({
-
-                users_uid: receiver,
-                senders_list: [
-                    {
-                        sender_uid: message.author,
-                        amount: 1,
-                        last_text: message.text
-                    }
-                ]
+                sender_uid: message.author,
+                amount: 1,
+                last_text: message.text
             })
+            inBox.users_uid = receiver;
         } else {
             // E se encontrou vau só alterar esses dois campos:
             inBox.senders_list[inBoxIndex].amount++;
@@ -55,5 +50,3 @@ const addInBox = async (receiver: any, message: any) => {
         }).catch((err: Error) => console.error(err))
     }
 }
-
-export default { cleanInBox, addInBox }

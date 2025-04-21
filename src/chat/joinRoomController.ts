@@ -1,6 +1,6 @@
 import { log } from 'console';
-const Conversation = require("../schemas/Conversations");
-const { cleanInBox } = require("./inBoxController");
+import Conversation from "../schemas/Conversations";
+import { cleanInBox } from "./inBoxController";
 
 const joinRoom = (socket:any) =>
     socket.on(

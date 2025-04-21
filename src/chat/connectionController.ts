@@ -1,6 +1,6 @@
 import { log } from 'console';
 
-const connected = async (socket:any, connected_users:any) => {
+export const connected = async (socket:any, connected_users:any) => {
     const { uid } = socket.request._query;
 
     if (!uid) return;
@@ -11,7 +11,7 @@ const connected = async (socket:any, connected_users:any) => {
     log(`SOCKET REQUEST`, uid);
 }
 
-const disconnected = async (socket:any, connected_users:any) => {
+export const disconnected = async (socket:any, connected_users:any) => {
     socket.on('disconnect', () => {
         log(`User Disconnected: ${socket.id}`);
         return delete connected_users[socket.id];
@@ -29,5 +29,3 @@ const disconnected = async (socket:any, connected_users:any) => {
         log(`SOCKET REQUEST`, uid);
  * 
  */
-
-export default { connected, disconnected }
