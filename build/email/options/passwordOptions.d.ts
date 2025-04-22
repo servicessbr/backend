@@ -1,0 +1,12 @@
+declare function passwordOptions(token: any, to: any): {
+    from: string;
+    to: any;
+    subject: string;
+    html: string;
+    attachments: {
+        filename: string;
+        path: string;
+        cid: string;
+    }[];
+};
+export default passwordOptions;
