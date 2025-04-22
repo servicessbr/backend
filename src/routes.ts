@@ -152,12 +152,4 @@ routes.put('/paypal/checkout', authorization, paypalController.checkoutPayPal);
 routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
 routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
 
-
-routes.get('/test', (req, res) => {
-    const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-    res.send(`Full URL: ${fullUrl}`);
-    console.log(req.protocol + '://' + req.hostname + req.originalUrl)
-  });
-
-
 export default routes;
