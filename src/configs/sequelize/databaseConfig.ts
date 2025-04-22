@@ -7,8 +7,6 @@ log(
     environment,
     {
         host: process.env.PSQL_HOST,
-        username: process.env.PSQL_USERNAME,
-        database: process.env.PSQL_DATABASE,
     }
 )
 
