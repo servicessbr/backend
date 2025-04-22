@@ -152,4 +152,6 @@ routes.put('/paypal/checkout', authorization, paypalController.checkoutPayPal);
 routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
 routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
 
+// req.hostname --> Para saber o nome do domínio do client
+
 export default routes;
