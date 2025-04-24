@@ -9,8 +9,6 @@ dotenv_1.default.config({ path: environment_1.default });
 const console_1 = require("console");
 (0, console_1.log)(environment_1.default, {
     host: process.env.PSQL_HOST,
-    username: process.env.PSQL_USERNAME,
-    database: process.env.PSQL_DATABASE,
 });
 exports.default = {
     dialect: 'postgres',

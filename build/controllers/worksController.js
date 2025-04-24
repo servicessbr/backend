@@ -11,6 +11,7 @@ const console_1 = require("console");
 const Works_1 = __importDefault(require("../models/Works"));
 const Subworks_1 = __importDefault(require("../models/Subworks"));
 const stringContainsOnlyDigits_1 = __importDefault(require("../functions/onlyDigits/stringContainsOnlyDigits"));
+const Internationals_1 = __importDefault(require("../models/Internationals"));
 const insertableSubworks = (subworks, work_id) => {
     /*
         * Acrescenta o ID do anúncio( work ) como foreign key
@@ -36,8 +37,12 @@ const worksController = {
                 .status(403)
                 .json({ message: 'work create - user is not PRO' })
                 .end();
-        const { title, description, price, city_id, subworks } = req.body;
-        if (!city_id)
+        const { title, description, price, city_id, subworks, internationals } = req.body;
+        const isInternationalRequest = (internationals &&
+            typeof internationals.country === 'string' &&
+            internationals.country.length === 2);
+        console.log('isInternationalRequest', isInternationalRequest);
+        if (!(city_id || isInternationalRequest))
             return res
                 .status(500)
                 .json({ message: 'Por favor escolha uma cidade e estado' });
@@ -54,35 +59,42 @@ const worksController = {
                 .status(500)
                 .json({ message: 'O preço deve ter apenas números' });
         //@ts-ignore
-        await Works_1.default.create({
+        const work = await Works_1.default.create({
             user_uid: uid,
-            title, description, city_id,
+            title,
+            description,
+            city_id: isInternationalRequest ? 0 : city_id,
             price: parseInt(price),
-        })
-            .then(async (work) => {
-            if (!Array.isArray(subworks))
-                return;
-            //@ts-ignore
-            const insertSubWorks = insertableSubworks(subworks, work.id);
-            //@ts-ignore
-            await Subworks_1.default.bulkCreate(insertSubWorks)
-                .then(() => res
-                .status(200)
-                //@ts-ignore
-                .json({ work_id: work.id }))
-                .catch(err => {
-                (0, console_1.error)(err);
-                return res
-                    .status(500)
-                    .json({ message: 'create subwork error' });
-            });
-        })
-            .catch(err => {
+        }).catch(err => {
             (0, console_1.error)(err);
             return res
                 .status(500)
                 .json({ message: 'create work error' });
         });
+        /*
+            * Se tiver uma lista de subworks cria a tabela subworks:
+        */
+        if (Array.isArray(subworks)) {
+            const insertSubWorks = insertableSubworks(subworks, work.id);
+            //@ts-ignore
+            await Subworks_1.default.bulkCreate(insertSubWorks)
+                .catch((err) => (0, console_1.error)(err));
+        }
+        console.log(internationals);
+        /*
+            * Se for internacional cria a table internacional:
+        */
+        if (isInternationalRequest) {
+            //@ts-ignore
+            await Internationals_1.default.create({
+                work_id: work.id,
+                country: internationals.country,
+                state: internationals.state,
+                city: internationals.city,
+            })
+                .catch((err) => (0, console_1.error)(err));
+        }
+        return res.status(200).json({ work_id: work.id });
     },
     async update(req, res) {
         /*

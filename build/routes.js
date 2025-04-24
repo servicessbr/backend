@@ -42,6 +42,7 @@ const evaluationsController_1 = __importDefault(require("./controllers/evaluatio
 const proController_1 = __importDefault(require("./controllers/proController"));
 const end_1 = __importDefault(require("./middlewares/end"));
 const paypalController_1 = __importDefault(require("./controllers/paypalController"));
+const internationalsController_1 = __importDefault(require("./controllers/internationalsController"));
 /*
     * Connection:
 */
@@ -69,6 +70,7 @@ routes.get('/works/subworks/load/:work_id', worksController_1.default.load);
 */
 routes.put('/cards/list', cardsController_1.default.list);
 routes.get('/cards/belongs', authorization_1.default, cardsController_1.default.belongs);
+routes.put('/cards/list/internationals', internationalsController_1.default.list);
 /*
     * Generate Codes (Redis)
 */
@@ -136,4 +138,5 @@ routes.put('/paypal/checkout', authorization_1.default, paypalController_1.defau
 */
 routes.get('/pix/generate/pro', authorization_1.default, pixController_1.default.pro.generate);
 routes.post('/pix/status/pro/:user_uid', pixController_1.default.pro.status);
+// req.hostname --> Para saber o nome do domínio do client
 exports.default = routes;

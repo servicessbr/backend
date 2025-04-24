@@ -7,7 +7,7 @@ const sequelize_1 = require("sequelize");
 const console_1 = require("console");
 // Models:
 const Works_1 = __importDefault(require("../models/Works"));
-const cardsController = {
+const internationalsController = {
     async list(req, res) {
         const { search, location, offset } = req.query;
         /*
@@ -52,15 +52,15 @@ const cardsController = {
             * Se o city_id for undefined precisa trocar o sinal de = para != 0.
         */
         function locationQuery() {
-            let locationQ = 'WHERE (city_id != 0)';
-            if (!isNaN(parseInt(`${location}`)))
-                locationQ = `WHERE (city_id = ${location})`;
+            let locationQ = ' WHERE (int.country IS NOT NULL) ';
+            if (typeof location === 'string')
+                locationQ = ` WHERE (int.country = '${location.toUpperCase().trim()}') `;
             return locationQ;
         }
         ;
         //@ts-ignore
         await Works_1.default.sequelize.query(`
-            SELECT *
+             SELECT *
             FROM (
                 SELECT DISTINCT ON (works.user_uid)
                     works.id,
@@ -70,23 +70,24 @@ const cardsController = {
                     works.price,
                     works.description,
                     works.user_uid,
-                    cities.name AS city,
                     users.uid,
                     users.name,
-                    users.profession
-                FROM works
-                INNER JOIN users ON works.user_uid = users.uid
-                INNER JOIN cities ON works.city_id = cities.id
+                    users.profession,
+					int.country as int_country,
+					int.state as int_state,
+					int.city as int_city
+                FROM works 
+                INNER JOIN users ON (works.user_uid = users.uid)
+				INNER JOIN internationals AS int ON (int.work_id = works.id)
                 ${locationQuery()}
                 ${searchQuery()}
-                AND (users.uid NOT IN(:excluded))
                 ORDER BY works.user_uid,
-                        CASE WHEN works.price IS NULL THEN 1 ELSE 0 END, -- Prioriza não nulos
+                        CASE WHEN works.price IS NULL THEN 1 ELSE 0 END, 
                         RANDOM() -- Ordenação aleatória para preços não nulos
             ) AS t
             ORDER BY
-                CASE WHEN price IS NULL THEN 1 ELSE 0 END, -- Garante que nulos fiquem no final
-                CASE WHEN price IS NOT NULL THEN RANDOM() END NULLS LAST -- Ordena aleatoriamente os não nulos
+                CASE WHEN price IS NULL THEN 1 ELSE 0 END, 
+                CASE WHEN price IS NOT NULL THEN RANDOM() END NULLS LAST 
             limit 21
             OFFSET ${offset || 0} * 21; 
             `, {
@@ -112,48 +113,8 @@ const cardsController = {
             (0, console_1.error)(err);
             return res
                 .status(500)
-                .json({ message: 'list cards error' });
+                .json({ message: 'list internationals cards error' });
         });
-    },
-    async belongs(req, res) {
-        //@ts-ignore
-        const uid = req.uid;
-        if (!uid)
-            return res
-                .status(400)
-                .json({ message: 'empty uid query' });
-        //@ts-ignore
-        await Works_1.default.sequelize.query(`
-            SELECT 
-            works.user_uid,
-            works.id,
-            works.title,
-            works.discount,
-            works.banner,
-            works.price,
-            works.description,
-            works.user_uid,
-            cities.name AS city,
-            cities.id as city_id,
-            users.uid,
-            users.name,
-            users.profession,
-            int.country AS int_country,
-            int.work_id 
-            FROM works
-            INNER JOIN users ON (works.user_uid = users.uid)
-            INNER JOIN cities ON (works.city_id = cities.id)
-            INNER JOIN internationals AS int ON (int.work_id = works.id)
-            WHERE works.user_uid = :uid;
-            `, {
-            type: sequelize_1.QueryTypes.SELECT,
-            replacements: { uid }
-        })
-            .then(data => res.status(200).json(data).end())
-            .catch(err => {
-            (0, console_1.error)(err);
-            return res.status(500).json({ message: 'my cards error' }).end();
-        });
-    },
+    }
 };
-exports.default = cardsController;
+exports.default = internationalsController;
