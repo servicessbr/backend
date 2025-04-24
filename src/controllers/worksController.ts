@@ -9,6 +9,7 @@ import { Request, Response } from 'express';
 import Works from '../models/Works';
 import Subworks from '../models/Subworks';
 import stringContainsOnlyDigits from '../functions/onlyDigits/stringContainsOnlyDigits';
+import Internationals from '../models/Internationals';
 
 const insertableSubworks = (subworks: any, work_id: any) => {
     /*
@@ -41,10 +42,22 @@ const worksController = {
             title, description,
             price, city_id,
 
-            subworks
+            subworks,
+
+            internationals
         } = req.body;
 
-        if (!city_id) return res
+        const isInternationalRequest = (
+            internationals &&
+            typeof internationals.country === 'string' &&
+            internationals.country.length === 2
+        );
+
+        console.log('isInternationalRequest',isInternationalRequest);
+
+        if (!(
+            city_id || isInternationalRequest
+        )) return res
             .status(500)
             .json({ message: 'Por favor escolha uma cidade e estado' });
 
@@ -61,36 +74,46 @@ const worksController = {
             .json({ message: 'O preço deve ter apenas números' });
 
         //@ts-ignore
-        await Works.create({
+        const work: any = await Works.create({
             user_uid: uid,
-            title, description, city_id,
+            title, 
+            description, 
+            city_id: isInternationalRequest ? 0 : city_id,
             price: parseInt(price),
-        })
-            .then(async work => {
-                if (!Array.isArray(subworks)) return
+        }).catch(err => {
+            error(err);
+            return res
+                .status(500)
+                .json({ message: 'create work error' })
+        });
 
-                //@ts-ignore
-                const insertSubWorks = insertableSubworks(subworks, work.id);
+        /*
+            * Se tiver uma lista de subworks cria a tabela subworks:
+        */
+        if (Array.isArray(subworks)) {
+            const insertSubWorks = insertableSubworks(subworks, work.id);
+            //@ts-ignore
+            await Subworks.bulkCreate(insertSubWorks)
+                .catch((err: Error) => error(err))
+        }
 
-                //@ts-ignore
-                await Subworks.bulkCreate(insertSubWorks)
-                    .then(() => res
-                        .status(200)
-                        //@ts-ignore
-                        .json({ work_id: work.id }))
-                    .catch(err => {
-                        error(err);
-                        return res
-                            .status(500)
-                            .json({ message: 'create subwork error' })
-                    })
+        console.log(internationals);
+        /*
+            * Se for internacional cria a table internacional:
+        */
+        if (isInternationalRequest) {
+            //@ts-ignore
+            await Internationals.create({
+                work_id: work.id,
+                country: internationals.country,
+                state: internationals.state,
+                city: internationals.city,
+
             })
-            .catch(err => {
-                error(err);
-                return res
-                    .status(500)
-                    .json({ message: 'create work error' })
-            });
+                .catch((err: Error) => error(err))
+        }
+
+        return res.status(200).json({ work_id: work.id });
     },
 
     async update(req: Request, res: Response) {

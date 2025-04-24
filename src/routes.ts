@@ -41,6 +41,7 @@ import evaluationsController from './controllers/evaluationsController';
 import proController from './controllers/proController';
 import end from './middlewares/end';
 import paypalController from './controllers/paypalController';
+import internationalsController from './controllers/internationalsController';
 
 /*
     * Connection:
@@ -72,6 +73,7 @@ routes.get('/works/subworks/load/:work_id', worksController.load);
 */
 routes.put('/cards/list', cardsController.list);
 routes.get('/cards/belongs', authorization, cardsController.belongs);
+routes.put('/cards/list/internationals', internationalsController.list);
 
 /*
     * Generate Codes (Redis)
