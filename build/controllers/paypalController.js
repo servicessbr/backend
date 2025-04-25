@@ -14,7 +14,7 @@ const redisConfig_1 = require("../configs/cache/redisConfig");
 const CANCEL_URL = `${URL_1.URL_REACT_CLIENT}/payment/finish`;
 const RETURN_URL = `${URL_1.URL_REACT_CLIENT}/paypal/checkout`;
 async function generateAccessToken() {
-    const response = await (0, axios_1.default)(JSON.stringify({
+    const response = await (0, axios_1.default)(`${URL_1.URL_PAYPAL_BASE}/v1/oauth2/token`, {
         url: `${URL_1.URL_PAYPAL_BASE}/v1/oauth2/token`,
         method: 'post',
         data: 'grant_type=client_credentials',
@@ -22,8 +22,10 @@ async function generateAccessToken() {
             username: process.env.PAYPAL_CLIENT_ID,
             password: process.env.PAYPAL_SECRET
         }
-    })).catch((err) => console.error(err));
-    //@ts-ignore
+    })
+        .catch((err) => (0, console_1.error)(err));
+    if (!(response && response.data))
+        return false;
     return response.data.access_token;
 }
 const paypalController = {
@@ -90,10 +92,10 @@ const paypalController = {
             })
         })
             .catch((err) => console.error(err));
-        //@ts-ignore
+        if (!(response && response.data && response.data.links))
+            return res.status(500).end();
         console.log('response.data: ', response.data);
-        //@ts-ignore
-        const url = response.data.links.find(link => link.rel === 'approve').href;
+        const url = response.data.links.find((link) => link.rel === 'approve').href;
         //@ts-ignore
         const users = await Users_1.default.findAll({
             raw: true,
@@ -101,11 +103,12 @@ const paypalController = {
             attributes: ['email', 'name', 'uid']
         })
             .catch((err) => (0, console_1.error)(err));
-        //@ts-ignore
-        const user = users.filter(u => u.uid === payer_customer_uid)[0];
-        //@ts-ignore
-        const prof = users.filter(u => u.uid === provider_professional_uid)[0];
+        if (!users)
+            return res.status(500).end();
+        const user = users.filter((u) => u.uid === payer_customer_uid)[0];
+        const prof = users.filter((u) => u.uid === provider_professional_uid)[0];
         console.log(users, user, prof);
+        //@ts-ignore
         if (!(user && user.email && user.name && prof && prof.email && prof.name))
             return res
                 .status(400)
@@ -114,10 +117,14 @@ const paypalController = {
         console.log(url.indexOf('token=') + 6, url.length);
         return await (0, redisConfig_1.setCache)(`paypal_payment:${url.slice(url.indexOf('token=') + 6, url.length)}`, JSON.stringify({
             payer_customer_uid,
+            //@ts-ignore
             payer_customer_name: user.name,
+            //@ts-ignore
             payer_customer_email: user.email,
             provider_professional_uid,
+            //@ts-ignore
             provider_professional_name: prof.name,
+            //@ts-ignore
             provider_professional_email: prof.email,
             execution_date,
             transaction_amount,
@@ -131,7 +138,6 @@ const paypalController = {
         const { orderId, PayerID } = req.body;
         const redisKey = `paypal_payment:${orderId}`;
         let data = await (0, redisConfig_1.getCache)(redisKey);
-        //@ts-ignore
         if (!(0, isJson_1.default)(data))
             return res
                 .status(400)
@@ -150,9 +156,9 @@ const paypalController = {
             }
         })
             .catch((err) => console.error(err));
-        //@ts-ignore
+        if (!(response && response.data && response.data.links))
+            return res.status(204).end();
         console.log('DATA: ', response.data && response.data.status);
-        //@ts-ignore
         if (response.data && response.data.status === 'COMPLETED') {
             return (0, paymentsControllers_1.default)(res, data, redisKey);
         }

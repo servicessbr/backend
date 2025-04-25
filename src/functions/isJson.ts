@@ -1,4 +1,4 @@
-function isJson(str:string) {
+function isJson(str:string | any) {
     try {
         JSON.parse(str);
     } catch (err) {
