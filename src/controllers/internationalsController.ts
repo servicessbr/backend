@@ -55,7 +55,7 @@ const internationalsController = {
         function locationQuery() {
             let locationQ = ' WHERE (int.country IS NOT NULL) '
             if (typeof location === 'string')
-                locationQ = ` WHERE (int.country = '${location.toUpperCase().trim()}') `
+                locationQ = ` WHERE (int.country = '${location.toLowerCase().trim()}') `
             return locationQ;
         };
 

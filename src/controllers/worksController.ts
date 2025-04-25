@@ -105,7 +105,7 @@ const worksController = {
             //@ts-ignore
             await Internationals.create({
                 work_id: work.id,
-                country: internationals.country,
+                country: internationals.country.toLowerCase(),
                 state: internationals.state,
                 city: internationals.city,
 
