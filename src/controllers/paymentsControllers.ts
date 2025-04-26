@@ -14,8 +14,10 @@ import transporter from '../email/transporter';
 import Chat_Channel from '../schemas/Chat_Channel';
 import paymentOptions from '../email/options/paymentOptions';
 import { removeCache } from '../configs/cache/redisConfig';
+import Users from '../models/Users';
+import voucherOptions from '../email/options/voucherOptions';
 
-const createOrder = async (res: Response, data: any, removeRadisKey: string) => {
+export const createOrder = async (res: Response, data: any, removeRadisKey: string) => {
 
     if (!(
         data &&
@@ -111,4 +113,57 @@ const createOrder = async (res: Response, data: any, removeRadisKey: string) => 
         })
 }
 
-export default createOrder;
+export const makePro = async (
+    res: Response,
+    user_uid: string,
+    transaction: {
+        id: string,
+        date_approved: Date,
+        amount: number,
+        email: string,
+        name: string,
+    }
+) => {
+    //@ts-ignore
+    await Users.update(
+        {
+            pro: true
+        },
+        { where: { uid: user_uid } }
+    )
+        .then(async () => {
+            try {
+                transporter.sendMail(
+                    voucherOptions(
+                        //@ts-ignore
+                        transaction.email,
+
+                        transaction.id,
+
+                        user_uid,
+                        transaction.date_approved,
+                        transaction.amount,
+
+                        //@ts-ignore
+                        transaction.name
+
+                    ), function (err, info) {
+                        if (err) {
+                            console.error(err)
+                        }
+                    });
+
+            } catch (err) {
+                console.error('Payment | Push or E-mail Error: ', err)
+            };
+
+            return res.status(200).end()
+        })
+        .catch((err: Error) => {
+            error(err)
+            return res
+                .status(500)
+                .json({ message: 'make pro error - create pro' })
+                .end()
+        })
+}

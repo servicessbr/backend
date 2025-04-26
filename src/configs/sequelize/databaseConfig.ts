@@ -4,6 +4,7 @@ dotenv.config({path: environment});
 import { log } from 'console';
 
 log(
+    '3)',
     environment,
     {
         host: process.env.PSQL_HOST,

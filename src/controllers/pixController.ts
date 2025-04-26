@@ -15,7 +15,7 @@ import transporter from '../email/transporter';
 import voucherOptions from '../email/options/voucherOptions';
 import cpf from '../functions/cpf';
 
-import createOrder from './paymentsControllers';
+import { createOrder, makePro } from './paymentsControllers';
 import { URL_MERCADO_PAGO } from '../configs/constants/URL';
 import { MIN_PAYMENT_X, PRICE } from '../configs/constants/priceTags';
 import HEROKU_APP_NAME from '../configs/constants/heroku_app_name';
@@ -252,7 +252,7 @@ const pixController = {
             await fetchData.get('')
                 .then(async response => {
                     if (response.data.status === "approved") {
-                        createOrder(res, data, redisKey);
+                        await createOrder(res, data, redisKey);
                     } else return res.status(204).end();
                 })
                 .catch((err: Error) => {
@@ -410,48 +410,19 @@ const pixController = {
             await fetchData.get('')
                 .then(async response => {
                     if (response.data.status === "approved") {
-                        //@ts-ignore
-                        await Users.update(
+                        await makePro(
+                            res,
+                            user_uid,
                             {
-                                pro: true
-                            },
-                            { where: { uid: user_uid } }
+                                //@ts-ignore
+                                email: data.user_email,
+                                id: response.data.id,
+                                date_approved: response.data.date_approved,
+                                amount: response.data.transaction_amount,
+                                //@ts-ignore
+                                name: data.user_name
+                            }
                         )
-                            .then(async () => {
-                                try {
-                                    transporter.sendMail(
-                                        voucherOptions(
-                                            //@ts-ignore
-                                            data.user_email,
-
-                                            response.data.id,
-
-                                            user_uid,
-                                            response.data.date_approved,
-                                            response.data.transaction_amount,
-
-                                            //@ts-ignore
-                                            data.user_name
-
-                                        ), function (err, info) {
-                                            if (err) {
-                                                console.error(err)
-                                            }
-                                        });
-
-                                } catch (err) {
-                                    console.error('Payment | Push or E-mail Error: ', err)
-                                };
-
-                                return res.status(200).end()
-                            })
-                            .catch((err: Error) => {
-                                error(err)
-                                return res
-                                    .status(500)
-                                    .json({ message: 'make pro error - create pro' })
-                                    .end()
-                            })
                     } else return res.status(204).end();
                 })
                 .catch((err: Error) => {

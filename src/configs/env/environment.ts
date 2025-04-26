@@ -19,6 +19,6 @@ switch (process.env.NODE_ENV) {
         break;
 }
 
-log('Environment: ', environment);
+log('1) Environment: ', environment);
 
 export default environment;

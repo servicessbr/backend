@@ -130,7 +130,7 @@ routes.post('/admin/users/create', adminAuthorization, adminControllers.createNe
 routes.post('/admin/generate/new/user/code', adminAuthorization, adminControllers.newExtendedCode);
 
 /*
-     * TMP
+    * TMP
 */
 routes.get('/tmp/list/premium', tmpController.premium);
 
@@ -144,16 +144,19 @@ routes.get('/tmp/list/premium', tmpController.premium);
 routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
 routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
 /*
-     * PayPal - Orders
+    * PayPal - Orders
 */
-routes.post('/paypal/generate', authorization, paypalController.generatePaypal);
-routes.put('/paypal/checkout', authorization, paypalController.checkoutPayPal);
+routes.post('/paypal/generate', authorization, paypalController.orders.generatePaypal);
+routes.put('/paypal/checkout', authorization, paypalController.orders.checkoutPayPal);
 /*
     * PIX - PRO
 */
 routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
 routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
-
-// req.hostname --> Para saber o nome do domínio do client
+/*
+    * PayPal - PRO
+*/
+routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);
+routes.put('/paypal/checkout/pro', authorization, paypalController.pro.checkoutPp);
 
 export default routes;
