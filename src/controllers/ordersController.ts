@@ -27,7 +27,7 @@ const ordersController = {
 
         //@ts-ignore
         const professionalsList = await Orders.sequelize.query(
-            `SELECT orders.*, users.profession 
+            `SELECT orders.*, users.profession, users.phone
                 FROM orders
                 LEFT JOIN users
                 ON (users.uid = orders.provider_professional_uid)
