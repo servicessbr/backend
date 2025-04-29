@@ -134,29 +134,18 @@ routes.post('/admin/generate/new/user/code', adminAuthorization, adminController
 */
 routes.get('/tmp/list/premium', tmpController.premium);
 
-
 /*
-    * Payment Methods
-*/
-/*
-    * PIX - Orders
+    * PIX
 */
 routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
 routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
-/*
-    * PayPal - Orders
-*/
-routes.post('/paypal/generate', authorization, paypalController.orders.generatePaypal);
-routes.put('/paypal/checkout', authorization, paypalController.orders.checkoutPayPal);
-/*
-    * PIX - PRO
-*/
 routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
 routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
-/*
-    * PayPal - PRO
-*/
-routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);
-routes.put('/paypal/checkout/pro', authorization, paypalController.pro.checkoutPp);
+
+//PayPal
+//routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);
+//routes.put('/paypal/checkout/pro', authorization, paypalController.pro.checkoutPp);
+//routes.post('/paypal/generate', authorization, paypalController.orders.generatePaypal);
+//routes.put('/paypal/checkout', authorization, paypalController.orders.checkoutPayPal);
 
 export default routes;

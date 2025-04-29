@@ -13,18 +13,13 @@ import { getCache, setCache } from '../configs/cache/redisConfig';
 
 
 async function generateAccessToken(): Promise<string | false> {
-    console.log('_______________URL_PAYPAL_BASE_______________: ', URL_PAYPAL_BASE);
-
-    const username = `${process.env.PAYPAL_CLIENT_ID as string}`.trim();
-    const password = `${process.env.PAYPAL_SECRET as string}`.trim();
-
     const response = await axios(`${URL_PAYPAL_BASE}/v1/oauth2/token`, {
         url: `${URL_PAYPAL_BASE}/v1/oauth2/token`,
         method: 'post',
         data: 'grant_type=client_credentials',
         auth: {
-            username,
-            password
+            username: process.env.PAYPAL_CLIENT_ID as string,
+            password: process.env.PAYPAL_SECRET as string
         }
     })
         .catch((err: Error) => error(err))
@@ -224,7 +219,7 @@ const paypalController = {
             //@ts-ignore
             const email = req.email;
 
-
+   
 
             //@ts-ignore
             if (!(email && uid)) return res
@@ -324,9 +319,9 @@ const paypalController = {
             const data = JSON.parse(`${getData}`);
 
             if (!(data?.uid && data?.email)) return res
-                .status(400)
-                .json({ message: 'paypal pro error - missing data' })
-                .end();
+            .status(400)
+            .json({ message: 'paypal pro error - missing data' })
+            .end();
 
             const accessToken = await generateAccessToken();
 
