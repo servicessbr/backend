@@ -136,10 +136,8 @@ routes.post('/admin/generate/new/user/code', adminAuthorization, adminController
 routes.get('/tmp/list/premium', tmpController.premium);
 
 /*
-    * PIX
+    * PIX - Mercado Pago
 */
-routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
-routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
 routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
 routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
 
@@ -151,6 +149,10 @@ routes.post('/google-pay/process', GPayStripeController.StripeProcess);
 //PayPal
 //routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);
 //routes.put('/paypal/checkout/pro', authorization, paypalController.pro.checkoutPp);
+
+//To Remove 
+//routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
+//routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
 //routes.post('/paypal/generate', authorization, paypalController.orders.generatePaypal);
 //routes.put('/paypal/checkout', authorization, paypalController.orders.checkoutPayPal);
 
