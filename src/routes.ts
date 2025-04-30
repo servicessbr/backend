@@ -47,6 +47,7 @@ import internationalsController from './controllers/internationalsController';
     * Connection:
 */
 import './models/connection/connection';
+import GPayStripeController from './controllers/GPayStripeController';
 
 /*
     * Users 
@@ -141,6 +142,11 @@ routes.post('/pix/generate/payment', authorization, pixController.orders.generat
 routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
 routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
 routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
+
+/*
+    * Google Play - Stripe
+*/
+routes.post('/google-pay/process', GPayStripeController.StripeProcess);
 
 //PayPal
 //routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);

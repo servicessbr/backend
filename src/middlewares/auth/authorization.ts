@@ -34,7 +34,7 @@ const authorization = async (req: Request, res: Response, next: NextFunction) =>
 
     //@ts-ignore
     await Users.findOne({
-        attributes: ['refreshtoken', 'blocked', 'pro'],
+        attributes: ['refreshtoken', 'blocked', 'pro', 'name'],
         where: { uid }
     })
         .then((data:any) => {
@@ -49,6 +49,8 @@ const authorization = async (req: Request, res: Response, next: NextFunction) =>
                 req.email = email;
                 //@ts-ignore
                 req.pro = data.pro;
+                //@ts-ignore
+                req.name = data.name;
                 return next();
             };
         })

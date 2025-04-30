@@ -83,7 +83,7 @@ const usersController = {
             refreshtoken
         })
             .then((user:any) => {
-                const token = generateToken(uid, user.email, refreshtoken);
+                const token = generateToken(uid, user.email, user.name, refreshtoken);
 
                 return res.status(200).json({
                     uid: user.uid,
@@ -188,12 +188,9 @@ const usersController = {
                                 description: user.description,
                                 profession: user.profession,
                                 phone: user.phone,
-                                token: generateToken(user.uid, user.email, refreshtoken),
+                                token: generateToken(user.uid, user.email, user.name, refreshtoken),
                             });
                         } else {
-
-
-
                             return res.status(403).json({ message: 'E-mail ou senha incorretos' });
                         }
                     });
