@@ -125,6 +125,8 @@ const cardsController = {
         //@ts-ignore
         const uid = req.uid;
 
+        console.log('XXXXXXXXXXXXXX; ', uid)
+
         if (!uid)
             return res
                 .status(400)
@@ -146,13 +148,10 @@ const cardsController = {
             cities.id as city_id,
             users.uid,
             users.name,
-            users.profession,
-            int.country AS int_country,
-            int.work_id 
+            users.profession
             FROM works
             INNER JOIN users ON (works.user_uid = users.uid)
             INNER JOIN cities ON (works.city_id = cities.id)
-            INNER JOIN internationals AS int ON (int.work_id = works.id)
             WHERE works.user_uid = :uid;
             `,
             {
