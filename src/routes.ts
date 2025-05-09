@@ -48,6 +48,7 @@ import internationalsController from './controllers/internationalsController';
 */
 import './models/connection/connection';
 import GPayStripeController from './controllers/GPayStripeController';
+import TEST from './controllers/TEST';
 
 /*
     * Users 
@@ -144,7 +145,7 @@ routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
 /*
     * Google Play - Stripe
 */
-routes.post('/google-pay/process', GPayStripeController.StripeProcess);
+//routes.post('/google-pay/process', GPayStripeController.StripeProcess);
 
 //PayPal
 //routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);
@@ -155,5 +156,8 @@ routes.post('/google-pay/process', GPayStripeController.StripeProcess);
 //routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
 //routes.post('/paypal/generate', authorization, paypalController.orders.generatePaypal);
 //routes.put('/paypal/checkout', authorization, paypalController.orders.checkoutPayPal);
+
+routes.post('/create-payment-intent', TEST.intent);
+routes.post('/google-pay/process', TEST.process);
 
 export default routes;
