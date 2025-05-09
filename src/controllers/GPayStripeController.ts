@@ -3,14 +3,15 @@ import Stripe from 'stripe'; // npm install stripe
 import { PRICE } from '../configs/constants/priceTags';
 import { makePro } from './paymentsControllers';
 
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 const GPayStripeController = {
     async StripeProcess(req: Request, res: Response) {
         const { paymentData } = req.body;
 
-        if (!paymentData?.paymentMethodData?.tokenizationData?.token) return res.status(500).end();
+        const source = paymentData?.paymentMethodData?.tokenizationData?.token;
+
+        if (!source) return res.status(500).end();
 
         console.log('_________paymentData_________', paymentData);
         console.log('_________PRICE*100_________', PRICE * 100);
@@ -30,7 +31,7 @@ const GPayStripeController = {
             const charge = await stripe.charges.create({
                 amount: PRICE * 100, // Valor em centavos (ex: 1000 para R$ 10.00)
                 currency: 'brl',
-                source: paymentData.paymentMethodData.tokenizationData.token, // Use o token recebido do frontend
+                source, // Use o token recebido do frontend
                 description: 'Pagamento via Google Pay',
             });
 
