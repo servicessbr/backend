@@ -159,5 +159,6 @@ routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
 
 routes.post('/create-payment-intent', TEST.intent);
 routes.post('/google-pay/process', TEST.process);
+routes.post('/confirm-payment', TEST.confirm);
 
 export default routes;

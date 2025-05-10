@@ -13,12 +13,13 @@ const TEST = {
                 currency: 'BRL',
                 automatic_payment_methods: {
                     enabled: true,
+                    allow_redirects: 'never'
                 },
             });
 
             console.log('1', paymentIntent);
 
-            res.json({ clientSecret: paymentIntent.client_secret });
+            res.json(paymentIntent);
         } catch (error) {
             console.error('Erro ao criar Payment Intent:', error);
             res.status(500).json({ error: 'Erro ao processar o pagamento.' });
@@ -31,6 +32,27 @@ const TEST = {
         console.log('2', paymentData);
 
         return res.status(200).end();
+    },
+
+    async confirm(req: Request, res: Response) {
+
+
+        const { paymentId, paymentMethod } = req.body;
+
+        //const paymentMethod_ = 'pm_1RN2bYJ049OCfLxY3mfxYdxC'
+        const  paymentMethod_ = 'pm_card_visa';
+
+        /**
+         * !! Descobrir pq o paymentMethod tá null !!
+         */
+
+        const result = await stripe.paymentIntents.confirm(paymentId, { payment_method: paymentMethod_ })
+        .catch(err => console.error('Erro ao CONFIRMAR Payment Intent:',err))
+
+        console.log('3', result);
+
+        return res.status(200).json(result).end();
+
     }
 }
 
