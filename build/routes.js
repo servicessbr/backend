@@ -47,6 +47,7 @@ const internationalsController_1 = __importDefault(require("./controllers/intern
     * Connection:
 */
 require("./models/connection/connection");
+const gpayStripeController_1 = __importDefault(require("./controllers/gpayStripeController"));
 /*
     * Users
 */
@@ -117,26 +118,26 @@ routes.get('/admin/countdown', adminAuthorization_1.default, adminControllers_1.
 routes.post('/admin/users/create', adminAuthorization_1.default, adminControllers_1.default.createNewUser);
 routes.post('/admin/generate/new/user/code', adminAuthorization_1.default, adminControllers_1.default.newExtendedCode);
 /*
-     * TMP
+    * TMP
 */
 routes.get('/tmp/list/premium', tmpController_1.default.premium);
 /*
-    * Payment Methods
-*/
-/*
-    * PIX - Orders
-*/
-routes.post('/pix/generate/payment', authorization_1.default, pixController_1.default.orders.generatePayment);
-routes.post('/pix/status/payment/:cache_id', pixController_1.default.orders.getStatusAndMakeOrder);
-/*
-     * PayPal - Orders
-*/
-routes.post('/paypal/generate', authorization_1.default, paypalController_1.default.generatePaypal);
-routes.put('/paypal/checkout', authorization_1.default, paypalController_1.default.checkoutPayPal);
-/*
-    * PIX - PRO
+    * PIX - Mercado Pago
 */
 routes.get('/pix/generate/pro', authorization_1.default, pixController_1.default.pro.generate);
 routes.post('/pix/status/pro/:user_uid', pixController_1.default.pro.status);
-// req.hostname --> Para saber o nome do domínio do client
+/*
+    * Google Play - Stripe
+*/
+routes.post('/create-payment-intent', gpayStripeController_1.default.intent);
+routes.post('/google-pay/process', gpayStripeController_1.default.process);
+routes.post('/confirm-payment', gpayStripeController_1.default.confirm);
+//PayPal
+routes.get('/paypal/generate/pro', authorization_1.default, paypalController_1.default.pro.generatePp);
+routes.put('/paypal/checkout/pro', authorization_1.default, paypalController_1.default.pro.checkoutPp);
+//To Remove 
+//routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
+//routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
+//routes.post('/paypal/generate', authorization, paypalController.orders.generatePaypal);
+//routes.put('/paypal/checkout', authorization, paypalController.orders.checkoutPayPal);
 exports.default = routes;

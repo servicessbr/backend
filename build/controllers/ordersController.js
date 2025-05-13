@@ -23,7 +23,7 @@ const ordersController = {
             type: sequelize_1.QueryTypes.SELECT
         }).catch((err) => console.error(err));
         //@ts-ignore
-        const professionalsList = await Orders_1.default.sequelize.query(`SELECT orders.*, users.profession 
+        const professionalsList = await Orders_1.default.sequelize.query(`SELECT orders.*, users.profession, users.phone
                 FROM orders
                 LEFT JOIN users
                 ON (users.uid = orders.provider_professional_uid)

@@ -20,5 +20,5 @@ switch (process.env.NODE_ENV) {
     default:
         break;
 }
-(0, console_1.log)('Environment: ', environment);
+(0, console_1.log)('1) Environment: ', environment);
 exports.default = environment;

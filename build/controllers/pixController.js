@@ -9,10 +9,8 @@ const axios_1 = __importDefault(require("axios"));
 const uuid_1 = require("uuid");
 const Users_1 = __importDefault(require("../models/Users"));
 const isJson_1 = __importDefault(require("../functions/isJson"));
-const transporter_1 = __importDefault(require("../email/transporter"));
-const voucherOptions_1 = __importDefault(require("../email/options/voucherOptions"));
 const cpf_1 = __importDefault(require("../functions/cpf"));
-const paymentsControllers_1 = __importDefault(require("./paymentsControllers"));
+const paymentsControllers_1 = require("./paymentsControllers");
 const URL_1 = require("../configs/constants/URL");
 const priceTags_1 = require("../configs/constants/priceTags");
 const heroku_app_name_1 = __importDefault(require("../configs/constants/heroku_app_name"));
@@ -206,7 +204,7 @@ const pixController = {
             await fetchData.get('')
                 .then(async (response) => {
                 if (response.data.status === "approved") {
-                    (0, paymentsControllers_1.default)(res, data, redisKey);
+                    await (0, paymentsControllers_1.createOrder)(res, data, redisKey);
                 }
                 else
                     return res.status(204).end();
@@ -344,34 +342,14 @@ const pixController = {
             await fetchData.get('')
                 .then(async (response) => {
                 if (response.data.status === "approved") {
-                    //@ts-ignore
-                    await Users_1.default.update({
-                        pro: true
-                    }, { where: { uid: user_uid } })
-                        .then(async () => {
-                        try {
-                            transporter_1.default.sendMail((0, voucherOptions_1.default)(
-                            //@ts-ignore
-                            data.user_email, response.data.id, user_uid, response.data.date_approved, response.data.transaction_amount, 
-                            //@ts-ignore
-                            data.user_name), function (err, info) {
-                                if (err) {
-                                    console.error(err);
-                                }
-                            });
-                        }
-                        catch (err) {
-                            console.error('Payment | Push or E-mail Error: ', err);
-                        }
-                        ;
-                        return res.status(200).end();
-                    })
-                        .catch((err) => {
-                        (0, console_1.error)(err);
-                        return res
-                            .status(500)
-                            .json({ message: 'make pro error - create pro' })
-                            .end();
+                    await (0, paymentsControllers_1.makePro)(res, user_uid, {
+                        //@ts-ignore
+                        email: data.user_email,
+                        id: response.data.id,
+                        date_approved: response.data.date_approved,
+                        amount: response.data.transaction_amount,
+                        //@ts-ignore
+                        name: data.user_name
                     });
                 }
                 else

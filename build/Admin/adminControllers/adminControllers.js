@@ -39,23 +39,6 @@ const adminControllers = {
                                 .status(500)
                                 .json({ message: 'refresh token error' });
                         });
-                        /*let d = new Date();
-                        transporter.sendMail({
-                            from: 'Servicess <suporte@servicess.com.br>',
-                            to:'suporte@servicess.com.br',
-                            subject: 'loggin as admin!',
-                            html: 'Loggin as admin ' + d
-                        }, function (err, info) {
-                            if (err) {
-                                console.error(err)
-                                return res.status(500).json({ message: 'erro do email ao criar um usuário pelo admin' })
-                            } else {
-                                return res.status(200).json({
-                                    uid: user.uid,
-                                    token: adminGenerateToken(user.uid, refreshtoken),
-                                });
-                            }
-                        });*/
                         return res.status(200).json({
                             //@ts-ignore
                             uid: user.uid,
