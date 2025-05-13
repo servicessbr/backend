@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-const TEST = {
+const gpayStripeController = {
     async intent(req: Request, res: Response) {
         try {
             const { amount } = req.body;
@@ -35,16 +35,9 @@ const TEST = {
     },
 
     async confirm(req: Request, res: Response) {
-
-
         const { paymentId, paymentMethod } = req.body;
 
-        //const paymentMethod_ = 'pm_1RN2bYJ049OCfLxY3mfxYdxC'
         const  paymentMethod_ = 'pm_card_visa';
-
-        /**
-         * !! Descobrir pq o paymentMethod tá null !!
-         */
 
         const result = await stripe.paymentIntents.confirm(paymentId, { payment_method: paymentMethod_ })
         .catch(err => console.error('Erro ao CONFIRMAR Payment Intent:',err))
@@ -56,4 +49,4 @@ const TEST = {
     }
 }
 
-export default TEST;
+export default gpayStripeController;

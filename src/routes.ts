@@ -47,8 +47,7 @@ import internationalsController from './controllers/internationalsController';
     * Connection:
 */
 import './models/connection/connection';
-import GPayStripeController from './controllers/GPayStripeController';
-import TEST from './controllers/TEST';
+import gpayStripeController from './controllers/gpayStripeController';
 
 /*
     * Users 
@@ -145,20 +144,18 @@ routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
 /*
     * Google Play - Stripe
 */
-//routes.post('/google-pay/process', GPayStripeController.StripeProcess);
+routes.post('/create-payment-intent', gpayStripeController.intent);
+routes.post('/google-pay/process', gpayStripeController.process);
+routes.post('/confirm-payment', gpayStripeController.confirm);
 
 //PayPal
-//routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);
-//routes.put('/paypal/checkout/pro', authorization, paypalController.pro.checkoutPp);
+routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);
+routes.put('/paypal/checkout/pro', authorization, paypalController.pro.checkoutPp);
 
 //To Remove 
 //routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
 //routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
 //routes.post('/paypal/generate', authorization, paypalController.orders.generatePaypal);
 //routes.put('/paypal/checkout', authorization, paypalController.orders.checkoutPayPal);
-
-routes.post('/create-payment-intent', TEST.intent);
-routes.post('/google-pay/process', TEST.process);
-routes.post('/confirm-payment', TEST.confirm);
 
 export default routes;
