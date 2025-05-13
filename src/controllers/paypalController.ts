@@ -59,8 +59,8 @@ const paypalController = {
                 .json({ message: 'paypal error - missing data' })
                 .end();
 
-            const CANCEL_URL = `${URL_REACT_CLIENT}/payment/finish`;
-            const RETURN_URL = `${URL_REACT_CLIENT}/paypal/checkout`;
+            const CANCEL_URL = `${URL_REACT_CLIENT}/payment/methods`;
+            const RETURN_URL = `${URL_REACT_CLIENT}/paypal/checkout/pro`;
 
             const description =
                 `Contratação do serviço: "${original_subwork_title}"`;
