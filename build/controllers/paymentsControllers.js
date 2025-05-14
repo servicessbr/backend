@@ -19,23 +19,20 @@ const makePro = async (res, user_uid, transaction) => {
     }).catch(err => (0, console_1.error)(err));
     //@ts-ignore
     const { pro, vip } = user;
-    let update = { pro, vip };
+    let update = { vip };
     switch (transaction.amount) {
         case priceTag_1.PRO_PAYEMNT:
             update = {
-                pro: (0, addOneYear_1.default)(pro, 'pro'),
-                vip
+                pro2: (0, addOneYear_1.default)(pro, 'pro')
             };
             break;
         case priceTag_1.PRE_PAYMENT:
             update = {
-                pro,
                 vip: (0, addOneYear_1.default)(pro, 'pre')
             };
             break;
         case priceTag_1.VIP_PAYMENT:
             update = {
-                pro,
                 vip: (0, addOneYear_1.default)(pro, 'vip')
             };
             break;
