@@ -30,26 +30,26 @@ export const makePro = async (
     //@ts-ignore
     const { pro, vip } = user;
 
-    let update = { pro, vip };
+    let update: { pro2?: Date, vip?: Date } = { vip };
 
     switch (transaction.amount) {
         case PRO_PAYEMNT:
             update = {
-                pro: addOneYear(pro, 'pro'),
-                vip
+                pro2: addOneYear(pro, 'pro')
+                
             }
             break;
 
         case PRE_PAYMENT:
             update = {
-                pro,
+                
                 vip: addOneYear(pro, 'pre')
             }
             break;
 
         case VIP_PAYMENT:
             update = {
-                pro,
+                
                 vip: addOneYear(pro, 'vip')
             }
             break;
