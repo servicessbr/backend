@@ -37,8 +37,6 @@ const feedbackController_1 = __importDefault(require("./controllers/feedbackCont
 const channelController_1 = __importDefault(require("./chat/channelController"));
 const tmpController_1 = __importDefault(require("./controllers/tmpController"));
 const pixController_1 = __importDefault(require("./controllers/pixController"));
-const ordersController_1 = __importDefault(require("./controllers/ordersController"));
-const evaluationsController_1 = __importDefault(require("./controllers/evaluationsController"));
 const proController_1 = __importDefault(require("./controllers/proController"));
 const end_1 = __importDefault(require("./middlewares/end"));
 const paypalController_1 = __importDefault(require("./controllers/paypalController"));
@@ -89,15 +87,6 @@ routes.post('/firebase/avatar/update', authorization_1.default, memoryStorage_1.
 //routes.get('/firebase/avatar/delete', authorization, firebase.avatar.delete);
 //routes.get('/firebase/delete/all', authorization, firebase.deleteAll);
 /*
-    * Orders
-*/
-routes.get('/orders/list', authorization_1.default, ordersController_1.default.list);
-routes.put('/orders/finalize/evaluate/:order_id', authorization_1.default, ordersController_1.default.finalizeAndEvaluate);
-/*
-    * Evaluations
-*/
-routes.get('/evaluations/list/:provider_professional_uid', evaluationsController_1.default.list);
-/*
     * PRO
 */
 routes.get('/is/pro', authorization_1.default, proController_1.default.isPro);
@@ -124,8 +113,8 @@ routes.get('/tmp/list/premium', tmpController_1.default.premium);
 /*
     * PIX - Mercado Pago
 */
-routes.get('/pix/generate/pro', authorization_1.default, pixController_1.default.pro.generate);
-routes.post('/pix/status/pro/:user_uid', pixController_1.default.pro.status);
+routes.get('/pix/generate/pro/:plan', authorization_1.default, pixController_1.default.generate);
+routes.post('/pix/status/pro/:user_uid', pixController_1.default.status);
 /*
     * Google Play - Stripe
 */
@@ -133,8 +122,8 @@ routes.post('/create-payment-intent', gpayStripeController_1.default.intent);
 routes.post('/google-pay/process', gpayStripeController_1.default.process);
 routes.post('/confirm-payment', gpayStripeController_1.default.confirm);
 //PayPal
-routes.get('/paypal/generate/pro', authorization_1.default, paypalController_1.default.pro.generatePp);
-routes.put('/paypal/checkout/pro', authorization_1.default, paypalController_1.default.pro.checkoutPp);
+routes.get('/paypal/generate/pro/:plan', authorization_1.default, paypalController_1.default.generatePp);
+routes.put('/paypal/checkout/pro', authorization_1.default, paypalController_1.default.checkoutPp);
 //To Remove 
 //routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
 //routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
