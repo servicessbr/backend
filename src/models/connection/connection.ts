@@ -13,9 +13,7 @@ import States from '../States';
 import Works from '../Works';
 import Premiums from '../Premiums'
 import Verifications from '../Verifications';
-import Orders from '../Orders';
 import Subworks from '../Subworks';
-import Evaluations from '../Evaluations';
 import Internationals from '../Internationals';
 
 Cities.init(connection);
@@ -25,8 +23,6 @@ Works.init(connection);
 Subworks.init(connection);
 Premiums.init(connection);
 Verifications.init(connection);
-Orders.init(connection);
-Evaluations.init(connection);
 Internationals.init(connection);
 
 Cities.associate(connection.models);
@@ -36,8 +32,6 @@ Works.associate(connection.models);
 Subworks.associate(connection.models);
 Premiums.associate(connection.models);
 Verifications.associate(connection.models);
-Orders.associate(connection.models);
-Evaluations.associate(connection.models);
 Internationals.associate(connection.models);
 
 export default connection;

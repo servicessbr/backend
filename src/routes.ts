@@ -36,8 +36,6 @@ import feedbackController from './controllers/feedbackController';
 import channelController from './chat/channelController';
 import tmpController from './controllers/tmpController';
 import pixController from './controllers/pixController';
-import ordersController from './controllers/ordersController';
-import evaluationsController from './controllers/evaluationsController';
 import proController from './controllers/proController';
 import end from './middlewares/end';
 import paypalController from './controllers/paypalController';
@@ -96,17 +94,6 @@ routes.post('/firebase/avatar/update', authorization, memoryStorage.single, shar
 //routes.get('/firebase/delete/all', authorization, firebase.deleteAll);
 
 /*
-    * Orders 
-*/
-routes.get('/orders/list', authorization, ordersController.list);
-routes.put('/orders/finalize/evaluate/:order_id', authorization, ordersController.finalizeAndEvaluate);
-
-/*
-    * Evaluations
-*/
-routes.get('/evaluations/list/:provider_professional_uid', evaluationsController.list);
-
-/*
     * PRO
 */
 routes.get('/is/pro', authorization, proController.isPro);
@@ -138,8 +125,8 @@ routes.get('/tmp/list/premium', tmpController.premium);
 /*
     * PIX - Mercado Pago
 */
-routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
-routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
+routes.get('/pix/generate/pro/:plan', authorization, pixController.generate);
+routes.post('/pix/status/pro/:user_uid', pixController.status);
 
 /*
     * Google Play - Stripe
@@ -149,8 +136,8 @@ routes.post('/google-pay/process', gpayStripeController.process);
 routes.post('/confirm-payment', gpayStripeController.confirm);
 
 //PayPal
-routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);
-routes.put('/paypal/checkout/pro', authorization, paypalController.pro.checkoutPp);
+routes.get('/paypal/generate/pro/:plan', authorization, paypalController.generatePp);
+routes.put('/paypal/checkout/pro', authorization, paypalController.checkoutPp);
 
 //To Remove 
 //routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
