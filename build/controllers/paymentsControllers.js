@@ -10,6 +10,7 @@ const transporter_1 = __importDefault(require("../email/transporter"));
 const Users_1 = __importDefault(require("../models/Users"));
 const voucherOptions_1 = __importDefault(require("../email/options/voucherOptions"));
 const addOneYear_1 = __importDefault(require("../functions/addOneYear"));
+const priceTag_1 = require("../configs/constants/priceTag");
 const makePro = async (res, user_uid, transaction) => {
     //@ts-ignore
     const user = await Users_1.default.findOne({
@@ -20,19 +21,19 @@ const makePro = async (res, user_uid, transaction) => {
     const { pro, vip } = user;
     let update = { pro, vip };
     switch (transaction.amount) {
-        case 19.9:
+        case priceTag_1.PRO_PAYEMNT:
             update = {
                 pro: (0, addOneYear_1.default)(pro, 'pro'),
                 vip
             };
             break;
-        case 6.9:
+        case priceTag_1.PRE_PAYMENT:
             update = {
                 pro,
                 vip: (0, addOneYear_1.default)(pro, 'pre')
             };
             break;
-        case 39.9:
+        case priceTag_1.VIP_PAYMENT:
             update = {
                 pro,
                 vip: (0, addOneYear_1.default)(pro, 'vip')

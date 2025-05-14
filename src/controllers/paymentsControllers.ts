@@ -7,6 +7,7 @@ import transporter from '../email/transporter';
 import Users from '../models/Users';
 import voucherOptions from '../email/options/voucherOptions';
 import addOneYear from '../functions/addOneYear';
+import { PRE_PAYMENT, PRO_PAYEMNT, VIP_PAYMENT } from '../configs/constants/priceTag';
 
 export const makePro = async (
     res: Response,
@@ -32,21 +33,21 @@ export const makePro = async (
     let update = { pro, vip };
 
     switch (transaction.amount) {
-        case 19.9:
+        case PRO_PAYEMNT:
             update = {
                 pro: addOneYear(pro, 'pro'),
                 vip
             }
             break;
 
-        case 6.9:
+        case PRE_PAYMENT:
             update = {
                 pro,
                 vip: addOneYear(pro, 'pre')
             }
             break;
 
-        case 39.9:
+        case VIP_PAYMENT:
             update = {
                 pro,
                 vip: addOneYear(pro, 'vip')

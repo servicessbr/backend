@@ -1,4 +1,3 @@
-import { PRE_, PRO_, VIP_ } from "../../interfaces/plans";
-export declare const PRO_PAYEMNT: PRO_['price'];
-export declare const VIP_PAYMENT: VIP_['price'];
-export declare const PRE_PAYMENT: PRE_['price'];
+export declare const PRO_PAYEMNT = 19.9;
+export declare const VIP_PAYMENT = 39.9;
+export declare const PRE_PAYMENT = 6.9;

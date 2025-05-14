@@ -1,3 +1,4 @@
+import { PRE_PAYMENT, PRO_PAYEMNT, VIP_PAYMENT } from "../configs/constants/priceTag";
 import { PRE_, PRO_, VIP_ } from "../interfaces/plans";
 
 type params_ = PRO_['plan'] | VIP_['plan'] | 'pre';
@@ -14,7 +15,7 @@ export default function PlanAndPrice(plan: plan_): return_ {
         case 'pro':
             r = {
                 plan: 'pro',
-                price: 19.9
+                price: PRO_PAYEMNT
             }
             break;
 
@@ -22,7 +23,7 @@ export default function PlanAndPrice(plan: plan_): return_ {
             r = {
                 plan: 'vip',
                 duration: 'annually',
-                price: 39.9
+                price: VIP_PAYMENT
             }
             break;
 
@@ -30,7 +31,7 @@ export default function PlanAndPrice(plan: plan_): return_ {
             r = {
                 plan: 'vip',
                 duration: 'monthly',
-                price: 6.9
+                price: PRE_PAYMENT
             }
             break;
 
