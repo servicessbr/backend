@@ -137,7 +137,7 @@ routes.post('/confirm-payment', gpayStripeController.confirm);
 
 //PayPal
 routes.get('/paypal/generate/pro/:plan', authorization, paypalController.generatePp);
-routes.put('/paypal/checkout/pro', authorization, paypalController.checkoutPp);
+routes.put('/paypal/checkout/pro', paypalController.checkoutPp);
 
 //To Remove 
 //routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);

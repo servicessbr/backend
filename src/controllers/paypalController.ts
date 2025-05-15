@@ -3,14 +3,12 @@
 import axios from 'axios';
 import { error } from "console";
 import isJson from "../functions/isJson";
-import {  makePro } from "./paymentsControllers";
+import { makePro } from "./paymentsControllers";
 import { Request, Response } from 'express';
 import { URL_PAYPAL_BASE, URL_REACT_CLIENT } from '../configs/constants/URL';
 
 import { getCache, setCache } from '../configs/cache/redisConfig';
 import PlanAndPrice from '../functions/PlanAndPrice';
-
-
 
 async function generateAccessToken(): Promise<string | false> {
     const response = await axios(`${URL_PAYPAL_BASE}/v1/oauth2/token`, {
@@ -80,18 +78,18 @@ const paypalController = {
                                 description,
                                 quantity: 1,
                                 unit_amount: {
-                                    currency_code: 'BRL',
+                                    currency_code: 'USD',
                                     value: PRICE
                                 }
                             }
                         ],
 
                         amount: {
-                            currency_code: 'BRL',
+                            currency_code: 'USD',
                             value: PRICE,
                             breakdown: {
                                 item_total: {
-                                    currency_code: 'BRL',
+                                    currency_code: 'USD',
                                     value: PRICE
                                 }
                             }
@@ -134,26 +132,9 @@ const paypalController = {
         //const orderId = req.query.token;
         const { orderId, PayerID } = req.body;
 
-        const redisKey = `paypal_pro:${orderId}`
-
-        let getData = await getCache(redisKey);
-
-
-        if (!isJson(getData)) return res
-            .status(400)
-            .json({ message: 'make paypal erro - schema format' })
-            .end();
-
-        const data = JSON.parse(`${getData}`);
-
-        if (!(data?.uid && data?.email)) return res
-            .status(400)
-            .json({ message: 'paypal pro error - missing data' })
-            .end();
-
         const accessToken = await generateAccessToken();
 
-        console.log('req.query.token', orderId, PayerID, data);
+        console.log('req.query.token', orderId, PayerID);
 
         const response = await axios({
             url: URL_PAYPAL_BASE + `/v2/checkout/orders/${orderId}/capture`,
@@ -163,10 +144,36 @@ const paypalController = {
                 'Authorization': 'Bearer ' + accessToken
             }
         })
-            .catch((err: Error) => console.error(err));
+            .catch((err: Error) => error(err));
 
         if (!(response && response.data && response.data.links)) return res.status(204).end();
+
         console.log('DATA: ', response.data && response.data.status);
+
+          const redisKey = `paypal_pro:${orderId}`
+
+        let getData = await getCache(redisKey);
+
+
+        if (!isJson(getData)) {
+            let message = 'make paypal erro - schema format';
+            error(message);
+            return res
+                .status(400)
+                .json({ message })
+                .end();
+        }
+
+        const data = JSON.parse(`${getData}`);
+
+        if (!(data?.uid && data?.email)) {
+            let message = 'paypal pro error - missing data';
+            error(message);
+            return res
+                .status(400)
+                .json({ message  })
+                .end();
+        }
 
         if (response.data && response.data.status === 'COMPLETED') {
             return await makePro(

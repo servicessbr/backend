@@ -123,7 +123,7 @@ routes.post('/google-pay/process', gpayStripeController_1.default.process);
 routes.post('/confirm-payment', gpayStripeController_1.default.confirm);
 //PayPal
 routes.get('/paypal/generate/pro/:plan', authorization_1.default, paypalController_1.default.generatePp);
-routes.put('/paypal/checkout/pro', authorization_1.default, paypalController_1.default.checkoutPp);
+routes.put('/paypal/checkout/pro', paypalController_1.default.checkoutPp);
 //To Remove 
 //routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
 //routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);

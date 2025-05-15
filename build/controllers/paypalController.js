@@ -66,17 +66,17 @@ const paypalController = {
                                 description,
                                 quantity: 1,
                                 unit_amount: {
-                                    currency_code: 'BRL',
+                                    currency_code: 'USD',
                                     value: PRICE
                                 }
                             }
                         ],
                         amount: {
-                            currency_code: 'BRL',
+                            currency_code: 'USD',
                             value: PRICE,
                             breakdown: {
                                 item_total: {
-                                    currency_code: 'BRL',
+                                    currency_code: 'USD',
                                     value: PRICE
                                 }
                             }
@@ -109,21 +109,8 @@ const paypalController = {
     async checkoutPp(req, res) {
         //const orderId = req.query.token;
         const { orderId, PayerID } = req.body;
-        const redisKey = `paypal_pro:${orderId}`;
-        let getData = await (0, redisConfig_1.getCache)(redisKey);
-        if (!(0, isJson_1.default)(getData))
-            return res
-                .status(400)
-                .json({ message: 'make paypal erro - schema format' })
-                .end();
-        const data = JSON.parse(`${getData}`);
-        if (!(data?.uid && data?.email))
-            return res
-                .status(400)
-                .json({ message: 'paypal pro error - missing data' })
-                .end();
         const accessToken = await generateAccessToken();
-        console.log('req.query.token', orderId, PayerID, data);
+        console.log('req.query.token', orderId, PayerID);
         const response = await (0, axios_1.default)({
             url: URL_1.URL_PAYPAL_BASE + `/v2/checkout/orders/${orderId}/capture`,
             method: 'post',
@@ -132,10 +119,29 @@ const paypalController = {
                 'Authorization': 'Bearer ' + accessToken
             }
         })
-            .catch((err) => console.error(err));
+            .catch((err) => (0, console_1.error)(err));
         if (!(response && response.data && response.data.links))
             return res.status(204).end();
         console.log('DATA: ', response.data && response.data.status);
+        const redisKey = `paypal_pro:${orderId}`;
+        let getData = await (0, redisConfig_1.getCache)(redisKey);
+        if (!(0, isJson_1.default)(getData)) {
+            let message = 'make paypal erro - schema format';
+            (0, console_1.error)(message);
+            return res
+                .status(400)
+                .json({ message })
+                .end();
+        }
+        const data = JSON.parse(`${getData}`);
+        if (!(data?.uid && data?.email)) {
+            let message = 'paypal pro error - missing data';
+            (0, console_1.error)(message);
+            return res
+                .status(400)
+                .json({ message })
+                .end();
+        }
         if (response.data && response.data.status === 'COMPLETED') {
             return await (0, paymentsControllers_1.makePro)(res, data.uid, {
                 email: data.email,
