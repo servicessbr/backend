@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import Stripe from 'stripe';
+import isJson from "../functions/isJson";
+import { error } from "console";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 const gpayStripeController = {
@@ -9,8 +11,8 @@ const gpayStripeController = {
 
             // Crie um Payment Intent com a Stripe
             const paymentIntent = await stripe.paymentIntents.create({
-                amount: amount,
-                currency: 'USD',
+                amount: amount, // Valor em centavos (R$ 19,90 = 1990 centavos)
+                currency: 'BRL',
                 automatic_payment_methods: {
                     enabled: true,
                     allow_redirects: 'never'
@@ -25,32 +27,40 @@ const gpayStripeController = {
             res.status(500).json({ error: 'Erro ao processar o pagamento.' });
         }
     },
+
     async process(req: Request, res: Response) {
+
         const { paymentData } = req.body;
 
+        console.log('2', paymentData);
+
         try {
-            //  Extraia os detalhes de pagamento do paymentData (isso varia dependendo do tipo de pagamento)
-            //  Aqui, assumimos que é um cartão do Google Pay
+            let paymentMethod;
 
-            const cardDetails = paymentData.paymentMethodData.tokenizationData.token;  //  Precisa ajustar isso para extrair corretamente
+            if (paymentData.paymentMethodData.type === 'CARD') {
 
-            console.log('_________________ DATA __________________:', cardDetails);
+                if (!isJson(paymentData.paymentMethodData.tokenizationData.token)) return error('NOT JSON');
 
-            const paymentMethod = await stripe.paymentMethods.create({
-                type: 'card',
-                card: {
-                    token: cardDetails,
-                },
-            });
+                const cardDetails = JSON.parse(paymentData.paymentMethodData.tokenizationData.token);
+                const token = cardDetails.id;
 
-            //  Opção 1: Anexar o PaymentMethod ao PaymentIntent (se você não o fez na criação)
-            //  await stripe.paymentIntents.update(paymentIntentId, {
-            //      payment_method: paymentMethod.id,
-            //  });
+                console.log('TOKEN:', token, typeof token)
 
-            //  Opção 2:  Retornar o paymentMethod.id para o cliente para confirmar no próximo passo
+                paymentMethod = await stripe.paymentMethods.create({
+                    type: 'card',
+                    card: {
+                        token,
+                    },
+                });
+
+                console.log('paymentMethod: ', paymentMethod)
+            } else {
+                //  Lógica para outros tipos de pagamento (ex:  'PAYMENT_METHOD') se necessário
+                return res.status(400).json({ error: 'Tipo de pagamento não suportado.' });
+            }
+
+
             return res.status(200).json({ paymentMethodId: paymentMethod.id });
-
 
         } catch (error) {
             console.error('Erro ao processar o pagamento e criar PaymentMethod:', error);
@@ -59,11 +69,9 @@ const gpayStripeController = {
     },
 
     async confirm(req: Request, res: Response) {
-        const { paymentId, paymentMethod } = req.body;
+        const { paymentId, paymentMethodId } = req.body;
 
-        //const paymentMethod_ = 'pm_card_visa';
-
-        const result = await stripe.paymentIntents.confirm(paymentId, { payment_method: paymentMethod })
+        const result = await stripe.paymentIntents.confirm(paymentId, { payment_method: paymentMethodId })
             .catch(err => console.error('Erro ao CONFIRMAR Payment Intent:', err))
 
         console.log('3', result);
