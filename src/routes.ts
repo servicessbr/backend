@@ -136,8 +136,8 @@ routes.post('/google-pay/process', gpayStripeController.process);
 routes.post('/confirm-payment', gpayStripeController.confirm);
 
 //PayPal
-routes.get('/paypal/generate/pro/:plan', authorization, paypalController.generatePp);
-routes.put('/paypal/checkout/pro', paypalController.checkoutPp);
+routes.post('/paypal/capture', paypalController.capture);
+routes.post('/paypal/create-order', authorization, paypalController.create_order);
 
 //To Remove 
 //routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);

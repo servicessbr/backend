@@ -1,5 +1,3 @@
-
-
 import axios from 'axios';
 import { error } from "console";
 import isJson from "../functions/isJson";
@@ -10,27 +8,27 @@ import { URL_PAYPAL_BASE, URL_REACT_CLIENT } from '../configs/constants/URL';
 import { getCache, setCache } from '../configs/cache/redisConfig';
 import PlanAndPrice from '../functions/PlanAndPrice';
 
-async function generateAccessToken(): Promise<string | false> {
-    const response = await axios(`${URL_PAYPAL_BASE}/v1/oauth2/token`, {
-        url: `${URL_PAYPAL_BASE}/v1/oauth2/token`,
-        method: 'post',
-        data: 'grant_type=client_credentials',
+
+
+async function generateAccessToken() {
+    const response = await axios.post(`${URL_PAYPAL_BASE}/v1/oauth2/token`, 'grant_type=client_credentials', {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
         auth: {
             username: process.env.PAYPAL_CLIENT_ID as string,
             password: process.env.PAYPAL_SECRET as string
-        }
-    })
-        .catch((err: Error) => error(err))
+        },
+    });
 
-    if (!(response && response.data)) return false;
     return response.data.access_token;
 }
 
 
 const paypalController = {
 
-
-    async generatePp(req: Request, res: Response) {
+    async create_order(req: Request, res: Response) {
+        console.log('in!')
         //@ts-ignore
         const uid = req.uid;
         //@ts-ignore
@@ -42,7 +40,7 @@ const paypalController = {
             .json({ message: 'payment pro error - cant get payer customer data' })
             .end();
 
-        const { plan } = req.params;
+        const { plan } = req.body;
 
         const PLAN = PlanAndPrice(plan);
 
@@ -59,82 +57,57 @@ const paypalController = {
         const description =
             `Plano Servicess PRO @${uid}`;
 
-        const accessToken = await generateAccessToken();
+        try {
+            const accessToken = await generateAccessToken();
 
-        const response = await axios({
-            url: URL_PAYPAL_BASE + '/v2/checkout/orders',
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + accessToken
-            },
-            data: JSON.stringify({
+            const response = await axios.post(`${URL_PAYPAL_BASE}/v2/checkout/orders`, {
                 intent: 'CAPTURE',
                 purchase_units: [
                     {
-                        items: [
-                            {
-                                name: 'Plano PRO',
-                                description,
-                                quantity: 1,
-                                unit_amount: {
-                                    currency_code: 'BRL',
-                                    value: PRICE
-                                }
-                            }
-                        ],
-
                         amount: {
                             currency_code: 'BRL',
-                            value: PRICE,
-                            breakdown: {
-                                item_total: {
-                                    currency_code: 'BRL',
-                                    value: PRICE
-                                }
-                            }
-                        }
-                    }
+                            value: `${PRICE}`,
+                        },
+                    },
                 ],
-
                 application_context: {
                     return_url: RETURN_URL,
                     cancel_url: CANCEL_URL,
                     shipping_preference: 'NO_SHIPPING',
-                    user_action: 'PAY_NOW',
                     brand_name: 'Servicess LTDA'
                 }
-            })
-        })
-            .catch((err: Error) => console.error(err));
+            }, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            });
 
-        if (!(response && response.data && response.data.links)) return res.status(500).end();
-        console.log('response.data: ', response.data)
+            if (!response?.data?.id) return res.status(500).end();
+            console.log('response.data: ', response.data)
 
+            await setCache(
+                `paypal_pro:${response.data.id}`,
+                JSON.stringify({
+                    uid, email, price: PRICE
+                })
+            )
 
-        const url = response.data.links.find((link: { rel: string }) => link.rel === 'approve').href;
-
-        return await setCache(
-            `paypal_pro:${url.slice(url.indexOf('token=') + 6, url.length)}`,
-            JSON.stringify({
-                uid, email, price: PRICE
-            })
-        )
-            .then(() => res.status(200).json({ url }).end())
-            .catch((err: Error) => {
-                error(err);
-                return res.status(500).end();
-            }
-            );
+            res.json({ id: response.data.id });
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('Erro ao criar ordem');
+        }
     },
-    async checkoutPp(req: Request, res: Response) {
 
+    async capture(req: Request, res: Response) {
+        console.log('in! 2')
         //const orderId = req.query.token;
-        const { orderId, PayerID } = req.body;
+        const { orderId } = req.body;
 
         const accessToken = await generateAccessToken();
 
-        console.log('req.query.token', orderId, PayerID);
+        console.log('req.query.token', orderId);
 
         const response = await axios({
             url: URL_PAYPAL_BASE + `/v2/checkout/orders/${orderId}/capture`,
@@ -150,7 +123,7 @@ const paypalController = {
 
         console.log('DATA: ', response.data && response.data.status);
 
-          const redisKey = `paypal_pro:${orderId}`
+        const redisKey = `paypal_pro:${orderId}`
 
         let getData = await getCache(redisKey);
 
@@ -171,7 +144,7 @@ const paypalController = {
             error(message);
             return res
                 .status(400)
-                .json({ message  })
+                .json({ message })
                 .end();
         }
 
@@ -184,7 +157,7 @@ const paypalController = {
                     id: orderId,
                     date_approved: response.data.date_approved,
                     amount: data.price,
-                    name: PayerID
+                    name: ''
                 }
             )
         } else return res.status(204).end();
