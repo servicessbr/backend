@@ -146,4 +146,4 @@ routes.post('/paypal/create-order', authorization, paypalController.create_order
 //routes.post('/paypal/generate', authorization, paypalController.orders.generatePaypal);
 //routes.put('/paypal/checkout', authorization, paypalController.orders.checkoutPayPal);
 
-export default routes;
+export default routes; 
