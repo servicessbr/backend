@@ -46,6 +46,7 @@ const internationalsController_1 = __importDefault(require("./controllers/intern
 */
 require("./models/connection/connection");
 const gpayStripeController_1 = __importDefault(require("./controllers/gpayStripeController"));
+const isVip_1 = __importDefault(require("./middlewares/isVip"));
 /*
     * Users
 */
@@ -63,7 +64,7 @@ routes.put('/users/updates/phone', authorization_1.default, updatePhone_1.defaul
 routes.post('/works/subworks/create', authorization_1.default, updatePhone_1.default, worksController_1.default.create);
 routes.put('/works/subworks/update', authorization_1.default, owner_1.default, updatePhone_1.default, worksController_1.default.update);
 routes.delete('/works/delete/:work_id', authorization_1.default, worksController_1.default.delete);
-routes.get('/works/subworks/load/:work_id', worksController_1.default.load);
+routes.get('/works/subworks/load/:work_id', isVip_1.default, worksController_1.default.load);
 /*
     * Cards
 */
@@ -122,8 +123,8 @@ routes.post('/create-payment-intent', gpayStripeController_1.default.intent);
 routes.post('/google-pay/process', gpayStripeController_1.default.process);
 routes.post('/confirm-payment', gpayStripeController_1.default.confirm);
 //PayPal
-routes.get('/paypal/generate/pro/:plan', authorization_1.default, paypalController_1.default.generatePp);
-routes.put('/paypal/checkout/pro', paypalController_1.default.checkoutPp);
+routes.post('/paypal/capture', paypalController_1.default.capture);
+routes.post('/paypal/create-order', authorization_1.default, paypalController_1.default.create_order);
 //To Remove 
 //routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
 //routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);

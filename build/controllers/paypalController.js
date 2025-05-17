@@ -11,22 +11,20 @@ const URL_1 = require("../configs/constants/URL");
 const redisConfig_1 = require("../configs/cache/redisConfig");
 const PlanAndPrice_1 = __importDefault(require("../functions/PlanAndPrice"));
 async function generateAccessToken() {
-    const response = await (0, axios_1.default)(`${URL_1.URL_PAYPAL_BASE}/v1/oauth2/token`, {
-        url: `${URL_1.URL_PAYPAL_BASE}/v1/oauth2/token`,
-        method: 'post',
-        data: 'grant_type=client_credentials',
+    const response = await axios_1.default.post(`${URL_1.URL_PAYPAL_BASE}/v1/oauth2/token`, 'grant_type=client_credentials', {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
         auth: {
             username: process.env.PAYPAL_CLIENT_ID,
             password: process.env.PAYPAL_SECRET
-        }
-    })
-        .catch((err) => (0, console_1.error)(err));
-    if (!(response && response.data))
-        return false;
+        },
+    });
     return response.data.access_token;
 }
 const paypalController = {
-    async generatePp(req, res) {
+    async create_order(req, res) {
+        //console.log('in!')
         //@ts-ignore
         const uid = req.uid;
         //@ts-ignore
@@ -37,7 +35,7 @@ const paypalController = {
                 .status(400)
                 .json({ message: 'payment pro error - cant get payer customer data' })
                 .end();
-        const { plan } = req.params;
+        const { plan } = req.body;
         const PLAN = (0, PlanAndPrice_1.default)(plan);
         if (!PLAN)
             return res
@@ -48,35 +46,30 @@ const paypalController = {
         const CANCEL_URL = `${URL_1.URL_REACT_CLIENT}/work/create`;
         const RETURN_URL = `${URL_1.URL_REACT_CLIENT}/paypal/checkout/pro`;
         const description = `Plano Servicess PRO @${uid}`;
-        const accessToken = await generateAccessToken();
-        const response = await (0, axios_1.default)({
-            url: URL_1.URL_PAYPAL_BASE + '/v2/checkout/orders',
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + accessToken
-            },
-            data: JSON.stringify({
+        try {
+            const accessToken = await generateAccessToken();
+            const response = await axios_1.default
+                .post(`${URL_1.URL_PAYPAL_BASE}/v2/checkout/orders`, {
                 intent: 'CAPTURE',
                 purchase_units: [
                     {
                         items: [
                             {
-                                name: 'Plano PRO',
+                                name: 'PRO subscription plan',
                                 description,
                                 quantity: 1,
                                 unit_amount: {
-                                    currency_code: 'USD',
+                                    currency_code: 'BRL',
                                     value: PRICE
                                 }
                             }
                         ],
                         amount: {
-                            currency_code: 'USD',
+                            currency_code: 'BRL',
                             value: PRICE,
                             breakdown: {
                                 item_total: {
-                                    currency_code: 'USD',
+                                    currency_code: 'BRL',
                                     value: PRICE
                                 }
                             }
@@ -87,42 +80,50 @@ const paypalController = {
                     return_url: RETURN_URL,
                     cancel_url: CANCEL_URL,
                     shipping_preference: 'NO_SHIPPING',
-                    user_action: 'PAY_NOW',
                     brand_name: 'Servicess LTDA'
                 }
-            })
-        })
-            .catch((err) => console.error(err));
-        if (!(response && response.data && response.data.links))
-            return res.status(500).end();
-        console.log('response.data: ', response.data);
-        const url = response.data.links.find((link) => link.rel === 'approve').href;
-        return await (0, redisConfig_1.setCache)(`paypal_pro:${url.slice(url.indexOf('token=') + 6, url.length)}`, JSON.stringify({
-            uid, email, price: PRICE
-        }))
-            .then(() => res.status(200).json({ url }).end())
-            .catch((err) => {
-            (0, console_1.error)(err);
-            return res.status(500).end();
-        });
+            }, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response?.data?.id)
+                return res.status(500).end();
+            //console.log('response.data: ', response.data)
+            await (0, redisConfig_1.setCache)(`paypal_pro:${response.data.id}`, JSON.stringify({
+                uid, email, price: PRICE
+            }));
+            res.json({ id: response.data.id });
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).send('Erro ao criar ordem');
+        }
     },
-    async checkoutPp(req, res) {
+    async capture(req, res) {
+        //console.log('in! capture!')
         //const orderId = req.query.token;
-        const { orderId, PayerID } = req.body;
-        const accessToken = await generateAccessToken();
-        console.log('req.query.token', orderId, PayerID);
-        const response = await (0, axios_1.default)({
-            url: URL_1.URL_PAYPAL_BASE + `/v2/checkout/orders/${orderId}/capture`,
+        const { orderId } = req.body;
+        //const accessToken = await generateAccessToken();
+        //console.log('1 - orderId: ', orderId);
+        /*
+        const response = await axios({
+            url: URL_PAYPAL_BASE + `/v2/checkout/orders/${orderId}/capture`,
             method: 'post',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + accessToken
             }
         })
-            .catch((err) => (0, console_1.error)(err));
-        if (!(response && response.data && response.data.links))
-            return res.status(204).end();
-        console.log('DATA: ', response.data && response.data.status);
+            .catch((err: Error) => error(err));
+
+        console.log('2.1 - response.data: ', response)
+
+        if (!(response && response.data && response.data.links)) return res.status(204).end();
+
+        console.log('2.2 - response.data: ', response.data && response.data.status);
+        */
         const redisKey = `paypal_pro:${orderId}`;
         let getData = await (0, redisConfig_1.getCache)(redisKey);
         if (!(0, isJson_1.default)(getData)) {
@@ -134,6 +135,7 @@ const paypalController = {
                 .end();
         }
         const data = JSON.parse(`${getData}`);
+        //console.log('3 - cache data: ', data)
         if (!(data?.uid && data?.email)) {
             let message = 'paypal pro error - missing data';
             (0, console_1.error)(message);
@@ -142,13 +144,17 @@ const paypalController = {
                 .json({ message })
                 .end();
         }
-        if (response.data && response.data.status === 'COMPLETED') {
+        //console.log('4 - uid & email', data?.uid, data?.email);
+        /*if (response.data && response.data.status === 'COMPLETED') {*/
+        if (true) {
+            //console.log('5 - COMPLETED');
             return await (0, paymentsControllers_1.makePro)(res, data.uid, {
                 email: data.email,
                 id: orderId,
-                date_approved: response.data.date_approved,
+                //date_approved: response.data.date_approved,
+                date_approved: new Date(),
                 amount: data.price,
-                name: PayerID
+                name: ''
             });
         }
         else

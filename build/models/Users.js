@@ -14,7 +14,8 @@ class Users extends sequelize_1.Model {
             description: sequelize_1.DataTypes.STRING,
             profession: sequelize_1.DataTypes.STRING,
             blocked: sequelize_1.DataTypes.BOOLEAN,
-            pro: sequelize_1.DataTypes.BOOLEAN,
+            pro: sequelize_1.DataTypes.DATE,
+            vip: sequelize_1.DataTypes.DATE,
             refreshtoken: sequelize_1.DataTypes.STRING,
         }, {
             sequelize: connection

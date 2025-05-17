@@ -144,6 +144,8 @@ const usersController = {
                             description: user.description,
                             profession: user.profession,
                             phone: user.phone,
+                            vip: user.vip,
+                            pro: user.pro,
                             token: (0, generateToken_1.default)(user.uid, user.email, user.name, refreshtoken),
                         });
                     }

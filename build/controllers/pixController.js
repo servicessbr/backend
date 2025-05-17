@@ -75,7 +75,7 @@ const pixController = {
         };
         return await api.post("/v1/payments", body)
             .then(response => {
-            console.log('CACHEEEEEE_ID: ', uid);
+            //console.log('CACHEEEEEE_ID: ', uid);
             (0, redisConfig_1.setCache)(`pro:${uid}`, JSON.stringify({
                 bank_payment_id: response.data.id,
                 //@ts-ignore
@@ -127,7 +127,7 @@ const pixController = {
         }
         data = JSON.parse(data);
         //@ts-ignore
-        console.log(user_uid, data, data.bank_payment_id, data.user_name);
+        //console.log(user_uid, data, data.bank_payment_id, data.user_name)
         //@ts-ignore
         if (!(user_uid && data && data.bank_payment_id && data.user_name))
             return res

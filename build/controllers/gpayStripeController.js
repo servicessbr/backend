@@ -20,7 +20,7 @@ const gpayStripeController = {
                     allow_redirects: 'never'
                 },
             });
-            console.log('1', paymentIntent);
+            //console.log('1', paymentIntent);
             res.json(paymentIntent);
         }
         catch (error) {
@@ -30,7 +30,7 @@ const gpayStripeController = {
     },
     async process(req, res) {
         const { paymentData } = req.body;
-        console.log('2', paymentData);
+        //console.log('2', paymentData);
         try {
             let paymentMethod;
             if (paymentData.paymentMethodData.type === 'CARD') {
@@ -38,14 +38,14 @@ const gpayStripeController = {
                     return (0, console_1.error)('NOT JSON');
                 const cardDetails = JSON.parse(paymentData.paymentMethodData.tokenizationData.token);
                 const token = cardDetails.id;
-                console.log('TOKEN:', token, typeof token);
+                //console.log('TOKEN:', token, typeof token)
                 paymentMethod = await stripe.paymentMethods.create({
                     type: 'card',
                     card: {
                         token,
                     },
                 });
-                console.log('paymentMethod: ', paymentMethod);
+                //console.log('paymentMethod: ', paymentMethod)
             }
             else {
                 //  Lógica para outros tipos de pagamento (ex:  'PAYMENT_METHOD') se necessário
@@ -62,7 +62,7 @@ const gpayStripeController = {
         const { paymentId, paymentMethodId } = req.body;
         const result = await stripe.paymentIntents.confirm(paymentId, { payment_method: paymentMethodId })
             .catch(err => console.error('Erro ao CONFIRMAR Payment Intent:', err));
-        console.log('3', result);
+        //console.log('3', result);
         return res.status(200).json(result).end();
     }
 };

@@ -12,6 +12,7 @@ const voucherOptions_1 = __importDefault(require("../email/options/voucherOption
 const addOneYear_1 = __importDefault(require("../functions/addOneYear"));
 const priceTag_1 = require("../configs/constants/priceTag");
 const makePro = async (res, user_uid, transaction) => {
+    //console.log('in! makePro!');
     //@ts-ignore
     const user = await Users_1.default.findOne({
         where: { uid: user_uid },
@@ -19,11 +20,15 @@ const makePro = async (res, user_uid, transaction) => {
     }).catch(err => (0, console_1.error)(err));
     //@ts-ignore
     const { pro, vip } = user;
-    let update = { vip };
+    //console.log('VIP & PRO', vip, pro);
+    let update = { vip, pro };
+    //console.log('Transaction AMOUNT: ', transaction.amount, typeof transaction.amount);
+    //console.log('PRE_PAYMENT: ', PRE_PAYMENT, typeof transaction.amount);
+    //console.log('COMPARE: ', (transaction.amount === PRE_PAYMENT), (`${transaction.amount}` === `${PRE_PAYMENT}`))
     switch (transaction.amount) {
         case priceTag_1.PRO_PAYEMNT:
             update = {
-                pro2: (0, addOneYear_1.default)(pro, 'pro')
+                pro: (0, addOneYear_1.default)(pro, 'pro')
             };
             break;
         case priceTag_1.PRE_PAYMENT:
@@ -39,6 +44,7 @@ const makePro = async (res, user_uid, transaction) => {
         default:
             break;
     }
+    //console.log('VIP: ', update);
     //@ts-ignore
     await Users_1.default.update(update, { where: { uid: user_uid } })
         .then(async () => {
