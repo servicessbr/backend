@@ -4,15 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
-const Users_1 = __importDefault(require("../models/Users"));
 const console_1 = require("console");
 const isJson_1 = __importDefault(require("../functions/isJson"));
-const paymentsControllers_1 = __importDefault(require("./paymentsControllers"));
+const paymentsControllers_1 = require("./paymentsControllers");
 const URL_1 = require("../configs/constants/URL");
-const priceTags_1 = require("../configs/constants/priceTags");
 const redisConfig_1 = require("../configs/cache/redisConfig");
-const CANCEL_URL = `${URL_1.URL_REACT_CLIENT}/payment/finish`;
-const RETURN_URL = `${URL_1.URL_REACT_CLIENT}/paypal/checkout`;
+const PlanAndPrice_1 = __importDefault(require("../functions/PlanAndPrice"));
 async function generateAccessToken() {
     const response = await (0, axios_1.default)(`${URL_1.URL_PAYPAL_BASE}/v1/oauth2/token`, {
         url: `${URL_1.URL_PAYPAL_BASE}/v1/oauth2/token`,
@@ -29,24 +26,28 @@ async function generateAccessToken() {
     return response.data.access_token;
 }
 const paypalController = {
-    async generatePaypal(req, res) {
+    async generatePp(req, res) {
         //@ts-ignore
-        const payer_customer_uid = req.uid;
-        const { transaction_amount, provider_professional_uid, execution_date, original_subwork_title } = req.body;
-        /*
-              * Schema Validation -> Joi
-          */
-        if (!(transaction_amount &&
-            typeof transaction_amount === 'number' &&
-            transaction_amount >= priceTags_1.MIN_PAYMENT_X &&
-            payer_customer_uid && provider_professional_uid &&
-            execution_date &&
-            original_subwork_title))
+        const uid = req.uid;
+        //@ts-ignore
+        const email = req.email;
+        //@ts-ignore
+        if (!(email && uid))
             return res
                 .status(400)
-                .json({ message: 'paypal error - missing data' })
+                .json({ message: 'payment pro error - cant get payer customer data' })
                 .end();
-        const description = `Contratação do serviço: "${original_subwork_title}"`;
+        const { plan } = req.params;
+        const PLAN = (0, PlanAndPrice_1.default)(plan);
+        if (!PLAN)
+            return res
+                .status(400)
+                .json({ message: 'payment pro error - not a valid plan' })
+                .end();
+        const PRICE = PLAN.price;
+        const CANCEL_URL = `${URL_1.URL_REACT_CLIENT}/work/create`;
+        const RETURN_URL = `${URL_1.URL_REACT_CLIENT}/paypal/checkout/pro`;
+        const description = `Plano Servicess PRO @${uid}`;
         const accessToken = await generateAccessToken();
         const response = await (0, axios_1.default)({
             url: URL_1.URL_PAYPAL_BASE + '/v2/checkout/orders',
@@ -61,22 +62,22 @@ const paypalController = {
                     {
                         items: [
                             {
-                                name: 'Contratação',
+                                name: 'Plano PRO',
                                 description,
                                 quantity: 1,
                                 unit_amount: {
                                     currency_code: 'USD',
-                                    value: transaction_amount
+                                    value: PRICE
                                 }
                             }
                         ],
                         amount: {
                             currency_code: 'USD',
-                            value: transaction_amount,
+                            value: PRICE,
                             breakdown: {
                                 item_total: {
                                     currency_code: 'USD',
-                                    value: transaction_amount
+                                    value: PRICE
                                 }
                             }
                         }
@@ -87,7 +88,7 @@ const paypalController = {
                     cancel_url: CANCEL_URL,
                     shipping_preference: 'NO_SHIPPING',
                     user_action: 'PAY_NOW',
-                    brand_name: 'Servicess'
+                    brand_name: 'Servicess LTDA'
                 }
             })
         })
@@ -96,57 +97,20 @@ const paypalController = {
             return res.status(500).end();
         console.log('response.data: ', response.data);
         const url = response.data.links.find((link) => link.rel === 'approve').href;
-        //@ts-ignore
-        const users = await Users_1.default.findAll({
-            raw: true,
-            where: { uid: [payer_customer_uid, provider_professional_uid] },
-            attributes: ['email', 'name', 'uid']
-        })
-            .catch((err) => (0, console_1.error)(err));
-        if (!users)
-            return res.status(500).end();
-        const user = users.filter((u) => u.uid === payer_customer_uid)[0];
-        const prof = users.filter((u) => u.uid === provider_professional_uid)[0];
-        console.log(users, user, prof);
-        //@ts-ignore
-        if (!(user && user.email && user.name && prof && prof.email && prof.name))
-            return res
-                .status(400)
-                .json({ message: 'payment error - cant get payer customer and prof data' })
-                .end();
-        console.log(url.indexOf('token=') + 6, url.length);
-        return await (0, redisConfig_1.setCache)(`paypal_payment:${url.slice(url.indexOf('token=') + 6, url.length)}`, JSON.stringify({
-            payer_customer_uid,
-            //@ts-ignore
-            payer_customer_name: user.name,
-            //@ts-ignore
-            payer_customer_email: user.email,
-            provider_professional_uid,
-            //@ts-ignore
-            provider_professional_name: prof.name,
-            //@ts-ignore
-            provider_professional_email: prof.email,
-            execution_date,
-            transaction_amount,
-            original_subwork_title
+        return await (0, redisConfig_1.setCache)(`paypal_pro:${url.slice(url.indexOf('token=') + 6, url.length)}`, JSON.stringify({
+            uid, email, price: PRICE
         }))
             .then(() => res.status(200).json({ url }).end())
-            .catch((err) => res.status(500).end());
+            .catch((err) => {
+            (0, console_1.error)(err);
+            return res.status(500).end();
+        });
     },
-    async checkoutPayPal(req, res) {
+    async checkoutPp(req, res) {
         //const orderId = req.query.token;
         const { orderId, PayerID } = req.body;
-        const redisKey = `paypal_payment:${orderId}`;
-        let data = await (0, redisConfig_1.getCache)(redisKey);
-        if (!(0, isJson_1.default)(data))
-            return res
-                .status(400)
-                .json({ message: 'make paypal erro - schema format' })
-                .end();
-        //@ts-ignore
-        data = JSON.parse(data);
         const accessToken = await generateAccessToken();
-        console.log('req.query.token', orderId, PayerID, data);
+        console.log('req.query.token', orderId, PayerID);
         const response = await (0, axios_1.default)({
             url: URL_1.URL_PAYPAL_BASE + `/v2/checkout/orders/${orderId}/capture`,
             method: 'post',
@@ -155,12 +119,37 @@ const paypalController = {
                 'Authorization': 'Bearer ' + accessToken
             }
         })
-            .catch((err) => console.error(err));
+            .catch((err) => (0, console_1.error)(err));
         if (!(response && response.data && response.data.links))
             return res.status(204).end();
         console.log('DATA: ', response.data && response.data.status);
+        const redisKey = `paypal_pro:${orderId}`;
+        let getData = await (0, redisConfig_1.getCache)(redisKey);
+        if (!(0, isJson_1.default)(getData)) {
+            let message = 'make paypal erro - schema format';
+            (0, console_1.error)(message);
+            return res
+                .status(400)
+                .json({ message })
+                .end();
+        }
+        const data = JSON.parse(`${getData}`);
+        if (!(data?.uid && data?.email)) {
+            let message = 'paypal pro error - missing data';
+            (0, console_1.error)(message);
+            return res
+                .status(400)
+                .json({ message })
+                .end();
+        }
         if (response.data && response.data.status === 'COMPLETED') {
-            return (0, paymentsControllers_1.default)(res, data, redisKey);
+            return await (0, paymentsControllers_1.makePro)(res, data.uid, {
+                email: data.email,
+                id: orderId,
+                date_approved: response.data.date_approved,
+                amount: data.price,
+                name: PayerID
+            });
         }
         else
             return res.status(204).end();

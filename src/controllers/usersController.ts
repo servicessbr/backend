@@ -23,12 +23,12 @@ const usersController = {
         * Cria um refresh token e um user id único;
         * Insere um novo usuário.
     */
-    async create(req:Request, res:Response) {
+    async create(req: Request, res: Response) {
         const {
             password, name,
             email,
             description, profession
-        } :any= req.body;
+        }: any = req.body;
 
         if (
             password === null ||
@@ -82,8 +82,8 @@ const usersController = {
             profession,
             refreshtoken
         })
-            .then((user:any) => {
-                const token = generateToken(uid, user.email, refreshtoken);
+            .then((user: any) => {
+                const token = generateToken(uid, user.email, user.name, refreshtoken);
 
                 return res.status(200).json({
                     uid: user.uid,
@@ -93,7 +93,7 @@ const usersController = {
                     token
                 })
             })
-            .catch((e:any) => {
+            .catch((e: any) => {
                 error(e);
 
                 let response = {
@@ -134,7 +134,7 @@ const usersController = {
         * Atualiza o refresh token;
         * Retorna os dados do usário.
     */
-    async login(req:Request, res:Response) {
+    async login(req: Request, res: Response) {
         const { email, password } = req.body;
 
         const refreshtoken = uuidv4().slice(0, 8);
@@ -150,7 +150,7 @@ const usersController = {
         await Users.findOne({
             where: { email: email.trim().toLowerCase() }
         })
-            .then((user:any) => {
+            .then((user: any) => {
                 if (!user) {
 
 
@@ -175,7 +175,7 @@ const usersController = {
                                 { refreshtoken },
                                 { where: { email } }
                             )
-                                .catch((e:Error) => {
+                                .catch((e: Error) => {
                                     error(e);
                                     return res
                                         .status(500)
@@ -188,18 +188,17 @@ const usersController = {
                                 description: user.description,
                                 profession: user.profession,
                                 phone: user.phone,
-                                token: generateToken(user.uid, user.email, refreshtoken),
+                                vip: user.vip,
+                                pro: user.pro,
+                                token: generateToken(user.uid, user.email, user.name, refreshtoken),
                             });
                         } else {
-
-
-
                             return res.status(403).json({ message: 'E-mail ou senha incorretos' });
                         }
                     });
                 }
             })
-            .catch((e:Error) => {
+            .catch((e: Error) => {
 
 
 
@@ -213,7 +212,7 @@ const usersController = {
     /*
         * Atualiza o refresh token para NULL;
     */
-    async logout(req:Request, res:Response) {
+    async logout(req: Request, res: Response) {
 
         //@ts-ignore
         const uid = req.uid;
@@ -224,7 +223,7 @@ const usersController = {
             { where: { uid } }
         )
             .then(() => res.status(200).end())
-            .catch((e:Error) => {
+            .catch((e: Error) => {
 
                 error(e);
                 return res.status(500).json({ message: 'logout error' })
@@ -234,7 +233,7 @@ const usersController = {
     /*
         * Atualiza dados não sensíveis.
     */
-    async update(req:Request, res:Response) {
+    async update(req: Request, res: Response) {
 
         //@ts-ignore
         const uid = req.uid;
@@ -258,13 +257,13 @@ const usersController = {
             { where: { uid } }
         )
             .then(() => res.status(200).end())
-            .catch((e:Error) => {
+            .catch((e: Error) => {
                 error(e);
                 return res.status(500).json({ message: 'user update error' })
             });
     },
 
-    async delete(req:Request, res:Response) {
+    async delete(req: Request, res: Response) {
         //@ts-ignore
         const uid = req.uid;
         const { password } = req.body;
@@ -273,7 +272,7 @@ const usersController = {
         await Users.findOne({
             where: { uid }
         })
-            .then((user:any) => {
+            .then((user: any) => {
                 if (user === null) {
                     return res.status(404).json({ message: 'user not found' })
                 };
@@ -291,7 +290,7 @@ const usersController = {
                             { where: { uid } }
                         )
                             .then(() => res.status(200).end())
-                            .catch((e:Error) => {
+                            .catch((e: Error) => {
                                 error(e);
                                 return res
                                     .status(500)
@@ -302,7 +301,7 @@ const usersController = {
                     }
                 });
             })
-            .catch((e:Error) => {
+            .catch((e: Error) => {
                 error(e);
                 return res
                     .status(500)
@@ -310,7 +309,7 @@ const usersController = {
             });
     },
 
-    async load(req:Request, res:Response) {
+    async load(req: Request, res: Response) {
         const { uid } = req.params;
 
         //@ts-ignore
@@ -318,15 +317,15 @@ const usersController = {
             attributes: ['name', 'description', 'profession', 'uid', 'avatar'],
             where: { uid }
         })
-            .then((user:any) => res.status(200).json(user))
-            .catch((e:Error) => {
+            .then((user: any) => res.status(200).json(user))
+            .catch((e: Error) => {
                 error(e);
                 return res.status(500).json({ message: 'load user error' });
             });
     },
 
     updates: {
-        async password(req:Request, res:Response) {
+        async password(req: Request, res: Response) {
             //@ts-ignore
             const email = req.email;
             const { password } = req.body;
@@ -353,7 +352,7 @@ const usersController = {
                 }
             )
                 .then(() => res.status(200).end())
-                .catch((e:Error) => {
+                .catch((e: Error) => {
                     error(e);
                     return res.status(500).json({ message: 'change password error' });
                 });

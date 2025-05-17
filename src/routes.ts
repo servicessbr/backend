@@ -36,8 +36,6 @@ import feedbackController from './controllers/feedbackController';
 import channelController from './chat/channelController';
 import tmpController from './controllers/tmpController';
 import pixController from './controllers/pixController';
-import ordersController from './controllers/ordersController';
-import evaluationsController from './controllers/evaluationsController';
 import proController from './controllers/proController';
 import end from './middlewares/end';
 import paypalController from './controllers/paypalController';
@@ -47,6 +45,8 @@ import internationalsController from './controllers/internationalsController';
     * Connection:
 */
 import './models/connection/connection';
+import gpayStripeController from './controllers/gpayStripeController';
+import isVip from './middlewares/isVip';
 
 /*
     * Users 
@@ -66,7 +66,7 @@ routes.put('/users/updates/phone', authorization, updatePhone, end);
 routes.post('/works/subworks/create', authorization, updatePhone, worksController.create);
 routes.put('/works/subworks/update', authorization, owner, updatePhone, worksController.update);
 routes.delete('/works/delete/:work_id', authorization, worksController.delete);
-routes.get('/works/subworks/load/:work_id', worksController.load);
+routes.get('/works/subworks/load/:work_id', isVip, worksController.load);
 
 /*
     * Cards 
@@ -93,17 +93,6 @@ routes.get('/list/cities/:location', locationsController.list);
 routes.post('/firebase/avatar/update', authorization, memoryStorage.single, sharpAvatar, firebase.avatar.update);
 //routes.get('/firebase/avatar/delete', authorization, firebase.avatar.delete);
 //routes.get('/firebase/delete/all', authorization, firebase.deleteAll);
-
-/*
-    * Orders 
-*/
-routes.get('/orders/list', authorization, ordersController.list);
-routes.put('/orders/finalize/evaluate/:order_id', authorization, ordersController.finalizeAndEvaluate);
-
-/*
-    * Evaluations
-*/
-routes.get('/evaluations/list/:provider_professional_uid', evaluationsController.list);
 
 /*
     * PRO
@@ -135,16 +124,25 @@ routes.post('/admin/generate/new/user/code', adminAuthorization, adminController
 routes.get('/tmp/list/premium', tmpController.premium);
 
 /*
-    * PIX
+    * PIX - Mercado Pago
 */
-routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
-routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
-routes.get('/pix/generate/pro', authorization, pixController.pro.generate);
-routes.post('/pix/status/pro/:user_uid', pixController.pro.status);
+routes.get('/pix/generate/pro/:plan', authorization, pixController.generate);
+routes.post('/pix/status/pro/:user_uid', pixController.status);
+
+/*
+    * Google Play - Stripe
+*/
+routes.post('/create-payment-intent', gpayStripeController.intent);
+routes.post('/google-pay/process', gpayStripeController.process);
+routes.post('/confirm-payment', gpayStripeController.confirm);
 
 //PayPal
-//routes.get('/paypal/generate/pro', authorization, paypalController.pro.generatePp);
-//routes.put('/paypal/checkout/pro', authorization, paypalController.pro.checkoutPp);
+routes.post('/paypal/capture', paypalController.capture);
+routes.post('/paypal/create-order', authorization, paypalController.create_order);
+
+//To Remove 
+//routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);
+//routes.post('/pix/status/payment/:cache_id', pixController.orders.getStatusAndMakeOrder);
 //routes.post('/paypal/generate', authorization, paypalController.orders.generatePaypal);
 //routes.put('/paypal/checkout', authorization, paypalController.orders.checkoutPayPal);
 

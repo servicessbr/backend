@@ -45,7 +45,7 @@ const worksController = {
             internationals.country.length === 2
         );
 
-        console.log('isInternationalRequest',isInternationalRequest);
+        //console.log('isInternationalRequest', isInternationalRequest);
 
         if (!(
             city_id || isInternationalRequest
@@ -68,8 +68,8 @@ const worksController = {
         //@ts-ignore
         const work: any = await Works.create({
             user_uid: uid,
-            title, 
-            description, 
+            title,
+            description,
             city_id: isInternationalRequest ? 0 : city_id,
             price: parseInt(price),
         }).catch(err => {
@@ -89,7 +89,7 @@ const worksController = {
                 .catch((err: Error) => error(err))
         }
 
-        console.log(internationals);
+        //console.log(internationals);
         /*
             * Se for internacional cria a table internacional:
         */
@@ -151,11 +151,15 @@ const worksController = {
 
     async load(req: Request, res: Response) {
         const { work_id } = req.params;
+        //@ts-ignore
+        const vip = req.vip;
 
         if (!(stringContainsOnlyDigits(work_id)))
             return res
                 .status(500)
-                .json({ message: 'error - work_id is not a number' })
+                .json({ message: 'error - work_id is not a number' });
+
+        const sendPhone = vip ? 'users.phone as phone, ' : ' ';
 
         //@ts-ignore
         const works = await Works.sequelize.query(
@@ -163,7 +167,8 @@ const worksController = {
             works.id, works.title, works.description, 
             works.price, works.city_id, works.user_uid,
             users.name as user_name, users.profession as user_profession, 
-            users.description as user_description, 
+            users.description as user_description,
+            ${sendPhone} 
             cities.name as city, states.name as state
             FROM works 
             INNER JOIN users 

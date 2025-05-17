@@ -14,7 +14,8 @@ class Users extends Model {
                 description: DataTypes.STRING,
                 profession: DataTypes.STRING,
                 blocked: DataTypes.BOOLEAN,
-                pro: DataTypes.BOOLEAN,
+                pro: DataTypes.DATE,
+                vip: DataTypes.DATE,
                 refreshtoken: DataTypes.STRING,
             },
             {

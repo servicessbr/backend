@@ -61,7 +61,7 @@ const usersController = {
             refreshtoken
         })
             .then((user) => {
-            const token = (0, generateToken_1.default)(uid, user.email, refreshtoken);
+            const token = (0, generateToken_1.default)(uid, user.email, user.name, refreshtoken);
             return res.status(200).json({
                 uid: user.uid,
                 name: user.name,
@@ -144,7 +144,7 @@ const usersController = {
                             description: user.description,
                             profession: user.profession,
                             phone: user.phone,
-                            token: (0, generateToken_1.default)(user.uid, user.email, refreshtoken),
+                            token: (0, generateToken_1.default)(user.uid, user.email, user.name, refreshtoken),
                         });
                     }
                     else {
