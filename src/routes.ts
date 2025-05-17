@@ -46,6 +46,7 @@ import internationalsController from './controllers/internationalsController';
 */
 import './models/connection/connection';
 import gpayStripeController from './controllers/gpayStripeController';
+import isVip from './middlewares/isVip';
 
 /*
     * Users 
@@ -65,7 +66,7 @@ routes.put('/users/updates/phone', authorization, updatePhone, end);
 routes.post('/works/subworks/create', authorization, updatePhone, worksController.create);
 routes.put('/works/subworks/update', authorization, owner, updatePhone, worksController.update);
 routes.delete('/works/delete/:work_id', authorization, worksController.delete);
-routes.get('/works/subworks/load/:work_id', worksController.load);
+routes.get('/works/subworks/load/:work_id', isVip, worksController.load);
 
 /*
     * Cards 

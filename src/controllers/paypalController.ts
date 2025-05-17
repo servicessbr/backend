@@ -65,12 +65,31 @@ const paypalController = {
                     intent: 'CAPTURE',
                     purchase_units: [
                         {
+                            items: [
+                                {
+                                    name: 'PRO subscription plan',
+                                    description,
+                                    quantity: 1,
+                                    unit_amount: {
+                                        currency_code: 'BRL',
+                                        value: PRICE
+                                    }
+                                }
+                            ],
+
                             amount: {
                                 currency_code: 'BRL',
-                                value: `${PRICE}`,
-                            },
-                        },
+                                value: PRICE,
+                                breakdown: {
+                                    item_total: {
+                                        currency_code: 'BRL',
+                                        value: PRICE
+                                    }
+                                }
+                            }
+                        }
                     ],
+
                     application_context: {
                         return_url: RETURN_URL,
                         cancel_url: CANCEL_URL,
@@ -106,10 +125,10 @@ const paypalController = {
         //const orderId = req.query.token;
         const { orderId } = req.body;
 
-        const accessToken = await generateAccessToken();
+        //const accessToken = await generateAccessToken();
 
         console.log('1 - orderId: ', orderId);
-
+        /*
         const response = await axios({
             url: URL_PAYPAL_BASE + `/v2/checkout/orders/${orderId}/capture`,
             method: 'post',
@@ -120,9 +139,12 @@ const paypalController = {
         })
             .catch((err: Error) => error(err));
 
+        console.log('2.1 - response.data: ', response)
+
         if (!(response && response.data && response.data.links)) return res.status(204).end();
 
-        console.log('2 - response.data: ', response.data && response.data.status);
+        console.log('2.2 - response.data: ', response.data && response.data.status);
+        */
 
         const redisKey = `paypal_pro:${orderId}`
 
@@ -153,8 +175,8 @@ const paypalController = {
 
         console.log('4 - uid & email', data?.uid, data?.email);
 
-        if (response.data && response.data.status === 'COMPLETED') {
-
+        /*if (response.data && response.data.status === 'COMPLETED') {*/
+        if (true) {
             console.log('5 - COMPLETED');
 
             return await makePro(
@@ -163,7 +185,8 @@ const paypalController = {
                 {
                     email: data.email,
                     id: orderId,
-                    date_approved: response.data.date_approved,
+                    //date_approved: response.data.date_approved,
+                    date_approved: new Date(),
                     amount: data.price,
                     name: ''
                 }

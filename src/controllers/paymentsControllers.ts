@@ -34,12 +34,16 @@ export const makePro = async (
 
     console.log('VIP & PRO', vip, pro);
 
-    let update: { pro2?: Date, vip?: Date } = { vip };
+    let update: { pro?: Date, vip?: Date } = { vip, pro };
+
+    console.log('Transaction AMOUNT: ', transaction.amount, typeof transaction.amount);
+    console.log('PRE_PAYMENT: ', PRE_PAYMENT, typeof transaction.amount);
+    console.log('COMPARE: ', (transaction.amount === PRE_PAYMENT), (`${transaction.amount}` === `${PRE_PAYMENT}`))
 
     switch (transaction.amount) {
         case PRO_PAYEMNT:
             update = {
-                pro2: addOneYear(pro, 'pro')
+                pro: addOneYear(pro, 'pro')
                 
             }
             break;
@@ -62,7 +66,7 @@ export const makePro = async (
             break;
     }
 
-    console.log('VIP: ', vip);
+    console.log('VIP: ', update);
 
     //@ts-ignore
     await Users.update(
