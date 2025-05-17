@@ -28,7 +28,7 @@ async function generateAccessToken() {
 const paypalController = {
 
     async create_order(req: Request, res: Response) {
-        console.log('in!')
+        //console.log('in!')
         //@ts-ignore
         const uid = req.uid;
         //@ts-ignore
@@ -104,7 +104,7 @@ const paypalController = {
                 });
 
             if (!response?.data?.id) return res.status(500).end();
-            console.log('response.data: ', response.data)
+            //console.log('response.data: ', response.data)
 
             await setCache(
                 `paypal_pro:${response.data.id}`,
@@ -121,13 +121,13 @@ const paypalController = {
     },
 
     async capture(req: Request, res: Response) {
-        console.log('in! capture!')
+        //console.log('in! capture!')
         //const orderId = req.query.token;
         const { orderId } = req.body;
 
         //const accessToken = await generateAccessToken();
 
-        console.log('1 - orderId: ', orderId);
+        //console.log('1 - orderId: ', orderId);
         /*
         const response = await axios({
             url: URL_PAYPAL_BASE + `/v2/checkout/orders/${orderId}/capture`,
@@ -162,7 +162,7 @@ const paypalController = {
 
         const data = JSON.parse(`${getData}`);
 
-        console.log('3 - cache data: ', data)
+        //console.log('3 - cache data: ', data)
 
         if (!(data?.uid && data?.email)) {
             let message = 'paypal pro error - missing data';
@@ -173,11 +173,11 @@ const paypalController = {
                 .end();
         }
 
-        console.log('4 - uid & email', data?.uid, data?.email);
+        //console.log('4 - uid & email', data?.uid, data?.email);
 
         /*if (response.data && response.data.status === 'COMPLETED') {*/
         if (true) {
-            console.log('5 - COMPLETED');
+            //console.log('5 - COMPLETED');
 
             return await makePro(
                 res,

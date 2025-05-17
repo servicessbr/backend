@@ -21,7 +21,7 @@ export const makePro = async (
     }
 ) => {
 
-    console.log('in! makePro!');
+    //console.log('in! makePro!');
 
     //@ts-ignore
     const user = await Users.findOne({
@@ -32,13 +32,13 @@ export const makePro = async (
     //@ts-ignore
     const { pro, vip } = user;
 
-    console.log('VIP & PRO', vip, pro);
+    //console.log('VIP & PRO', vip, pro);
 
     let update: { pro?: Date, vip?: Date } = { vip, pro };
 
-    console.log('Transaction AMOUNT: ', transaction.amount, typeof transaction.amount);
-    console.log('PRE_PAYMENT: ', PRE_PAYMENT, typeof transaction.amount);
-    console.log('COMPARE: ', (transaction.amount === PRE_PAYMENT), (`${transaction.amount}` === `${PRE_PAYMENT}`))
+    //console.log('Transaction AMOUNT: ', transaction.amount, typeof transaction.amount);
+    //console.log('PRE_PAYMENT: ', PRE_PAYMENT, typeof transaction.amount);
+    //console.log('COMPARE: ', (transaction.amount === PRE_PAYMENT), (`${transaction.amount}` === `${PRE_PAYMENT}`))
 
     switch (transaction.amount) {
         case PRO_PAYEMNT:
@@ -66,7 +66,7 @@ export const makePro = async (
             break;
     }
 
-    console.log('VIP: ', update);
+    //console.log('VIP: ', update);
 
     //@ts-ignore
     await Users.update(

@@ -19,7 +19,7 @@ const gpayStripeController = {
                 },
             });
 
-            console.log('1', paymentIntent);
+            //console.log('1', paymentIntent);
 
             res.json(paymentIntent);
         } catch (error) {
@@ -32,7 +32,7 @@ const gpayStripeController = {
 
         const { paymentData } = req.body;
 
-        console.log('2', paymentData);
+        //console.log('2', paymentData);
 
         try {
             let paymentMethod;
@@ -44,7 +44,7 @@ const gpayStripeController = {
                 const cardDetails = JSON.parse(paymentData.paymentMethodData.tokenizationData.token);
                 const token = cardDetails.id;
 
-                console.log('TOKEN:', token, typeof token)
+                //console.log('TOKEN:', token, typeof token)
 
                 paymentMethod = await stripe.paymentMethods.create({
                     type: 'card',
@@ -53,7 +53,7 @@ const gpayStripeController = {
                     },
                 });
 
-                console.log('paymentMethod: ', paymentMethod)
+                //console.log('paymentMethod: ', paymentMethod)
             } else {
                 //  Lógica para outros tipos de pagamento (ex:  'PAYMENT_METHOD') se necessário
                 return res.status(400).json({ error: 'Tipo de pagamento não suportado.' });
@@ -74,7 +74,7 @@ const gpayStripeController = {
         const result = await stripe.paymentIntents.confirm(paymentId, { payment_method: paymentMethodId })
             .catch(err => console.error('Erro ao CONFIRMAR Payment Intent:', err))
 
-        console.log('3', result);
+        //console.log('3', result);
 
         return res.status(200).json(result).end();
 

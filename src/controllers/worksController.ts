@@ -45,7 +45,7 @@ const worksController = {
             internationals.country.length === 2
         );
 
-        console.log('isInternationalRequest', isInternationalRequest);
+        //console.log('isInternationalRequest', isInternationalRequest);
 
         if (!(
             city_id || isInternationalRequest
@@ -89,7 +89,7 @@ const worksController = {
                 .catch((err: Error) => error(err))
         }
 
-        console.log(internationals);
+        //console.log(internationals);
         /*
             * Se for internacional cria a table internacional:
         */
