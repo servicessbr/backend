@@ -60,28 +60,29 @@ const paypalController = {
         try {
             const accessToken = await generateAccessToken();
 
-            const response = await axios.post(`${URL_PAYPAL_BASE}/v2/checkout/orders`, {
-                intent: 'CAPTURE',
-                purchase_units: [
-                    {
-                        amount: {
-                            currency_code: 'BRL',
-                            value: `${PRICE}`,
+            const response = await axios
+                .post(`${URL_PAYPAL_BASE}/v2/checkout/orders`, {
+                    intent: 'CAPTURE',
+                    purchase_units: [
+                        {
+                            amount: {
+                                currency_code: 'BRL',
+                                value: `${PRICE}`,
+                            },
                         },
+                    ],
+                    application_context: {
+                        return_url: RETURN_URL,
+                        cancel_url: CANCEL_URL,
+                        shipping_preference: 'NO_SHIPPING',
+                        brand_name: 'Servicess LTDA'
+                    }
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
                     },
-                ],
-                application_context: {
-                    return_url: RETURN_URL,
-                    cancel_url: CANCEL_URL,
-                    shipping_preference: 'NO_SHIPPING',
-                    brand_name: 'Servicess LTDA'
-                }
-            }, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+                });
 
             if (!response?.data?.id) return res.status(500).end();
             console.log('response.data: ', response.data)
@@ -101,13 +102,13 @@ const paypalController = {
     },
 
     async capture(req: Request, res: Response) {
-        console.log('in! 2')
+        console.log('in! capture!')
         //const orderId = req.query.token;
         const { orderId } = req.body;
 
         const accessToken = await generateAccessToken();
 
-        console.log('req.query.token', orderId);
+        console.log('1 - orderId: ', orderId);
 
         const response = await axios({
             url: URL_PAYPAL_BASE + `/v2/checkout/orders/${orderId}/capture`,
@@ -121,7 +122,7 @@ const paypalController = {
 
         if (!(response && response.data && response.data.links)) return res.status(204).end();
 
-        console.log('DATA: ', response.data && response.data.status);
+        console.log('2 - response.data: ', response.data && response.data.status);
 
         const redisKey = `paypal_pro:${orderId}`
 
@@ -139,6 +140,8 @@ const paypalController = {
 
         const data = JSON.parse(`${getData}`);
 
+        console.log('3 - cache data: ', data)
+
         if (!(data?.uid && data?.email)) {
             let message = 'paypal pro error - missing data';
             error(message);
@@ -148,7 +151,12 @@ const paypalController = {
                 .end();
         }
 
+        console.log('4 - uid & email', data?.uid, data?.email);
+
         if (response.data && response.data.status === 'COMPLETED') {
+
+            console.log('5 - COMPLETED');
+
             return await makePro(
                 res,
                 data.uid,

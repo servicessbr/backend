@@ -21,6 +21,8 @@ export const makePro = async (
     }
 ) => {
 
+    console.log('in! makePro!');
+
     //@ts-ignore
     const user = await Users.findOne({
         where: { uid: user_uid },
@@ -29,6 +31,8 @@ export const makePro = async (
 
     //@ts-ignore
     const { pro, vip } = user;
+
+    console.log('VIP & PRO', vip, pro);
 
     let update: { pro2?: Date, vip?: Date } = { vip };
 
@@ -57,6 +61,8 @@ export const makePro = async (
         default:
             break;
     }
+
+    console.log('VIP: ', vip);
 
     //@ts-ignore
     await Users.update(
