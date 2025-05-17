@@ -59,17 +59,17 @@ const paypalController = {
                                 description,
                                 quantity: 1,
                                 unit_amount: {
-                                    currency_code: 'BRL',
+                                    currency_code: 'USD',
                                     value: PRICE
                                 }
                             }
                         ],
                         amount: {
-                            currency_code: 'BRL',
+                            currency_code: 'USD',
                             value: PRICE,
                             breakdown: {
                                 item_total: {
-                                    currency_code: 'BRL',
+                                    currency_code: 'USD',
                                     value: PRICE
                                 }
                             }

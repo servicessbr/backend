@@ -14,7 +14,7 @@ const gpayStripeController = {
             // Crie um Payment Intent com a Stripe
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount, // Valor em centavos (R$ 19,90 = 1990 centavos)
-                currency: 'BRL',
+                currency: 'USD',
                 automatic_payment_methods: {
                     enabled: true,
                     allow_redirects: 'never'
