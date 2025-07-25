@@ -46,10 +46,16 @@ export default async function isVip(req: Request, res: Response, next: NextFunct
         const vip = new Date(user?.vip);
 
         //@ts-ignore
-        req.vip = (vip > new Date());
+        //req.vip = (vip > new Date());
 
+        // Liberado para todos:
+        //@ts-ignore
+        req.vip = true;
         next();
     } catch {
+        // Liberado para todos:
+        //@ts-ignore
+        req.vip = true;
         next();
     }
 }

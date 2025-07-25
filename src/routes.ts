@@ -51,7 +51,7 @@ import isVip from './middlewares/isVip';
 /*
     * Users 
 */
-routes.post('/users/create', codeValidation.newUser, usersController.create);
+//routes.post('/users/create', codeValidation.newUser, usersController.create);
 routes.post('/users/delete', authorization, usersController.delete);
 routes.put('/users/login', usersController.login);
 routes.delete('/users/logout', authorization, usersController.logout);
@@ -66,7 +66,7 @@ routes.put('/users/updates/phone', authorization, updatePhone, end);
 routes.post('/works/subworks/create', authorization, updatePhone, worksController.create);
 routes.put('/works/subworks/update', authorization, owner, updatePhone, worksController.update);
 routes.delete('/works/delete/:work_id', authorization, worksController.delete);
-routes.get('/works/subworks/load/:work_id', isVip, worksController.load);
+routes.get('/works/subworks/load/:work_id', authorization, isVip, worksController.load);
 
 /*
     * Cards 
@@ -78,7 +78,7 @@ routes.put('/cards/list/internationals', internationalsController.list);
 /*
     * Generate Codes (Redis)
 */
-routes.get('/code/generate/new/user/:email', generateCode.newUser, emailController.newUser);
+//routes.get('/code/generate/new/user/:email', generateCode.newUser, emailController.newUser);
 routes.get('/code/generate/utoken/:email', convertEmail, generateCode.utoken, emailController.utoken);
 routes.get('/code/generate/utoken', authorization, generateCode.utoken, emailController.utoken);
 
@@ -126,19 +126,19 @@ routes.get('/tmp/list/premium', tmpController.premium);
 /*
     * PIX - Mercado Pago
 */
-routes.get('/pix/generate/pro/:plan', authorization, pixController.generate);
-routes.post('/pix/status/pro/:user_uid', pixController.status);
+//routes.get('/pix/generate/pro/:plan', authorization, pixController.generate);
+//routes.post('/pix/status/pro/:user_uid', pixController.status);
 
 /*
     * Google Play - Stripe
 */
-routes.post('/create-payment-intent', gpayStripeController.intent);
-routes.post('/google-pay/process', gpayStripeController.process);
-routes.post('/confirm-payment', gpayStripeController.confirm);
+//routes.post('/create-payment-intent', gpayStripeController.intent);
+//routes.post('/google-pay/process', gpayStripeController.process);
+//routes.post('/confirm-payment', gpayStripeController.confirm);
 
 //PayPal
-routes.post('/paypal/capture', paypalController.capture);
-routes.post('/paypal/create-order', authorization, paypalController.create_order);
+//routes.post('/paypal/capture', paypalController.capture);
+//routes.post('/paypal/create-order', authorization, paypalController.create_order);
 
 //To Remove 
 //routes.post('/pix/generate/payment', authorization, pixController.orders.generatePayment);

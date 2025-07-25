@@ -6,6 +6,9 @@ const proController = {
         const pro = req.pro;
 
         return res.status(200).json({ isPro: pro }).end();
+
+        // Liberado para todos:
+        //return res.status(200).json({ isPro: true }).end();
     }
 }
 
