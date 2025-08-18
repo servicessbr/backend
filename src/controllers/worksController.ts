@@ -47,11 +47,13 @@ const worksController = {
 
         //console.log('isInternationalRequest', isInternationalRequest);
 
+        /*
         if (!(
             city_id || isInternationalRequest
         )) return res
             .status(500)
             .json({ message: 'Por favor escolha uma cidade e estado' });
+        */
 
         if (!title) return res
             .status(500)
