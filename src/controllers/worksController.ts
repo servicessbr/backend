@@ -72,7 +72,7 @@ const worksController = {
             user_uid: uid,
             title,
             description,
-            city_id: isInternationalRequest ? 0 : city_id,
+            city_id: (isInternationalRequest || !city_id) ? 0 : city_id,
             price: parseInt(price),
         }).catch(err => {
             error(err);
