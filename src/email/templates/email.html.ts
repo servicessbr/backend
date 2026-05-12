@@ -19,7 +19,7 @@ export default (code:any) =>
     
             table {
                 border: 1px solid #DEE6EB;
-                border-radius: 8px;
+                border-radius: 7px;
                 background-color: white;
             }
     
